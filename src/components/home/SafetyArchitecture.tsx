@@ -12,6 +12,7 @@ const POINTS = [
     title: "Safety-first movement filtering",
     desc: "Movements that may conflict with certain conditions are excluded automatically.",
     example: "For example, movements that place excessive load on vulnerable areas — such as deep spinal flexion for disc injury or high knee compression for osteoarthritis — can be excluded automatically.",
+    example2: "The goal is not pushing intensity, but helping people move safely and consistently.",
   },
   {
     icon: <TrendingUp size={20} className="text-secondary" />,
@@ -56,6 +57,9 @@ export default function SafetyArchitecture() {
                 <p className="text-sm text-muted-foreground leading-relaxed">{point.desc}</p>
                 {"example" in point && point.example && (
                   <p className="text-sm text-muted-foreground/70 leading-relaxed mt-1.5 italic">{point.example}</p>
+                )}
+                {"example2" in point && point.example2 && (
+                  <p className="text-sm text-muted-foreground/70 leading-relaxed mt-1.5 italic">{point.example2}</p>
                 )}
               </div>
             </motion.div>

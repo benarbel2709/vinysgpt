@@ -37,13 +37,13 @@ export default function HomeHero() {
               Yoga that adapts to you
             </h1>
             <p style={{ fontSize: "clamp(15px, 1.5vw, 17px)", lineHeight: 1.6, maxWidth: "46ch", color: "rgba(255,255,255,0.72)" }}>
-              Vinys generates personalized therapeutic yoga sessions based on your condition, your energy level, and what your body can safely handle today.
+              Vinys creates personalized therapeutic yoga sessions based on your condition, your energy level, and what your body can safely handle today.
             </p>
             <p style={{ fontSize: "clamp(14px, 1.3vw, 15px)", lineHeight: 1.6, maxWidth: "46ch", color: "rgba(255,255,255,0.55)", marginTop: "12px" }}>
               Not a library of yoga videos — a structured practice generated for your body.
             </p>
             <p className="mb-7" style={{ fontSize: "clamp(14px, 1.3vw, 15px)", lineHeight: 1.6, maxWidth: "46ch", color: "rgba(255,255,255,0.50)", marginTop: "8px", fontStyle: "italic" }}>
-              Movement should support your body — not push against it.
+              Movement should support your body — not fight against it.
             </p>
             <div className="flex flex-col items-center sm:items-start gap-3">
               <Button onClick={handleGetStarted} variant="hero" size="lg" className="gap-2">
@@ -51,7 +51,9 @@ export default function HomeHero() {
                 <ArrowRight size={16} />
               </Button>
               <p className="text-xs text-white/50">Free to start. No credit card required.</p>
+              <p className="text-xs text-white/40">Takes about 60 seconds to set up your first session.</p>
               <p className="text-xs text-white/40">Sessions typically range from 10–30 minutes depending on your preference.</p>
+              <p className="text-xs text-white/35">No subscription required to create your first session.</p>
               <button
                 onClick={handleSecondary}
                 className="text-sm font-semibold underline underline-offset-4 transition-colors"

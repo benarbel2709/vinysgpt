@@ -32,8 +32,11 @@ export default function TestimonialsSection() {
         >
           Real people. Real conditions. Real practice.
         </h2>
-        <p className="text-xs text-muted-foreground/70 text-center mb-8 max-w-[520px] mx-auto">
+        <p className="text-xs text-muted-foreground/70 text-center mb-2 max-w-[520px] mx-auto">
           Names have been shortened for privacy. Experiences reflect individual use of the Vinys platform.
+        </p>
+        <p className="text-xs text-muted-foreground/50 text-center mb-8 max-w-[520px] mx-auto">
+          Experiences shared with permission. Individual results may vary.
         </p>
         <div className="grid sm:grid-cols-3 gap-6 max-w-[960px] mx-auto">
           {TESTIMONIALS.map((t, i) => (
