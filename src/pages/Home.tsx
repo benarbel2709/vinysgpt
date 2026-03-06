@@ -6,6 +6,7 @@ import HomeHero from "@/components/home/HomeHero";
 import GuidedWalkthrough from "@/components/home/GuidedWalkthrough";
 import SocialProof from "@/components/home/SocialProof";
 import WhyThisApproachWorks from "@/components/home/WhyThisApproachWorks";
+import WhatMakesVinysDifferent from "@/components/home/WhatMakesVinysDifferent";
 import PersonalizationEngine from "@/components/home/PersonalizationEngine";
 import SafetyArchitecture from "@/components/home/SafetyArchitecture";
 import SessionFlowVisual from "@/components/home/SessionFlowVisual";
@@ -18,6 +19,7 @@ import TestimonialsSection from "@/components/home/TestimonialsSection";
 import TrustCredibility from "@/components/home/TrustCredibility";
 import ViniyogaSection from "@/components/home/ViniyogaSection";
 import ConsistencyOverIntensity from "@/components/home/ConsistencyOverIntensity";
+import LongTermProgression from "@/components/home/LongTermProgression";
 import FAQSection from "@/components/home/FAQSection";
 import FinalCTA from "@/components/home/FinalCTA";
 import MarketingFooter from "@/components/home/MarketingFooter";
@@ -59,6 +61,7 @@ export default function Home() {
         <GuidedWalkthrough />
         <SocialProof />
         <WhyThisApproachWorks />
+        <WhatMakesVinysDifferent />
         <PersonalizationEngine />
         <SafetyArchitecture />
         <SessionFlowVisual />
@@ -71,6 +74,7 @@ export default function Home() {
         <TrustCredibility />
         <ViniyogaSection />
         <ConsistencyOverIntensity />
+        <LongTermProgression />
         <FAQSection />
         <FinalCTA />
         <MarketingFooter />

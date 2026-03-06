@@ -58,6 +58,9 @@ export default function SafetyArchitecture() {
                 {"example" in point && point.example && (
                   <p className="text-sm text-muted-foreground/70 leading-relaxed mt-1.5 italic">{point.example}</p>
                 )}
+                {"example2" in point && point.example2 && (
+                  <p className="text-sm text-muted-foreground/70 leading-relaxed mt-1.5 italic">{point.example2}</p>
+                )}
               </div>
             </motion.div>
           ))}

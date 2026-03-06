@@ -51,7 +51,9 @@ export default function HomeHero() {
                 <ArrowRight size={16} />
               </Button>
               <p className="text-xs text-white/50">Free to start. No credit card required.</p>
+              <p className="text-xs text-white/40">Takes about 60 seconds to set up your first session.</p>
               <p className="text-xs text-white/40">Sessions typically range from 10–30 minutes depending on your preference.</p>
+              <p className="text-xs text-white/35">No subscription required to create your first session.</p>
               <button
                 onClick={handleSecondary}
                 className="text-sm font-semibold underline underline-offset-4 transition-colors"

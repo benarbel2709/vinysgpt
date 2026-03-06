@@ -48,31 +48,23 @@ export default function SessionFlowVisual() {
           ))}
         </div>
 
-        {/* Vertical flow — mobile */}
-        <div className="flex sm:hidden flex-col items-center gap-0">
+        {/* Scrollable horizontal flow — mobile */}
+        <div className="flex sm:hidden overflow-x-auto pb-4 -mx-4 px-4 gap-0 items-center scrollbar-hide">
           {FLOW_STEPS.map((step, i) => (
-            <motion.div
-              key={step}
-              className="flex flex-col items-center"
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-20px" }}
-              transition={{ duration: 0.3, delay: i * 0.06 }}
-            >
+            <div key={step} className="flex items-center flex-shrink-0">
               <div
-                className="px-5 py-2.5 rounded-lg text-sm font-semibold text-foreground text-center"
+                className="px-4 py-2 rounded-lg text-xs font-semibold text-foreground text-center whitespace-nowrap"
                 style={{
                   background: "hsl(var(--card))",
                   border: "1px solid hsl(var(--border))",
-                  minWidth: "220px",
                 }}
               >
                 {step}
               </div>
               {i < FLOW_STEPS.length - 1 && (
-                <div className="text-muted-foreground/50 text-lg leading-none py-1">↓</div>
+                <span className="text-muted-foreground/50 text-sm px-1.5">→</span>
               )}
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

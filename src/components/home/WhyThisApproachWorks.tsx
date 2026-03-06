@@ -16,7 +16,7 @@ export default function WhyThisApproachWorks() {
           </h2>
           <div className="text-[15px] text-muted-foreground leading-relaxed space-y-4 text-center sm:text-left">
             <p>Many yoga programs assume the same practice works for everyone.</p>
-            <p>But people navigating pain, fatigue, recovery, or fluctuating energy levels need something different.</p>
+            <p>But people navigating pain, recovery, or fluctuating energy need something different.</p>
             <p>Vinys adapts the practice to the individual — adjusting movement selection, intensity, and progression based on how the body responds over time.</p>
             <p>This approach prioritizes consistency and safe progress rather than intensity.</p>
           </div>
