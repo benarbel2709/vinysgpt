@@ -8,9 +8,12 @@ export default function ConditionsSection() {
           Whatever your body is navigating, we built for that.
         </h2>
         <p className="text-sm text-muted-foreground text-center mb-8 max-w-[520px] mx-auto leading-relaxed">
-          Vinys was designed for people navigating real physical and emotional challenges. Your practice is adapted to your condition — not the other way around.
+          Vinys supports many movement-related conditions. Here are some common examples.
         </p>
         <ConditionCategoryGrid />
+        <p className="text-sm text-muted-foreground text-center mt-6">
+          And many other movement-related conditions.
+        </p>
       </div>
     </section>
   );

@@ -10,7 +10,7 @@ const STEPS = [
   {
     icon: <BookOpen size={24} className="text-secondary" />,
     title: "Therapeutic movement selection",
-    desc: "Sessions are built from a curated therapeutic movement library designed for specific physical conditions.",
+    desc: "Sessions are built from a curated therapeutic movement library designed for specific conditions.",
   },
   {
     icon: <ShieldCheck size={24} className="text-secondary" />,
@@ -32,7 +32,7 @@ export default function PersonalizationEngine() {
           How Vinys personalizes your practice
         </h2>
         <p className="text-sm text-muted-foreground text-center mb-10 max-w-[540px] mx-auto leading-relaxed">
-          Vinys builds each session using information about your body, your condition, and how you are feeling that day. The goal is not intensity — it is relevance.
+          Vinys builds each session using information about your body, your condition, and how you are feeling that day. The goal is not intensity — it is relevance and safe progress.
         </p>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-[960px] mx-auto">
           {STEPS.map((step, i) => (

@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 
 const AUDIENCES = [
-  "People managing physical conditions",
+  "People navigating physical conditions",
   "People returning to movement after injury or illness",
   "People experiencing fluctuating energy levels",
   "People who want structured guidance instead of generic yoga classes",

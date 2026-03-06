@@ -11,6 +11,7 @@ const POINTS = [
     icon: <Filter size={20} className="text-secondary" />,
     title: "Safety-first movement filtering",
     desc: "Movements that may conflict with certain conditions are excluded automatically.",
+    example: "For example, movements that place excessive load on vulnerable areas — such as deep spinal flexion for disc injury or high knee compression for osteoarthritis — can be excluded automatically.",
   },
   {
     icon: <TrendingUp size={20} className="text-secondary" />,
@@ -19,7 +20,7 @@ const POINTS = [
   },
   {
     icon: <Clock size={20} className="text-secondary" />,
-    title: "Short, realistic sessions",
+    title: "Short, practical sessions",
     desc: "Sessions are designed to fit into real schedules — even on low-energy days.",
   },
   {
@@ -53,6 +54,9 @@ export default function SafetyArchitecture() {
               <div>
                 <h3 className="font-display font-bold text-foreground text-[15px] mb-1">{point.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{point.desc}</p>
+                {"example" in point && point.example && (
+                  <p className="text-sm text-muted-foreground/70 leading-relaxed mt-1.5 italic">{point.example}</p>
+                )}
               </div>
             </motion.div>
           ))}

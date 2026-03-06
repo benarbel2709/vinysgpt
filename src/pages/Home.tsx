@@ -3,10 +3,13 @@ import { Helmet } from "react-helmet-async";
 import Layout from "@/components/Layout";
 import MarketingNav from "@/components/home/MarketingNav";
 import HomeHero from "@/components/home/HomeHero";
+import GuidedWalkthrough from "@/components/home/GuidedWalkthrough";
 import SocialProof from "@/components/home/SocialProof";
+import WhyThisApproachWorks from "@/components/home/WhyThisApproachWorks";
 import PersonalizationEngine from "@/components/home/PersonalizationEngine";
 import SafetyArchitecture from "@/components/home/SafetyArchitecture";
 import SessionFlowVisual from "@/components/home/SessionFlowVisual";
+import AdaptivePracticeEngine from "@/components/home/AdaptivePracticeEngine";
 import HowItWorks from "@/components/home/HowItWorks";
 import FirstSessionPreview from "@/components/home/FirstSessionPreview";
 import WhoVinysIsFor from "@/components/home/WhoVinysIsFor";
@@ -14,6 +17,7 @@ import ConditionsSection from "@/components/home/ConditionsSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import TrustCredibility from "@/components/home/TrustCredibility";
 import ViniyogaSection from "@/components/home/ViniyogaSection";
+import ConsistencyOverIntensity from "@/components/home/ConsistencyOverIntensity";
 import FAQSection from "@/components/home/FAQSection";
 import FinalCTA from "@/components/home/FinalCTA";
 import MarketingFooter from "@/components/home/MarketingFooter";
@@ -52,10 +56,13 @@ export default function Home() {
       <div className="flex flex-col items-center">
         <MarketingNav />
         <HomeHero />
+        <GuidedWalkthrough />
         <SocialProof />
+        <WhyThisApproachWorks />
         <PersonalizationEngine />
         <SafetyArchitecture />
         <SessionFlowVisual />
+        <AdaptivePracticeEngine />
         <HowItWorks />
         <FirstSessionPreview />
         <WhoVinysIsFor />
@@ -63,6 +70,7 @@ export default function Home() {
         <TestimonialsSection />
         <TrustCredibility />
         <ViniyogaSection />
+        <ConsistencyOverIntensity />
         <FAQSection />
         <FinalCTA />
         <MarketingFooter />
