@@ -27,11 +27,14 @@ export default function TestimonialsSection() {
     <section className="w-full vinys-section">
       <div className="vinys-container">
         <h2
-          className="font-display font-bold text-foreground text-center mb-8"
+          className="font-display font-bold text-foreground text-center mb-2"
           style={{ fontSize: "clamp(24px, 2.8vw, 32px)" }}
         >
           Real people. Real conditions. Real practice.
         </h2>
+        <p className="text-xs text-muted-foreground/70 text-center mb-8 max-w-[520px] mx-auto">
+          Names have been shortened for privacy. Experiences reflect individual use of the Vinys platform.
+        </p>
         <div className="grid sm:grid-cols-3 gap-6 max-w-[960px] mx-auto">
           {TESTIMONIALS.map((t, i) => (
             <motion.div
