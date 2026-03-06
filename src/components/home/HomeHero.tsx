@@ -37,7 +37,7 @@ export default function HomeHero() {
               Yoga that adapts to you
             </h1>
             <p style={{ fontSize: "clamp(15px, 1.5vw, 17px)", lineHeight: 1.6, maxWidth: "46ch", color: "rgba(255,255,255,0.72)" }}>
-              Vinys generates personalized therapeutic yoga sessions based on your condition, your energy level, and what your body can safely handle today.
+              Vinys creates personalized therapeutic yoga sessions based on your condition, your energy level, and what your body can safely handle today.
             </p>
             <p style={{ fontSize: "clamp(14px, 1.3vw, 15px)", lineHeight: 1.6, maxWidth: "46ch", color: "rgba(255,255,255,0.55)", marginTop: "12px" }}>
               Not a library of yoga videos — a structured practice generated for your body.
