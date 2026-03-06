@@ -43,7 +43,7 @@ export default function HomeHero() {
               Not a library of yoga videos — a structured practice generated for your body.
             </p>
             <p className="mb-7" style={{ fontSize: "clamp(14px, 1.3vw, 15px)", lineHeight: 1.6, maxWidth: "46ch", color: "rgba(255,255,255,0.50)", marginTop: "8px", fontStyle: "italic" }}>
-              Movement should support your body — not push against it.
+              Movement should support your body — not fight against it.
             </p>
             <div className="flex flex-col items-center sm:items-start gap-3">
               <Button onClick={handleGetStarted} variant="hero" size="lg" className="gap-2">
