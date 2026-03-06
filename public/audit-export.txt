@@ -1,0 +1,28 @@
+# Audit Export
+
+This file contains a summary of the audit data.
+
+## Data Fields
+
+-   **Timestamp**: The date and time when the event occurred.
+-   **Event Type**: The type of event that was recorded (e.g., "Login", "Logout", "Data Change").
+-   **User ID**: The ID of the user associated with the event.
+-   **Username**: The username of the user associated with the event.
+-   **IP Address**: The IP address from which the event originated.
+-   **Details**: Additional information about the event.
+
+## Example Entry
+
+```
+Timestamp: 2024-07-27 10:00:00
+Event Type: Login
+User ID: 123
+Username: john.doe
+IP Address: 192.168.1.1
+Details: Successful login
+```
+
+## Notes
+
+-   This data is for audit purposes only.
+-   Please handle this data with care.

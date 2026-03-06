@@ -1,0 +1,340 @@
+============================================================
+YOGACARE — STRUCTURAL MAP
+Generated: 2026-02-22
+Version: English-first (post-internationalization)
+============================================================
+
+============================
+ROUTE LIST
+============================
+/                    → Home (landing page, hero + sections)
+/disclaimer          → Disclaimer (safety acknowledgment gate)
+/conditions          → Conditions (condition selection, grouped)
+/setup               → Setup (practice preferences)
+/questionnaire       → Questionnaire (3-step wizard)
+/plan                → Plan (dashboard, session list)
+/workout/:sessionId  → Workout (active exercise session)
+/checkin/:sessionId  → CheckinPage (post-session feedback)
+/complete            → CompletePage (session completion celebration)
+/stop                → Stop (red flag safety halt)
+/library             → Library (exercise catalog)
+/settings            → Settings (preferences, data management)
+/expert-review       → ExpertReview (internal: recommendation matrix)
+/audit-export        → AuditExport (internal: system snapshot)
+*                    → NotFound (404)
+
+Route protection: /conditions, /setup, /questionnaire, /plan, /workout/*, /checkin/*, /complete
+  → DisclaimerGuard: redirects to /disclaimer if disclaimerAccepted === false
+
+============================
+COMPONENT HIERARCHY PER PAGE
+============================
+
+/ (Home)
+  └─ Layout (hideHeader=true)
+     ├─ HeroSection
+     │   ├─ YogaCareLogo (icon variant)
+     │   ├─ Button (hero variant) — "Find Your Condition"
+     │   ├─ Button (outline-calm variant) — "Start Your Practice"
+     │   └─ SVG illustration (line-art figure in supported lunge)
+     ├─ Section: "What This Is" (3x feature cards)
+     ├─ Section: "How It Works" (3x step cards)
+     ├─ Section: "Why Adaptive Therapeutic Yoga" (4x differentiator cards)
+     ├─ Section: "Guided by Experience" (team card)
+     ├─ Trust strip (3x chips)
+     └─ Bottom CTA Button
+
+/disclaimer
+  └─ Layout
+     ├─ PageIllustration (theme=shield)
+     ├─ H1
+     ├─ Card (disclaimer text)
+     ├─ Checkbox label
+     └─ Button
+
+/conditions
+  └─ Layout
+     ├─ PageIllustration (theme=list)
+     ├─ H1 + subtitle
+     ├─ CONDITION_GROUPS map:
+     │   └─ Collapsible card per group
+     │       ├─ Group header + badge
+     │       └─ 2-column grid of condition buttons
+     └─ Fixed bottom bar: Button "Continue"
+
+/setup
+  └─ Layout
+     ├─ PageIllustration (theme=settings)
+     ├─ H1 + subtitle
+     ├─ Card: Sessions per week (button grid)
+     ├─ Card: Minutes per session (button grid)
+     ├─ Card: Practice time (2-col grid)
+     ├─ Card: Energy level (button grid)
+     ├─ Card: Flare toggle
+     └─ Button "Continue"
+
+/questionnaire
+  └─ Layout
+     ├─ Back button
+     ├─ PageIllustration (theme=sliders)
+     ├─ H1 (dynamic title)
+     ├─ Step indicator (dots)
+     ├─ Step 1: SliderFields + RadioGroup + MultiSelect
+     ├─ Step 2: Condition-specific SectionCards
+     ├─ Step 3: Equipment MultiSelect + Safety check
+     └─ Button "Continue" / "Build my practice"
+
+/plan
+  └─ Layout
+     ├─ PageIllustration (theme=calendar)
+     ├─ H1 + subtitle
+     ├─ TailoringSnapshot
+     ├─ Collapsible "My Summary" (3 stats)
+     ├─ Session cards (map)
+     │   ├─ Session header + mode badge
+     │   ├─ Session details (day, duration, exercise count)
+     │   └─ Button "Start today's session"
+     ├─ Info cards (2)
+     └─ Bottom buttons (Adjust, Change, Explore)
+
+/workout/:sessionId
+  └─ Layout
+     ├─ Top label
+     ├─ Progress dots + Timer
+     ├─ Exercise title + TTS button
+     ├─ Category badge
+     ├─ Why preview card
+     ├─ ExerciseVideoAnimation
+     ├─ Breathing strip (animated)
+     ├─ Safety note
+     ├─ Collapsible Instructions
+     ├─ Reps/Range badges
+     ├─ Collapsible "More details"
+     ├─ Equipment chips
+     ├─ "Next exercise" button
+     ├─ Safety tip cards (2)
+     └─ Fixed bottom bar: Easier | Flare | Pause | Finish
+
+/checkin/:sessionId
+  └─ Layout
+     ├─ PageIllustration (theme=check)
+     ├─ H1 + subtitle
+     ├─ Card: 4x SliderFields
+     ├─ Card: Toggle "Was it too much?" + Radio "What helped most?"
+     └─ Button / Saved confirmation
+
+/complete
+  └─ Layout
+     ├─ CheckCircle2 icon (animated entrance)
+     ├─ H1
+     ├─ Body text
+     ├─ Stats card
+     ├─ Button "Back to practice"
+     └─ Auto-redirect text
+
+/library
+  └─ Layout
+     ├─ H1 + subtitle
+     ├─ Search input
+     ├─ Filter chips (5)
+     ├─ Count text
+     ├─ Grid: Exercise cards (1/2/3 columns responsive)
+     └─ Empty state
+
+/settings
+  └─ Layout
+     ├─ H1 + subtitle
+     ├─ Card: Preferences (animation toggle)
+     ├─ Card: Data Management (export/import)
+     ├─ Card: About YogaCare
+     └─ Card: Reset
+
+/stop
+  └─ Layout
+     ├─ AlertTriangle icon
+     ├─ H1
+     ├─ Danger card (safety text)
+     └─ Button "Return home"
+
+============================
+CONTAINER MAX-WIDTHS
+============================
+Global Layout main container: max-w-5xl (1024px)
+Hero content: max-w-5xl (1024px)
+Landing sections: max-w-4xl (896px) and max-w-3xl (768px)
+Form pages (Disclaimer, Setup, Checkin): max-w-lg (512px)
+Conditions page: max-w-2xl (672px)
+Plan page: max-w-2xl (672px)
+Library page: max-w-3xl (768px)
+Complete page: max-w-md (448px)
+Stop page: max-w-md (448px)
+Bottom CTA: max-w-sm (384px)
+Fixed bottom bars: max-w-5xl (1024px)
+
+============================
+LAYOUT GRID
+============================
+Global padding: px-6 (24px horizontal)
+Main vertical padding: py-8 (32px)
+Hero: min-h-[90svh], grid lg:grid-cols-2 gap-12 lg:gap-16
+Feature cards: grid sm:grid-cols-3 gap-6
+How it works: grid sm:grid-cols-3 gap-6
+Differentiators: grid sm:grid-cols-2 gap-4
+Conditions: grid grid-cols-2 gap-3 per group
+Library: grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4
+Plan summary stats: grid grid-cols-3 gap-3
+Plan bottom buttons: grid sm:grid-cols-2 gap-3
+
+============================
+HERO STRUCTURE
+============================
+Container: w-full max-w-5xl mx-auto px-6 py-16 lg:py-20
+Grid: lg:grid-cols-2 gap-12 lg:gap-16 items-center
+Left column: flex flex-col gap-6, text-center lg:text-left
+Right column: flex items-center justify-center lg:justify-end
+SVG illustration: max-w-[420px] aspect-square
+Background: gradient from surface-warm via background to surface-sage/0.3
+Decorative blurs: 300px circle accent/0.04, 250px circle secondary/0.04
+
+============================
+TYPOGRAPHY SCALE
+============================
+Font family: Plus Jakarta Sans (Google Fonts)
+Weights loaded: 300, 400, 500, 600, 700, 800
+
+H1: text-[32px] sm:text-[40px] font-bold leading-[1.1] tracking-[-0.02em]
+  Hero variant: text-[32px] sm:text-[42px] lg:text-[48px] tracking-[-0.03em]
+H2: text-[22px] sm:text-[28px] font-bold leading-snug
+  Section variant: text-[24px] sm:text-[30px]
+H3 (card titles): text-[15px] font-semibold or font-bold
+Body: text-[16px] leading-[1.6]
+  Smaller body: text-[15px]
+Small text: text-sm (14px)
+Tiny text: text-xs (12px)
+Micro text: text-[11px]
+Eyebrow: text-[11px] sm:text-[12px] tracking-[0.25em] uppercase font-medium
+
+============================
+COLOR PALETTE (HSL)
+============================
+--background:          40 14% 96%     → Warm off-white (#F5F3F0)
+--foreground:          215 50% 11%    → Deep navy ink (#0E1929)
+--card:                0 0% 100%      → Pure white
+--card-foreground:     215 50% 11%    → Deep navy ink
+--primary:             215 50% 11%    → Deep navy ink (same as foreground)
+--primary-foreground:  0 0% 100%      → White
+--secondary:           160 14% 55%    → Sage green (#7A9E8E)
+--secondary-foreground:0 0% 100%      → White
+--muted:               220 9% 46%     → Gray (#6B7280)
+--muted-foreground:    220 9% 46%     → Gray
+--accent:              43 38% 57%     → Warm gold (#C0A45A)
+--accent-foreground:   215 50% 11%    → Deep navy ink
+--destructive:         0 65% 55%      → Red (#D94444)
+--destructive-foreground: 0 0% 100%   → White
+--border:              215 50% 11% / 0.08 → Very subtle ink border
+--input:               220 6% 87%     → Light gray
+--ring:                43 38% 57%     → Gold (focus rings)
+--radius:              1.25rem        → 20px
+
+--- Named colors ---
+--color-gold:          43 38% 57%     → Gold
+--color-sage:          160 14% 55%    → Sage
+--color-ink:           215 50% 11%    → Ink
+
+--- Surface colors ---
+--surface-soft:        40 14% 93%     → Soft warm gray
+--surface-warm:        30 20% 92%     → Warm beige
+--surface-sage:        160 14% 92%    → Light sage
+--surface-gold:        43 30% 90%     → Light gold
+
+============================
+BUTTON STYLES
+============================
+Base: rounded-[16px], text-sm, font-medium, ring-offset-background, transition-all
+Focus: ring-2 ring-ring ring-offset-2
+
+Variants:
+  default:      bg-primary text-primary-foreground hover:bg-primary/90
+  destructive:  bg-destructive text-destructive-foreground hover:bg-destructive/90
+  outline:      border border-input bg-background hover:bg-accent/10
+  secondary:    bg-secondary text-secondary-foreground hover:bg-secondary/80
+  ghost:        hover:bg-accent/10
+  link:         text-accent underline-offset-4 hover:underline
+  hero:         bg-primary text-primary-foreground shadow-premium min-h-[48px] rounded-[16px] text-base font-medium
+  outline-calm: border-2 border-primary/15 text-foreground hover:bg-primary/5 hover:border-primary/30 rounded-[16px] min-h-[48px]
+  stop:         bg-destructive text-destructive-foreground rounded-[16px] min-h-[48px] text-base font-medium
+
+Sizes:
+  default: h-10 px-4 py-2
+  sm:      h-9 rounded-md px-3
+  lg:      h-12 rounded-[16px] px-8 text-base
+  icon:    h-10 w-10
+  xl:      h-14 rounded-[16px] px-10 text-lg
+
+============================
+CARD STYLES
+============================
+.card-premium:
+  bg-card (white)
+  rounded-[20px]
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06)
+
+Condition selection cards:
+  rounded-[16px] px-4 py-3 border-2
+  Selected: border-accent bg-accent/10 shadow-sm
+  Default: border-border bg-card hover:border-accent/30
+
+============================
+SHADOW SYSTEM
+============================
+.shadow-premium:     0 10px 30px rgba(0, 0, 0, 0.06)
+.shadow-premium-lg:  0 20px 50px rgba(0, 0, 0, 0.08)
+.shadow-calm:        0 10px 30px rgba(0, 0, 0, 0.06)
+.shadow-calm-lg:     0 20px 50px rgba(0, 0, 0, 0.08)
+
+============================
+SPACING SYSTEM
+============================
+Section vertical gaps: space-y-6 (24px)
+Card internal padding: p-5 or p-6 (20–24px)
+Card internal gaps: space-y-3 or space-y-4 (12–16px)
+Page bottom padding: pb-24 (96px, for fixed bars), pb-8 (32px, standard)
+Between sections on landing: mb-20 (80px)
+Grid gaps: gap-2 (8px) to gap-6 (24px)
+Header height: h-14 (56px)
+Global horizontal padding: px-6 (24px)
+
+============================
+ANIMATION SYSTEM
+============================
+Page entrance: translateY(12px) → 0, opacity 0→1, 300ms ease-out
+Hero fade up: translateY(20px) → 0, opacity 0→1, 500ms ease-out, delay 200ms
+Fade in: translateY(8px) → 0, opacity 0→1, 400ms ease-out
+Slide in: translateX(16px) → 0, opacity 0→1, 300ms ease-out
+Breathing scale: scale(1) → scale(1.02), 4s infinite ease-in-out
+Breath pulse: opacity 0.85 → 1, 4s infinite ease-in-out
+Wave drift: translateX(0) → translateX(15px) translateY(-8px), 12s infinite
+Wave drift slow: same, 18s, reversed
+Spine pulse: opacity 0.25 → 0.45, 6s infinite
+Press scale: transform scale(0.98) on :active, 120ms ease
+Accordion: height 0 → var(--radix-accordion-content-height), 200ms ease-out
+
+All animations respect prefers-reduced-motion: no-preference.
+
+============================
+RESPONSIVE BREAKPOINTS
+============================
+sm: 640px
+lg: 1024px
+2xl: 1400px (container)
+
+Mobile adaptations:
+  - Hero: stacked layout (text → visual), text-center
+  - Feature/step cards: single column
+  - Condition cards: 2 columns maintained
+  - Library: 1 column
+  - Plan bottom buttons: stacked
+
+============================
+END OF STRUCTURE MAP
+============================

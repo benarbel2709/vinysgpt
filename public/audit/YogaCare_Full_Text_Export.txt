@@ -1,0 +1,555 @@
+============================================================
+YOGACARE — FULL TEXT CONTENT EXPORT
+Generated: 2026-02-22
+Version: English-first (post-internationalization)
+============================================================
+
+============================
+LANDING PAGE (/)
+============================
+
+--- HERO ---
+Eyebrow: ADAPTIVE THERAPEUTIC YOGA
+Headline: Personalized for the Condition You're In
+Subheadline: A structured yoga practice designed around your condition, your capacity, and how you feel today.
+Primary CTA: Find Your Condition →
+Secondary CTA: ▷ Start Your Practice
+Scroll prompt: See how it works ˅
+
+--- WHAT THIS IS SECTION ---
+Headline: Not a Class Library. A Practice That Adapts to You.
+Body: YogaCare builds your sessions around your condition and daily capacity — so you don't have to guess what's appropriate.
+
+Card 1 Title: Condition-Based Personalization
+Card 1 Body: Your sessions are structured around your specific condition — not a one-size-fits-all approach.
+
+Card 2 Title: Sessions That Adapt as You Change
+Card 2 Body: As your body changes, your practice evolves with you — always appropriate for where you are now.
+
+Card 3 Title: Structured for Noticeable Improvement
+Card 3 Body: 10–60 minute options. Designed around your schedule with progressive, measurable outcomes.
+
+--- HOW IT WORKS SECTION ---
+Headline: How YogaCare Works
+
+Step 1 Title: Choose Your Condition
+Step 1 Body: Select the condition that best describes your current situation.
+
+Step 2 Title: We Adapt the Practice
+Step 2 Body: Your session is built around your condition, capacity, and how you feel today.
+
+Step 3 Title: Progress Gradually
+Step 3 Body: As your body changes, your practice evolves with you.
+
+Footer text: As your body changes, your practice evolves with you.
+
+--- DIFFERENTIATION SECTION ---
+Headline: Why Adaptive Therapeutic Yoga?
+Body: Most yoga apps offer classes. YogaCare offers a structured practice built around your condition.
+
+Bullet 1: No random class selection
+Bullet 2: No performance pressure
+Bullet 3: No one-size-fits-all flows
+Bullet 4: A practice that adapts to you
+
+--- GUIDED BY EXPERIENCE ---
+Label: YOGACARE TEAM
+Body: Designed with a supportive, therapeutic-minded approach. Our methodology emphasizes intelligent, body-aware movement informed by years of clinical teaching experience.
+
+--- TRUST STRIP ---
+Chip 1: No login required
+Chip 2: Safety first
+Chip 3: Designed for busy schedules
+
+--- BOTTOM CTA ---
+Button: Get started →
+
+--- FOOTER ---
+© YogaCare — Adaptive Therapeutic Yoga
+
+============================
+DISCLAIMER PAGE (/disclaimer)
+============================
+Page illustration: Shield icon
+Headline: Important to Read
+
+Paragraph 1: This app provides general movement guidance and is not a substitute for medical diagnosis, treatment, or professional advice.
+
+Paragraph 2: If you experience significant worsening, sharp/new pain, increasing numbness/weakness, unusual dizziness/fainting, shortness of breath, fever, or any concerning symptom — stop immediately and seek medical advice.
+
+Checkbox label: I have read and understood
+Button: Continue
+
+============================
+CONDITIONS PAGE (/conditions)
+============================
+Page illustration: ListChecks icon
+Headline: Which condition best describes your current situation?
+Subtext: Select all that apply. This helps us adapt your practice appropriately.
+
+--- CONDITION GROUPS ---
+
+Group 1: Musculoskeletal
+  - Back Pain — Lower, mid, or upper back discomfort
+  - Neck — Neck tension and limited range
+  - Shoulders — Shoulder stiffness or pain
+  - Knees — Knee joint sensitivity
+  - Hips — Hip joint tightness or pain
+  - Disc Herniation — Spine-safe movement
+  - Sciatica — Nerve-safe stretching
+  - Osteoarthritis — Joint-friendly movement
+
+Group 2: Nervous System & Neurological
+  - Fibromyalgia — Whole-body sensitivity support
+  - Stress & Anxiety — Calming breath and movement
+  - Sleep Issues — Evening wind-down routines
+
+Group 3: Women's Health
+  - Pregnancy — Safe prenatal movement
+  - Postpartum — Gradual postnatal recovery
+  - Menopause — Hormonal transition support
+
+Group 4: Recovery & Aging
+  - Post-Injury Rehab — Gradual recovery support
+  - Cross Training — Complement other workouts
+  - General Yoga — Balanced practice
+
+Selected count badge: "{n} selected"
+Expand/collapse: ChevronUp / ChevronDown
+
+Fixed bottom bar button: Continue
+
+============================
+SETUP PAGE (/setup)
+============================
+Page illustration: Settings icon
+Headline: Practice Preferences
+Subtext: This helps us adapt your practice to your schedule.
+
+--- Sessions per week ---
+Label: Sessions per week
+Options: 2, 3, 4, 5
+
+--- Minutes per session ---
+Label: Minutes per session
+Options: 10 (Quick), 15 (Quick), 20, 30, 45, 60
+
+--- Preferred time of day ---
+Label: Preferred time of day
+Options:
+  Morning — 06:00–12:00
+  Afternoon — 12:00–17:00
+  Evening — 17:00–21:00
+  Night — 21:00+
+
+--- Energy level ---
+Label: Your energy level today
+Options:
+  Low — Gentle & calming
+  Moderate — Balanced practice
+  High — More dynamic
+
+--- Flare toggle ---
+Label: Today is a tough day (flare)
+Helper: You can change this anytime. Consistency over perfection.
+
+Button: Continue
+
+============================
+QUESTIONNAIRE PAGE (/questionnaire)
+============================
+Back button: ← Back
+Page illustration: Sliders icon
+
+--- Dynamic headline ---
+Fibromyalgia path: Fibromyalgia — Current Capacity
+Specific conditions: {Condition names} — Current Capacity
+Generic: Current Capacity
+
+Intro text: Answer a few short questions so we can adapt your practice appropriately.
+Step indicator: Step {n} of 3 — {step title}
+
+Step titles: ["Current capacity", "Characteristics", "Equipment & safety"]
+
+--- STEP 1: CURRENT CAPACITY ---
+
+[Fibro path]
+Section title: Your current capacity
+  Slider: Discomfort level (0–10)
+  Slider: Fatigue (0–10)
+  Slider: Sleep quality (0–10)
+  Radio: Active flare? — Yes / No / Not sure
+  Multi-select: Areas of discomfort — Neck, Shoulders, Upper back, Lower back, Pelvis / Hips, Knees, Hands, General
+
+[Specific condition path]
+Section title: Your current capacity
+  Slider: Discomfort level (0–10)
+  Slider: Fatigue (0–10)
+  Slider: Sleep quality (0–10)
+  Radio: Tough day / flare? — Yes / No / Not sure
+
+[Generic path]
+Section title: Details
+  Textarea label: What's your main concern?
+  Slider: Discomfort level (0–10)
+
+Button: Continue
+
+--- STEP 2: CHARACTERISTICS ---
+
+[Fibro path]
+Section: What helps and what worsens?
+  Subtitle: Select activities that cause flare-ups
+  Multi-select: What worsens? — Prolonged sitting, Prolonged standing, Long walks, Stairs, Strength training, Intense stretches, Emotional stress, Poor sleep
+  Radio: Does gentle movement usually: — Improves / Neutral / Worsens
+  Slider: Touch sensitivity (0=none, 10=high)
+
+Section: Daily routine
+  Radio: Day type — Sedentary / Mixed / Physical
+  Multi-select: Other activities — Walking, Gym, Pilates, Running, Swimming, Other, None
+
+[Back pain path]
+Section: Back pain — characteristics
+  Multi-select: Pain area — Lower back, Mid back, Upper back, Pelvis
+  Multi-select: What worsens? — Prolonged sitting, Prolonged standing, Bending, Lifting, Twisting
+
+[Neck path]
+Section: Neck — characteristics
+  Multi-select: Pain area — Front of neck, Back of neck, Side of neck
+  Multi-select: What worsens? — Screen work, Driving, Sleep position, Stress, Quick movement
+
+[Shoulder path]
+Section: Shoulders — characteristics
+  Multi-select: Pain area — Right shoulder, Left shoulder, Both shoulders, Shoulder blades, Arms
+  Multi-select: What worsens? — Raising arms, Side lying, Lifting, Screen work
+
+[Knee path]
+Section: Knees — characteristics
+  Multi-select: Pain area — Right knee, Left knee, Both knees
+  Checkbox: Any swelling?
+  Checkbox: Difficulty with stairs?
+
+[Hip path]
+Section: Hips — characteristics
+  Multi-select: Pain area — Right hip, Left hip, Both hips, Groin
+
+[Disc herniation path]
+Section: Disc herniation — characteristics
+  Multi-select: Area — Lower back, Mid back, Upper back
+  Checkbox: Radiating pain to leg?
+  Checkbox: Numbness or weakness?
+
+[Sciatica path]
+Section: Sciatica — characteristics
+  Multi-select: Area — Buttock, Right leg, Left leg, Foot
+  Checkbox: Radiating pain down the leg?
+
+[Osteoarthritis path]
+Section: Osteoarthritis — characteristics
+  Multi-select: Affected joints — Knees, Hips, Hands, Shoulders, Spine
+  Checkbox: Any swelling?
+
+[Pregnancy path]
+Section: Pregnancy — characteristics
+  Radio: Trimester — Trimester 1, Trimester 2, Trimester 3
+  Multi-select: Complaints — Back pain, Pelvic pain, Fatigue, Swelling
+
+[Postpartum path]
+Section: Postpartum — characteristics
+  Input: Weeks since delivery (number)
+
+[Menopause path]
+Section: Menopause — characteristics
+  Multi-select: Main symptoms — Hot flashes, Sleep disruption, Joint pain, Mood changes, Fatigue, Dryness
+
+[Cross training path]
+Section: Cross training — characteristics
+  Multi-select: Primary training type — Strength training, Running, Cycling, Swimming, Other cardio
+
+[Stress & anxiety path]
+Section: Stress & anxiety — characteristics
+  Multi-select: What worsens? — Work stress, Poor sleep, Conflicts, Changes, Caffeine
+
+[Sleep issues path]
+Section: Sleep issues — characteristics
+  Multi-select: Type of issue — Difficulty falling asleep, Night waking, Early waking, Poor sleep quality
+
+[All specific conditions also get:]
+Section: Daily routine
+  Radio: Day type — Sedentary / Mixed / Physical
+  Multi-select: Other activities — Walking, Gym, Pilates, Running, Swimming, Other, None
+
+[Generic path]
+Section: Limitations
+  Textarea label: Limitations or restrictions
+
+Button: Continue
+
+--- STEP 3: EQUIPMENT & SAFETY ---
+
+[All specific + fibro paths]
+Section: Available equipment
+  Multi-select: Equipment — Wall, Chair, Blocks, Strap, Bolster, Blanket
+  Input: Anything to avoid? — (Optional)
+
+Section: Safety check (danger variant)
+  Checkbox list:
+    - New sharp pain
+    - Increasing numbness or weakness
+    - Unusual dizziness or fainting
+    - Shortness of breath
+    - Fever or acute illness
+
+[Generic path]
+Section: Available equipment
+  Multi-select: Equipment — Wall, Chair, Blocks, Strap, Bolster
+
+Section: Safety check (danger variant)
+  [Same checkbox list as above]
+
+Button: Build my practice
+
+============================
+PLAN / DASHBOARD PAGE (/plan)
+============================
+
+--- EMPTY STATE ---
+Page illustration: Calendar icon
+Text: No practice plan yet
+Button: Find your condition
+
+--- WITH PLAN ---
+Page illustration: Calendar icon
+Headline: Your Adaptive Practice
+Subtext: Built around your condition and today's capacity.
+
+[Tailoring Snapshot component]
+Title: Built from your check-in
+Subtitle: Adapted to how you feel today
+Chips: {duration} min ({Quick/Standard/Extended}), {energy} Energy, {time} Time, [Flare Active]
+Expand button: Why this plan
+Expanded bullets:
+  - Duration: {n} minutes ({label})
+  - Energy: {label}
+  - Time: {label}
+  - Mode: Flare — gentler selection / Standard
+  - Focus: {condition}
+
+[Summary section — collapsible]
+Header: My Summary
+  Stat 1: {completed}/{total} — Completed
+  Stat 2: {avg}/10 — Avg discomfort
+  Stat 3: {category} — Most helpful
+
+[Session cards]
+Title: Session {n}
+Badge: Standard / Easier / Flare
+Details: {day}, {duration} min, {n} exercises
+Button: Start today's session (with Play icon)
+Done state: opacity-60, check icon
+
+[Info cards]
+Card 1: Complementary practice: This supports but doesn't replace other activities.
+Card 2: Tough day? Tap "Flare mode" during your session and we'll adapt immediately.
+
+[Bottom buttons]
+Button: Adjust condition (Settings icon)
+Button: Change duration/frequency
+Button: Explore exercises
+
+============================
+WORKOUT PAGE (/workout/:sessionId)
+============================
+
+--- SESSION NOT FOUND STATE ---
+Text: Session not found
+Button: Back to plan
+
+--- ACTIVE SESSION ---
+Top label: Today's Adaptive Session
+
+Progress: Exercise {n} of {total}
+Timer: MM:SS (pulses at 00:00)
+
+Exercise title: {exercise name}
+TTS button: Voice guidance toggle
+Category badge: {Breath/Mobility/Stability/Release} · {n} min
+
+Why preview: {first sentence of why text}
+
+[Animation area]
+  - ExerciseVideoAnimation component
+  - Cue text (italic): {cue}
+
+Breathing strip (animated pulse): {breathing instruction}
+
+Safety note (destructive border): {safety text}
+
+[Collapsible Instructions]
+Header: Instructions
+  Numbered list: {step 1}, {step 2}, ...
+
+Reps badge: {reps}
+Range text: {range}
+
+[More details — collapsible]
+Button: More details
+Content: {full why text}
+
+Equipment chips: {equipment labels}
+
+Next exercise button: Next exercise →
+
+[Safety tip cards]
+Card 1: Move with control · Stay within comfort · Adjust if needed
+Card 2: {condition-specific tip}
+
+[Fixed bottom bar]
+Buttons: Easier | Flare mode | Pause/Resume | Finish practice
+
+============================
+CHECK-IN PAGE (/checkin/:sessionId)
+============================
+Page illustration: CheckCircle2 icon
+Headline: Quick Check-In
+Subtext: This helps us adapt your next practice session.
+
+Section 1:
+  Slider: Pain before (0–10)
+  Slider: Pain after (0–10)
+  Slider: Fatigue before (0–10)
+  Slider: Fatigue after (0–10)
+
+Section 2:
+  Toggle: Was it too much?
+  Radio: What helped most? — Breath / Movement / Release
+
+Saved state: Saved — we'll adapt your next session based on this.
+Button: Save & continue
+
+============================
+COMPLETION PAGE (/complete)
+============================
+Icon: CheckCircle2 (sage background)
+Headline: Practice complete.
+Body: Consistency builds change. Your next session will continue from here.
+Stats card: Session {n} of {total} this week
+Button: Back to practice
+Auto-redirect text: Auto-redirecting to your practice in a few seconds...
+
+============================
+EXERCISE LIBRARY (/library)
+============================
+Headline: Exercises by Condition
+Subtext: Each movement is tagged to support the condition you selected.
+
+Search input placeholder: Search exercises...
+Filter chips: All, Breath, Mobility, Stability, Release
+Count text: {n} exercises
+
+[Exercise cards]
+Title: {exercise title}
+Category badge: {Breath/Mobility/Stability/Release}
+Duration: {n} min
+Description: {first sentence of why text}
+
+Empty state: No exercises match your search.
+
+============================
+SETTINGS PAGE (/settings)
+============================
+Headline: Settings
+Subtext: Manage your preferences and data.
+
+--- Preferences ---
+Header: Preferences (Settings icon)
+Toggle label: Exercise animations
+Toggle description: Show movement demonstrations
+
+--- Data Management ---
+Header: Data Management (Download icon)
+Button: Export data
+Button: Import data
+Import confirm: Import data? This will replace existing data.
+  Button: Yes, import
+  Button: Cancel
+
+--- About ---
+Header: About YogaCare (Info icon)
+Body: YogaCare builds structured, adaptive therapeutic yoga practices designed around your condition, capacity, and how you feel today.
+Sub-body: Designed with a supportive, therapeutic-minded approach informed by clinical teaching experience.
+Disclaimer: Educational movement content. Not medical advice. Consult a healthcare professional for any medical concerns.
+
+--- Reset ---
+Button: Full reset — start over
+Confirm: This will delete all data. Are you sure?
+  Button: Yes, delete all
+  Button: Cancel
+
+============================
+STOP PAGE (/stop)
+============================
+Icon: AlertTriangle (destructive background)
+Headline: Please Stop
+
+Card text:
+  Bold: This is not the right time to practice.
+  Body: If you're experiencing sharp new pain, increasing numbness or weakness, unusual dizziness, shortness of breath, fever, or acute illness — please stop and consult a medical professional.
+
+Button: Return home
+
+============================
+CONDITION-SPECIFIC TIPS (workout page)
+============================
+back_pain: Targeted practice for back relief, core support, and posture improvement.
+neck_pain: Releasing neck tension, improving range of motion and posture.
+shoulder_pain: Shoulder release, strengthening support muscles, improving mobility.
+knee_pain: Strengthening muscles around the knee, maintaining safe range of motion.
+hip_pain: Improving hip joint mobility, strengthening and stability.
+pregnancy: Gentle pregnancy-adapted practice — breathing, pelvic mobility and safe strengthening.
+postpartum: Gradual postpartum recovery — pelvic floor, core and breathing.
+disc_herniation: Maintaining neutral spine, core strengthening and gentle release.
+sciatica: Relieving sciatic nerve pressure, core strengthening and mobility.
+osteoarthritis: Maintaining joint mobility, gentle strengthening and release.
+post_injury_rehab: Gradual rehabilitation — mobility, stability and release.
+stress_anxiety: Calming breath, gentle movement and relaxation — reducing stress.
+sleep_issues: Preparing the body for sleep — extended breathing, relaxation and body scan.
+fibromyalgia: Adapted fibromyalgia practice — gentle, precise and safe.
+menopause: Supportive menopause practice — balance, bone strengthening and tension release.
+older_adult: Safe, gentle practice for maintaining mobility and balance.
+cross_training: Stretching and relaxation — complementing strength and cardio training.
+general_yoga: Balanced yoga practice — breath, movement, stability and release.
+
+============================
+RED FLAGS LIST
+============================
+1. New sharp pain
+2. Increasing numbness or weakness
+3. Unusual dizziness or fainting
+4. Shortness of breath
+5. Fever or acute illness
+
+============================
+NAVIGATION & FLOW PROGRESS
+============================
+Header navigation links: Library (BookOpen icon), Settings (Settings icon), About (Info icon)
+Workout nav: ← Back to practice
+Flow progress step labels: Disclaimer, Focus, Setup, Check-in, Plan
+Footer: © YogaCare — Adaptive Therapeutic Yoga
+
+============================
+ABOUT MODAL
+============================
+(Triggered from Info icon in header)
+
+============================
+ERROR / EMPTY STATES
+============================
+Plan page empty: No practice plan yet → Find your condition
+Workout session not found: Session not found → Back to plan
+Library empty search: No exercises match your search.
+404 page: (NotFound component)
+
+============================
+END OF TEXT EXPORT
+============================
