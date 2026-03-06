@@ -27,24 +27,27 @@ export default function HomeHero() {
         />
         <div className="relative z-[2] flex items-end sm:items-center h-full vinys-container pb-12 sm:pb-0" style={{ paddingTop: "100px" }}>
           <div className="max-w-[520px] text-center sm:text-left">
+            <p className="text-xs font-semibold uppercase tracking-[0.15em] mb-3" style={{ color: "rgba(255,255,255,0.55)" }}>
+              Adaptive Therapeutic Yoga
+            </p>
             <h1
               className="font-display font-extrabold text-white mb-4"
               style={{ fontSize: "clamp(32px, 4.2vw, 54px)", lineHeight: 1.15, letterSpacing: "-0.5px" }}
             >
-              Finally.<br />Yoga designed around what your body is dealing with today.
+              Yoga that adapts to you
             </h1>
             <p style={{ fontSize: "clamp(15px, 1.5vw, 17px)", lineHeight: 1.6, maxWidth: "46ch", color: "rgba(255,255,255,0.72)" }}>
-              You don't need another generic yoga video or studio class.
+              Vinys builds a therapeutic yoga practice around your condition, your energy level, your available time, and what your body can safely handle today.
             </p>
-            <p style={{ fontSize: "clamp(15px, 1.5vw, 17px)", lineHeight: 1.6, maxWidth: "46ch", color: "rgba(255,255,255,0.72)", marginTop: "10px" }}>
-              You need a practice that actually knows your body — what it's carrying today, what it can handle safely, and how to help it move forward.
+            <p style={{ fontSize: "clamp(14px, 1.3vw, 15px)", lineHeight: 1.6, maxWidth: "46ch", color: "rgba(255,255,255,0.55)", marginTop: "12px" }}>
+              This is not a generic class library.
             </p>
-            <p className="mb-7" style={{ fontSize: "clamp(15px, 1.5vw, 17px)", lineHeight: 1.6, maxWidth: "46ch", color: "rgba(255,255,255,0.72)", marginTop: "10px" }}>
-              That's Vinys.
+            <p className="mb-7" style={{ fontSize: "clamp(14px, 1.3vw, 15px)", lineHeight: 1.6, maxWidth: "46ch", color: "rgba(255,255,255,0.55)", marginTop: "6px" }}>
+              Each session is constructed from a therapeutic movement library and adapts as you practice.
             </p>
             <div className="flex flex-col items-center sm:items-start gap-3">
               <Button onClick={handleGetStarted} variant="hero" size="lg" className="gap-2">
-                Build My Yoga Plan
+                Build My Plan
                 <ArrowRight size={16} />
               </Button>
               <p className="text-xs text-white/50">Free to start. No credit card required.</p>

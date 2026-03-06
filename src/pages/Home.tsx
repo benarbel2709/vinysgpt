@@ -4,9 +4,15 @@ import Layout from "@/components/Layout";
 import MarketingNav from "@/components/home/MarketingNav";
 import HomeHero from "@/components/home/HomeHero";
 import SocialProof from "@/components/home/SocialProof";
+import PersonalizationEngine from "@/components/home/PersonalizationEngine";
+import SafetyArchitecture from "@/components/home/SafetyArchitecture";
+import SessionFlowVisual from "@/components/home/SessionFlowVisual";
 import HowItWorks from "@/components/home/HowItWorks";
+import FirstSessionPreview from "@/components/home/FirstSessionPreview";
+import WhoVinysIsFor from "@/components/home/WhoVinysIsFor";
 import ConditionsSection from "@/components/home/ConditionsSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
+import TrustCredibility from "@/components/home/TrustCredibility";
 import ViniyogaSection from "@/components/home/ViniyogaSection";
 import FAQSection from "@/components/home/FAQSection";
 import FinalCTA from "@/components/home/FinalCTA";
@@ -47,15 +53,20 @@ export default function Home() {
         <MarketingNav />
         <HomeHero />
         <SocialProof />
+        <PersonalizationEngine />
+        <SafetyArchitecture />
+        <SessionFlowVisual />
         <HowItWorks />
+        <FirstSessionPreview />
+        <WhoVinysIsFor />
         <ConditionsSection />
         <TestimonialsSection />
+        <TrustCredibility />
         <ViniyogaSection />
         <FAQSection />
         <FinalCTA />
         <MarketingFooter />
       </div>
-
     </Layout>
   );
 }
