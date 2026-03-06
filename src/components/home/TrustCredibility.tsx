@@ -14,7 +14,7 @@ export default function TrustCredibility() {
           Built on therapeutic yoga principles
         </h2>
         <p className="text-sm text-muted-foreground leading-relaxed max-w-[520px] mx-auto mb-8">
-          Vinys draws on therapeutic yoga principles developed through decades of individualized yoga practice. The system is designed to support consistency, gradual progression, and safe adaptation.
+          Vinys draws on decades of therapeutic yoga practice and principles used in individualized yoga therapy. The system is designed to support safe adaptation, gradual progression, and long-term consistency.
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           {PILLARS.map((pillar, i) => (

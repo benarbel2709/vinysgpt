@@ -9,7 +9,7 @@ export default function ViniyogaSection() {
           <p>Vinys is built on principles from the Viniyoga tradition developed by T.K.V. Desikachar.</p>
           <p>Viniyoga emphasizes adaptation — the practice must adjust to the individual, not the other way around.</p>
           <p>Breath guides movement. Function matters more than form. Progression serves the person, not the pose.</p>
-          <p>This therapeutic orientation made Viniyoga the most appropriate foundation for the Vinys system.</p>
+          <p>This therapeutic orientation made Viniyoga a natural foundation for the Vinys system.</p>
         </div>
         <blockquote className="max-w-[520px] mx-auto text-center my-8">
           <p className="italic text-foreground/90" style={{ fontSize: "clamp(17px, 1.8vw, 20px)", lineHeight: 1.5 }}>
