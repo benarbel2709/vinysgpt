@@ -1,83 +1,89 @@
 import { useState, useRef, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Pick the best available voice for the given language.
- * Prefers voices labelled "Natural" / "Premium" / "Enhanced".
- */
-function pickVoice(voices: SpeechSynthesisVoice[], lang: string): SpeechSynthesisVoice | undefined {
-  const candidates = voices.filter(v => v.lang.startsWith(lang));
-  const natural = candidates.find(v => /natural/i.test(v.name));
-  if (natural) return natural;
-  const premium = candidates.find(v => /premium|enhanced/i.test(v.name));
-  if (premium) return premium;
-  return candidates[0] || voices[0];
-}
-
-/**
- * Singleton-style TTS hook using the browser's built-in Web Speech API.
- * No external API key required.
+ * TTS hook using ElevenLabs via the Supabase edge function.
  */
 export function useTTS() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const utteranceRef = useRef<boolean>(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const stop = useCallback(() => {
-    speechSynthesis.cancel();
-    utteranceRef.current = false;
+    const a = audioRef.current;
+    if (a) {
+      a.pause();
+      a.currentTime = 0;
+      URL.revokeObjectURL(a.src);
+      audioRef.current = null;
+    }
     setIsPlaying(false);
     setIsLoading(false);
   }, []);
 
   const speak = useCallback(
-    (text: string) => {
+    async (text: string) => {
       stop();
+
+      if (isMuted || !text) return;
 
       setIsLoading(true);
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "en-US";
-      utterance.rate = 0.92;
-      utterance.pitch = 1.0;
-      utterance.volume = isMuted ? 0 : 1;
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tts`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+              Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            },
+            body: JSON.stringify({ text }),
+          }
+        );
 
-      const applyVoice = () => {
-        const voices = speechSynthesis.getVoices();
-        const best = pickVoice(voices, "en");
-        if (best) utterance.voice = best;
-      };
+        if (!response.ok) {
+          console.error("TTS error:", response.status);
+          setIsLoading(false);
+          return;
+        }
 
-      const voices = speechSynthesis.getVoices();
-      if (voices.length > 0) {
-        applyVoice();
-      } else {
-        speechSynthesis.addEventListener("voiceschanged", applyVoice, { once: true });
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audioRef.current = audio;
+
+        audio.onplay = () => {
+          setIsPlaying(true);
+          setIsLoading(false);
+        };
+        audio.onended = () => {
+          setIsPlaying(false);
+          URL.revokeObjectURL(url);
+          audioRef.current = null;
+        };
+        audio.onerror = () => {
+          setIsPlaying(false);
+          setIsLoading(false);
+          URL.revokeObjectURL(url);
+          audioRef.current = null;
+        };
+
+        await audio.play();
+      } catch (err) {
+        console.error("TTS fetch error:", err);
+        setIsLoading(false);
       }
-
-      utterance.onstart = () => {
-        utteranceRef.current = true;
-        setIsPlaying(true);
-        setIsLoading(false);
-      };
-      utterance.onend = () => {
-        utteranceRef.current = false;
-        setIsPlaying(false);
-      };
-      utterance.onerror = () => {
-        utteranceRef.current = false;
-        setIsPlaying(false);
-        setIsLoading(false);
-      };
-
-      speechSynthesis.speak(utterance);
     },
     [stop, isMuted]
   );
 
   const setMuted = useCallback((muted: boolean) => {
+    if (muted) stop();
     setIsMuted(muted);
-  }, []);
+  }, [stop]);
 
   return { speak, stop, isPlaying, isLoading, isMuted, setMuted };
 }
