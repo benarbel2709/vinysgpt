@@ -1598,7 +1598,7 @@ function OptionBtn({ label, selected, onClick }) {
 }
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
-export default function VinysDiagnostic() {
+export default function VinysDiagnostic({ onComplete } = {}) {
   const [phase, setPhase] = useState("area_select");
   const [area, setArea] = useState(null);
   const [originalArea, setOriginalArea] = useState(null);
