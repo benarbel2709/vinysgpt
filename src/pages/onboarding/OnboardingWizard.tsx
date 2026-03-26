@@ -164,7 +164,7 @@ export default function OnboardingWizard() {
 
   const STEP_TITLES = [
     "Your conditions",
-    "Where exactly is the issue?",
+    "Body diagnostic",
     "Any movements to avoid?",
     "Practice time & schedule",
     "Session closing",
