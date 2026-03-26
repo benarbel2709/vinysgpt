@@ -1598,7 +1598,7 @@ function OptionBtn({ label, selected, onClick }) {
 }
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
-export default function VinysDiagnostic() {
+export default function VinysDiagnostic({ onComplete } = {}) {
   const [phase, setPhase] = useState("area_select");
   const [area, setArea] = useState(null);
   const [originalArea, setOriginalArea] = useState(null);
@@ -1827,13 +1827,18 @@ export default function VinysDiagnostic() {
         const resolveArea = crossoverTriggered ? crossoverTarget : area;
         const scores = calculateScores(newAnswers, allPostures);
         const output = resolveProfile(resolveArea, scores, newAnswers, irritability);
-        setDiagnosticOutput({
+        const fullOutput = {
           ...output,
           area: resolveArea,
           originalArea: crossoverTriggered ? area : null,
           crossoverTriggered,
-        });
-        setPhase("results");
+        };
+        setDiagnosticOutput(fullOutput);
+        if (onComplete) {
+          onComplete(fullOutput);
+        } else {
+          setPhase("results");
+        }
       }
     }
 
