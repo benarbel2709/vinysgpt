@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import VinysDiagnostic from "@/components/VinysDiagnostic";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "@/context/AppContext";
 import type { ConditionKey, EnergyLevel, PracticeTime } from "@/constants/conditions";
@@ -56,6 +57,7 @@ export default function OnboardingWizard() {
   const [step, setStep] = useState(0);
   const [selected, setSelected] = useState<ConditionKey[]>([]);
   const [conditionDetails, setConditionDetails] = useState<Record<string, string[]>>({});
+  const [diagnosticResult, setDiagnosticResult] = useState<any>(null);
   const [restrictions, setRestrictions] = useState<string[]>([]);
   const [restrictionOther, setRestrictionOther] = useState("");
   const [practiceTime, setPracticeTime] = useState<PracticeTime>(profile.practiceTime || "morning");
@@ -100,7 +102,7 @@ export default function OnboardingWizard() {
   const canGoNext = (): boolean => {
     switch (step) {
       case 0: return selected.length > 0;
-      case 1: return hasAnyDetail;
+      case 1: return !!diagnosticResult;
       case 2: return true; // restrictions are optional
       case 3: return timeSelected && durationSelected && sessionsSelected;
       case 4: return !!closingPref;
@@ -251,34 +253,18 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 2: Detail tags ═══ */}
-        {step === 1 && (() => {
-          const visibleConditions = selected.filter(k => (CONDITION_DETAILS[k] || []).length > 0);
-          return (
-            <div className="w-full text-center" style={{ marginTop: "40px" }}>
-              {visibleConditions.map((condKey, idx) => {
-                const details = CONDITION_DETAILS[condKey] || [];
-                const selDetails = conditionDetails[condKey] || [];
-                const isLast = idx === visibleConditions.length - 1;
-                return (
-                  <div key={condKey}>
-                    <h3 className="font-bold text-primary text-[21px] text-center" style={{ marginBottom: "20px" }}>{label(condKey)}</h3>
-                    <div className="flex flex-wrap justify-center" style={{ gap: "10px" }}>
-                      {details.map(d => (
-                        <button key={d} onClick={() => toggleDetail(condKey, d)} className={tagSmall(selDetails.includes(d))}>
-                          {d}
-                        </button>
-                      ))}
-                    </div>
-                    {!isLast && (
-                      <div style={{ marginTop: "30px", marginBottom: "40px", height: "1px", width: "100%", backgroundColor: "hsl(var(--border) / 0.4)" }} />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })()}
+        {/* ═══ STEP 2: VinysDiagnostic ═══ */}
+        {step === 1 && (
+          <div className="w-full" style={{ marginTop: "20px" }}>
+            <VinysDiagnostic
+              onComplete={(result: any) => {
+                setDiagnosticResult(result);
+                updateProfile({ diagnosticResult: result } as any);
+                setStep(2);
+              }}
+            />
+          </div>
+        )}
 
         {/* ═══ STEP 3: Restrictions / Contraindications ═══ */}
         {step === 2 && (
