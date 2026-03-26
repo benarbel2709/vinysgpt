@@ -1827,13 +1827,18 @@ export default function VinysDiagnostic({ onComplete } = {}) {
         const resolveArea = crossoverTriggered ? crossoverTarget : area;
         const scores = calculateScores(newAnswers, allPostures);
         const output = resolveProfile(resolveArea, scores, newAnswers, irritability);
-        setDiagnosticOutput({
+        const fullOutput = {
           ...output,
           area: resolveArea,
           originalArea: crossoverTriggered ? area : null,
           crossoverTriggered,
-        });
-        setPhase("results");
+        };
+        setDiagnosticOutput(fullOutput);
+        if (onComplete) {
+          onComplete(fullOutput);
+        } else {
+          setPhase("results");
+        }
       }
     }
 
