@@ -724,8 +724,6 @@ export default function VinysDiagnostic({ onComplete }) {
               </div>
             )}
           </div>
-            );
-          })()}
 
           {/* Instructions card with TTS */}
           {posture.how && (
