@@ -3,6 +3,10 @@ import { useTTS } from "@/hooks/useTTS";
 import BrandLogo from "@/components/BrandLogo";
 import { Volume2, VolumeX, Play, ChevronRight, Check, RotateCcw, ArrowLeft } from "lucide-react";
 
+const DEFAULT_VIDEO_ID = "PASTE_YOUR_YOUTUBE_ID_HERE";
+
+const fadeInStyle = { animation: "fadeIn 0.3s ease" };
+
 // --- AREAS --------------------------------------------------------------------
 const AREA_CONFIG = {
   LB: { label: "Lower Back", icon: "◎", crossoverTo: null },
@@ -406,6 +410,8 @@ export default function VinysDiagnostic({ onComplete }) {
 
   const { speak, stop: stopTTS, isPlaying: ttsPlaying, isLoading: ttsLoading } = useTTS();
 
+  const [videoPlaying, setVideoPlaying] = useState(false);
+
   const areaLabel = area ? AREA_CONFIG[area].label.toLowerCase() : "this area";
 
   const INTAKE = [
@@ -443,6 +449,9 @@ export default function VinysDiagnostic({ onComplete }) {
     setPhase("postures");
   }
 
+  // Reset video player when posture changes
+  useEffect(() => { setVideoPlaying(false); }, [postureIdx]);
+
   // Auto-speak posture instructions when video screen loads
   useEffect(() => {
     if (phase === "postures" && showingVideo && activePostures[postureIdx]?.how) {
@@ -461,12 +470,15 @@ export default function VinysDiagnostic({ onComplete }) {
 
   // --- Shell wrapper ---
   const Shell = ({ children, className = "" }) => (
-    <div className={`min-h-screen bg-background flex justify-center items-start ${className}`}>
+    <div className={`min-h-screen bg-background flex justify-center items-start ${className}`} style={fadeInStyle}>
+      <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
       <div className="w-full max-w-[460px] px-5 py-9">
         {children}
       </div>
     </div>
   );
+
+  const totalPostures = activePostures.length || Object.values(AREA_CONFIG).reduce(() => 4, 4);
 
   // ==========================================================================
   // PHASE: INTRO
@@ -496,7 +508,7 @@ export default function VinysDiagnostic({ onComplete }) {
             Start Assessment
           </button>
 
-          <p className="text-xs text-muted-foreground mt-4">Takes about 3 minutes</p>
+          <p className="text-xs text-muted-foreground mt-4">Takes about 3 minutes · {totalPostures} postures</p>
         </div>
       </Shell>
     );
@@ -675,18 +687,10 @@ export default function VinysDiagnostic({ onComplete }) {
         <Shell className="!pt-0">
           {/* Progress bar at top */}
           <div className="pt-4 pb-3">
-            <div className="flex items-center gap-1.5">
-              {Array.from({ length: progressTotal }).map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                    i <= postureIdx ? "bg-primary" : "bg-border"
-                  }`}
-                />
-              ))}
-              <span className="text-[11px] text-muted-foreground font-semibold ml-1.5 whitespace-nowrap">
-                {postureIdx + 1}/{progressTotal}
-              </span>
+          <div className="pt-4 pb-3">
+            <p className="text-xs text-muted-foreground mb-1.5">Posture {postureIdx + 1} of {progressTotal}</p>
+            <div className="w-full h-1 rounded-full bg-border overflow-hidden">
+              <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${((postureIdx + 1) / progressTotal) * 100}%` }} />
             </div>
           </div>
 
@@ -696,22 +700,37 @@ export default function VinysDiagnostic({ onComplete }) {
             </div>
           )}
 
-          {/* Video placeholder card */}
-          <div className="rounded-2xl overflow-hidden relative aspect-video bg-foreground/90 mb-4">
-            <div
-              className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-5 text-center"
-              style={{ background: '#2A2A2A' }}
-            >
-              {cleanSubtitle && (
-                <span className="text-[11px] text-white/60 font-bold tracking-widest uppercase">{cleanSubtitle}</span>
-              )}
-              <span className="text-[22px] font-extrabold text-white leading-tight">{posture.name}</span>
-              {posture.time && <span className="text-[13px] text-white/55">{posture.time}</span>}
-              <div className="mt-2.5 w-[52px] h-[52px] rounded-full bg-white/15 border-2 border-white/30 flex items-center justify-center">
-                <Play className="w-5 h-5 text-white/40 ml-0.5" />
+          {/* Video card with fallback */}
+          {(() => {
+            const effectiveId = posture.videoId || DEFAULT_VIDEO_ID;
+            return (
+              <div className="rounded-2xl overflow-hidden relative aspect-video mb-4" style={{ background: '#2A2A2A' }}>
+                {videoPlaying ? (
+                  <iframe
+                    className="absolute inset-0 w-full h-full"
+                    src={`https://www.youtube.com/embed/${effectiveId}?autoplay=1&rel=0`}
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                    title={posture.name}
+                  />
+                ) : (
+                  <div
+                    className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-5 text-center cursor-pointer"
+                    onClick={() => setVideoPlaying(true)}
+                  >
+                    {cleanSubtitle && (
+                      <span className="text-[11px] text-white/60 font-bold tracking-widest uppercase">{cleanSubtitle}</span>
+                    )}
+                    <span className="text-[22px] font-extrabold text-white leading-tight">{posture.name}</span>
+                    {posture.time && <span className="text-[13px] text-white/55">{posture.time}</span>}
+                    <div className="mt-2.5 w-[52px] h-[52px] rounded-full bg-white/15 border-2 border-white/30 flex items-center justify-center">
+                      <Play className="w-5 h-5 text-white/40 ml-0.5" />
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          </div>
+            );
+          })()}
 
           {/* Instructions card with TTS */}
           {posture.how && (
@@ -735,7 +754,12 @@ export default function VinysDiagnostic({ onComplete }) {
             </div>
           )}
 
-          <PrimaryButton label="Continue →" onClick={() => { stopTTS(); setShowingVideo(false); }} />
+          <PrimaryButton label="Continue →" onClick={() => { stopTTS(); setVideoPlaying(false); setShowingVideo(false); }} />
+          <div className="flex justify-center">
+            <button onClick={() => { stopTTS(); setVideoPlaying(false); setShowingVideo(false); }} style={{ color: '#888', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', marginTop: 8 }}>
+              Skip video →
+            </button>
+          </div>
         </Shell>
       );
     }
@@ -743,6 +767,12 @@ export default function VinysDiagnostic({ onComplete }) {
     // --- QUESTIONS sub-phase ---
     return (
       <Shell>
+        {/* Posture progress */}
+        <p className="text-xs text-muted-foreground mb-1.5">Posture {postureIdx + 1} of {progressTotal}</p>
+        <div className="w-full h-1 rounded-full bg-border mb-5 overflow-hidden">
+          <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${((postureIdx + 1) / progressTotal) * 100}%` }} />
+        </div>
+
         {/* Mini posture header */}
         <div className="flex items-center gap-3 mb-5 p-3.5 rounded-2xl bg-card border border-border">
           <div
