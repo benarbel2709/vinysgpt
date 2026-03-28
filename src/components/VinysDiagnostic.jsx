@@ -407,7 +407,7 @@ export default function VinysDiagnostic({ onComplete }) {
   const [diagnosticOutput, setDiagnosticOutput] = useState(null);
   const [showingVideo, setShowingVideo] = useState(true);
 
-  const { speak, stop: stopTTS, isPlaying: ttsPlaying, isLoading: ttsLoading } = useTTS();
+  const { speak, stop: stopTTS, isPlaying: ttsPlaying, isLoading: ttsLoading, isMuted, setMuted } = useTTS();
 
   const [videoPlaying, setVideoPlaying] = useState(false);
 
@@ -453,8 +453,9 @@ export default function VinysDiagnostic({ onComplete }) {
 
   // Auto-speak posture instructions when video screen loads
   useEffect(() => {
-    if (phase === "postures" && showingVideo && activePostures[postureIdx]?.how) {
-      speak(activePostures[postureIdx].how);
+    if (phase === "postures" && showingVideo && activePostures[postureIdx]?.how && !isMuted) {
+      const p = activePostures[postureIdx];
+      speak(`${p.name}. ${p.how}`);
     }
     return () => stopTTS();
   }, [phase, showingVideo, postureIdx]);
@@ -704,9 +705,10 @@ export default function VinysDiagnostic({ onComplete }) {
               <video
                 src={posture.videoSrc || universalVideo}
                 autoPlay
-                controls
+                loop
+                muted
                 playsInline
-                style={{ width: "100%", borderRadius: 18 }}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
             ) : (
               <div
