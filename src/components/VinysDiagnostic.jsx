@@ -772,6 +772,12 @@ export default function VinysDiagnostic({ onComplete }) {
     // --- QUESTIONS sub-phase ---
     return (
       <Shell>
+        {/* Posture progress */}
+        <p className="text-xs text-muted-foreground mb-1.5">Posture {postureIdx + 1} of {progressTotal}</p>
+        <div className="w-full h-1 rounded-full bg-border mb-5 overflow-hidden">
+          <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${((postureIdx + 1) / progressTotal) * 100}%` }} />
+        </div>
+
         {/* Mini posture header */}
         <div className="flex items-center gap-3 mb-5 p-3.5 rounded-2xl bg-card border border-border">
           <div
