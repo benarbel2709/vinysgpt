@@ -58,6 +58,8 @@ export default function Workout() {
   const [timerDone, setTimerDone] = useState(false);
   const [currentMode, setCurrentMode] = useState(session?.mode || "normal");
   const [currentExerciseIds, setCurrentExerciseIds] = useState(session?.exerciseIds || []);
+  const [showClosing, setShowClosing] = useState(false);
+  const [closingRemaining, setClosingRemaining] = useState(180); // 3 minutes
 
   const { speak, stop: stopTTS, isPlaying: isTTSPlaying, isLoading: isTTSLoading, isMuted, setMuted } = useTTS();
 
