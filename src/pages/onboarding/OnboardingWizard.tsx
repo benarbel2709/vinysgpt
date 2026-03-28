@@ -109,7 +109,7 @@ export default function OnboardingWizard() {
       return (conditionDetails[k] || []).length > 0;
     });
 
-  // Step mapping: 0=conditions, 1=details, 2=restrictions, 3=schedule, 4=closing, 5=energy+safety, 6=confirmation
+  // Step mapping: 0=conditions, 1=diagnostic, 2=profile summary, 3=restrictions, 4=schedule, 5=closing, 6=energy+safety, 7=confirmation
   const canGoNext = (): boolean => {
     switch (step) {
       case 0:
@@ -117,14 +117,16 @@ export default function OnboardingWizard() {
       case 1:
         return !!diagnosticResult;
       case 2:
-        return true; // restrictions are optional
+        return !!diagnosticResult; // profile summary — always can proceed
       case 3:
-        return timeSelected && durationSelected && sessionsSelected;
+        return true; // restrictions are optional
       case 4:
-        return !!closingPref;
+        return timeSelected && durationSelected && sessionsSelected;
       case 5:
-        return true;
+        return !!closingPref;
       case 6:
+        return true;
+      case 7:
         return true;
       default:
         return true;
@@ -177,7 +179,7 @@ export default function OnboardingWizard() {
   };
 
   const handleNext = () => {
-    if (step === 5 && redFlags.length > 0) {
+    if (step === 6 && redFlags.length > 0) {
       navigate("/onboarding/medical-stop");
       return;
     }
@@ -195,6 +197,7 @@ export default function OnboardingWizard() {
   const STEP_TITLES = [
     "Your conditions",
     "Body diagnostic",
+    "Your movement profile",
     "Any movements to avoid?",
     "Practice time & schedule",
     "Session closing",
