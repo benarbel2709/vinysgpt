@@ -58,6 +58,8 @@ export default function Workout() {
   const [timerDone, setTimerDone] = useState(false);
   const [currentMode, setCurrentMode] = useState(session?.mode || "normal");
   const [currentExerciseIds, setCurrentExerciseIds] = useState(session?.exerciseIds || []);
+  const [showClosing, setShowClosing] = useState(false);
+  const [closingRemaining, setClosingRemaining] = useState(180); // 3 minutes
 
   const { speak, stop: stopTTS, isPlaying: isTTSPlaying, isLoading: isTTSLoading, isMuted, setMuted } = useTTS();
 
@@ -92,6 +94,15 @@ export default function Workout() {
     }, 1000);
     return () => clearInterval(timer);
   }, [isPlaying, isInfoOpen, remaining]);
+
+  // Closing step timer
+  useEffect(() => {
+    if (!showClosing || closingRemaining <= 0) return;
+    const timer = setInterval(() => {
+      setClosingRemaining((r) => { if (r <= 1) { return 0; } return r - 1; });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [showClosing, closingRemaining]);
 
   // Sync video play state
   useEffect(() => {
@@ -177,8 +188,25 @@ export default function Workout() {
     setEndStep("choice");
   };
 
+  const closingPref = state.profile.closingPreference || "savasana";
+  const CLOSING_NAMES: Record<string, string> = { savasana: "Savasana", body_rest: "Body Rest & Integration", meditation: "Guided Meditation" };
+  const CLOSING_INSTRUCTIONS: Record<string, string> = {
+    savasana: "Lie on your back with arms at your sides, palms facing up. Close your eyes. Let your body sink into the ground. Breathe naturally and release all effort.",
+    body_rest: "Lie comfortably and bring your attention to each part of your body, starting from your feet. Notice any sensations without trying to change them. Let each area soften.",
+    meditation: "Sit or lie in a comfortable position. Close your eyes and bring your attention to your breath. When your mind wanders, gently return to the breath.",
+  };
+
   const goNext = () => {
-    if (isLastExercise) { finishWorkout(); return; }
+    if (isLastExercise) {
+      // Show closing step before finishing
+      stopTTS();
+      setShowClosing(true);
+      setClosingRemaining(180);
+      if (!isMuted) {
+        speak(`${CLOSING_NAMES[closingPref]}. ${CLOSING_INSTRUCTIONS[closingPref]}`);
+      }
+      return;
+    }
     setActiveIdx(prev => prev + 1);
     setIsPlaying(true);
   };
@@ -267,7 +295,7 @@ export default function Workout() {
         <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/40 via-transparent to-transparent" />
 
         {/* ===== TOP OVERLAY (hidden when ended) ===== */}
-        {!isEnded && (
+        {!isEnded && !showClosing && (
           <div className="absolute top-0 left-0 right-0 z-20 p-4 md:p-6 flex items-center justify-between">
             <span className="hidden lg:block">
               <BrandLogo size="sm" variant="white" linkToHome={false} />
@@ -279,6 +307,8 @@ export default function Workout() {
                   i === activeIdx ? "w-8 bg-white" : i < activeIdx ? "w-2.5 bg-white/50" : "w-2.5 bg-white/25"
                 }`} />
               ))}
+              {/* Closing step dot */}
+              <div className={`h-2 rounded-full transition-all duration-300 w-2.5 bg-white/25`} />
             </div>
             <div className="flex items-center gap-2">
               <div className={`rounded-full px-4 py-2 bg-white/20 backdrop-blur-md ${timerDone ? "animate-pulse ring-2 ring-white/40" : ""}`}>
@@ -293,8 +323,8 @@ export default function Workout() {
           </div>
         )}
 
-        {/* ===== BOTTOM OVERLAY (hidden when ended) ===== */}
-        {!isEnded && (
+        {/* ===== BOTTOM OVERLAY (hidden when ended or closing) ===== */}
+        {!isEnded && !showClosing && (
           <div className="absolute bottom-0 left-0 right-0 z-20 p-4 md:p-6">
         {/* Up next hint */}
             {(() => {
@@ -387,6 +417,47 @@ export default function Workout() {
           </div>
         )}
       </div>
+
+      {/* ===== CLOSING STEP OVERLAY ===== */}
+      {showClosing && !isEnded && (
+        <div className="fixed inset-0 z-[55]">
+          <div className="absolute inset-0 backdrop-blur-xl bg-black/60" />
+          <div className="absolute inset-0 flex items-center justify-center p-6">
+            <div className="text-center max-w-md w-full">
+              {/* Progress dots with closing active */}
+              <div className="flex gap-1.5 justify-center mb-8">
+                {exercises.map((_, i) => (
+                  <div key={i} className="h-2 w-2.5 rounded-full bg-white/50" />
+                ))}
+                <div className="h-2 w-8 rounded-full bg-white" />
+              </div>
+
+              <p className="text-white/50 text-sm font-medium uppercase tracking-wider mb-2">Session Closing</p>
+              <h1 className="text-white text-3xl md:text-4xl font-semibold mb-3">
+                {CLOSING_NAMES[closingPref]}
+              </h1>
+              <p className="text-white/60 text-sm max-w-sm mx-auto mb-8 leading-relaxed">
+                {CLOSING_INSTRUCTIONS[closingPref]}
+              </p>
+
+              <div className={`inline-flex rounded-full px-6 py-3 bg-white/20 backdrop-blur-md mb-8 ${closingRemaining === 0 ? "animate-pulse ring-2 ring-white/40" : ""}`}>
+                <span className="text-white font-mono font-semibold text-2xl">
+                  {String(Math.floor(closingRemaining / 60)).padStart(2, "0")}:{String(closingRemaining % 60).padStart(2, "0")}
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                <button
+                  onClick={() => { stopTTS(); setShowClosing(false); finishWorkout(); }}
+                  className="w-full max-w-xs mx-auto rounded-full py-3.5 px-6 bg-white text-black font-medium hover:bg-white/90 transition-colors text-base block"
+                >
+                  Complete ✓
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ===== SESSION PREVIEW OVERLAY ===== */}
       {showPreview && !isEnded && (
