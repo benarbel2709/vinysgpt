@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useTTS } from "@/hooks/useTTS";
 import BrandLogo from "@/components/BrandLogo";
 import { Volume2, VolumeX, Play, ChevronRight, Check, RotateCcw, ArrowLeft } from "lucide-react";
-
-const DEFAULT_VIDEO_ID = "PASTE_YOUR_YOUTUBE_ID_HERE";
+import universalVideo from "@/assets/exercises/universal-fallback.mp4";
 
 const fadeInStyle = { animation: "fadeIn 0.3s ease" };
 
@@ -699,35 +698,32 @@ export default function VinysDiagnostic({ onComplete }) {
             </div>
           )}
 
-          {/* Video card with fallback */}
-          {(() => {
-            const effectiveId = posture.videoId || DEFAULT_VIDEO_ID;
-            return (
-              <div className="rounded-2xl overflow-hidden relative aspect-video mb-4" style={{ background: '#2A2A2A' }}>
-                {videoPlaying ? (
-                  <iframe
-                    className="absolute inset-0 w-full h-full"
-                    src={`https://www.youtube.com/embed/${effectiveId}?autoplay=1&rel=0`}
-                    allow="autoplay; encrypted-media"
-                    allowFullScreen
-                    title={posture.name}
-                  />
-                ) : (
-                  <div
-                    className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-5 text-center cursor-pointer"
-                    onClick={() => setVideoPlaying(true)}
-                  >
-                    {cleanSubtitle && (
-                      <span className="text-[11px] text-white/60 font-bold tracking-widest uppercase">{cleanSubtitle}</span>
-                    )}
-                    <span className="text-[22px] font-extrabold text-white leading-tight">{posture.name}</span>
-                    {posture.time && <span className="text-[13px] text-white/55">{posture.time}</span>}
-                    <div className="mt-2.5 w-[52px] h-[52px] rounded-full bg-white/15 border-2 border-white/30 flex items-center justify-center">
-                      <Play className="w-5 h-5 text-white/40 ml-0.5" />
-                    </div>
-                  </div>
+          {/* Video card with native HTML5 player */}
+          <div className="rounded-2xl overflow-hidden relative aspect-video mb-4" style={{ background: '#2A2A2A' }}>
+            {videoPlaying ? (
+              <video
+                src={posture.videoSrc || universalVideo}
+                autoPlay
+                controls
+                playsInline
+                style={{ width: "100%", borderRadius: 18 }}
+              />
+            ) : (
+              <div
+                className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-5 text-center cursor-pointer"
+                onClick={() => setVideoPlaying(true)}
+              >
+                {cleanSubtitle && (
+                  <span className="text-[11px] text-white/60 font-bold tracking-widest uppercase">{cleanSubtitle}</span>
                 )}
+                <span className="text-[22px] font-extrabold text-white leading-tight">{posture.name}</span>
+                {posture.time && <span className="text-[13px] text-white/55">{posture.time}</span>}
+                <div className="mt-2.5 w-[52px] h-[52px] rounded-full bg-white/15 border-2 border-white/30 flex items-center justify-center">
+                  <Play className="w-5 h-5 text-white/40 ml-0.5" />
+                </div>
               </div>
+            )}
+          </div>
             );
           })()}
 
