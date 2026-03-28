@@ -95,6 +95,15 @@ export default function Workout() {
     return () => clearInterval(timer);
   }, [isPlaying, isInfoOpen, remaining]);
 
+  // Closing step timer
+  useEffect(() => {
+    if (!showClosing || closingRemaining <= 0) return;
+    const timer = setInterval(() => {
+      setClosingRemaining((r) => { if (r <= 1) { return 0; } return r - 1; });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [showClosing, closingRemaining]);
+
   // Sync video play state
   useEffect(() => {
     const v = videoRef.current;
@@ -179,8 +188,25 @@ export default function Workout() {
     setEndStep("choice");
   };
 
+  const closingPref = state.profile.closingPreference || "savasana";
+  const CLOSING_NAMES: Record<string, string> = { savasana: "Savasana", body_rest: "Body Rest & Integration", meditation: "Guided Meditation" };
+  const CLOSING_INSTRUCTIONS: Record<string, string> = {
+    savasana: "Lie on your back with arms at your sides, palms facing up. Close your eyes. Let your body sink into the ground. Breathe naturally and release all effort.",
+    body_rest: "Lie comfortably and bring your attention to each part of your body, starting from your feet. Notice any sensations without trying to change them. Let each area soften.",
+    meditation: "Sit or lie in a comfortable position. Close your eyes and bring your attention to your breath. When your mind wanders, gently return to the breath.",
+  };
+
   const goNext = () => {
-    if (isLastExercise) { finishWorkout(); return; }
+    if (isLastExercise) {
+      // Show closing step before finishing
+      stopTTS();
+      setShowClosing(true);
+      setClosingRemaining(180);
+      if (!isMuted) {
+        speak(`${CLOSING_NAMES[closingPref]}. ${CLOSING_INSTRUCTIONS[closingPref]}`);
+      }
+      return;
+    }
     setActiveIdx(prev => prev + 1);
     setIsPlaying(true);
   };
