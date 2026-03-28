@@ -66,8 +66,9 @@ export function selectExercisesForConditions(
   mode: Mode,
   minutes: number,
   closingPreference: "savasana" | "meditation" | "body_rest" = "savasana",
+  userEquipment?: string[],
 ): string[] {
-  return selectExercisesScored(library, conditions, mode, minutes, closingPreference);
+  return selectExercisesScored(library, conditions, mode, minutes, closingPreference, userEquipment);
 }
 
 export function generatePlan(

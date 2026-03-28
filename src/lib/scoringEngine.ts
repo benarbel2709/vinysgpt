@@ -362,17 +362,31 @@ export function selectExercisesScored(
   mode: Mode,
   minutes: number,
   closingPreference: "savasana" | "meditation" | "body_rest" = "savasana",
+  userEquipment?: string[],
 ): string[] {
   const count = getExerciseCount(minutes);
   const recentIds = new Set(getRecentExercises());
   const seed = getSessionSeed(conditions);
+
+  // Normalize user equipment for comparison
+  const normalizedEquip = userEquipment?.map(e => e.toLowerCase()) || [];
+  const hasEquipmentFilter = normalizedEquip.length > 0;
 
   const scored: ScoredExercise[] = [];
   for (const exercise of library) {
     const master = getMasterForExercise(exercise);
     if (!master) continue;
     if (!isSafeForConditions(master, conditions, mode)) continue;
-    const score = scoreExercise(exercise, master, conditions, mode, recentIds);
+
+    // Equipment filter: skip exercises requiring equipment the user doesn't have
+    if (hasEquipmentFilter && master.equipment && master.equipment.length > 0) {
+      const needsUnavailable = master.equipment.some(
+        eq => !normalizedEquip.includes(eq.toLowerCase()) && eq.toLowerCase() !== "mat"
+      );
+      if (needsUnavailable) continue;
+    }
+
+    const score = scoreExercise(exercise, master, conditions, mode, recentIds, userEquipment);
     scored.push({ exercise, master, score });
   }
 
