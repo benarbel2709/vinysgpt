@@ -684,18 +684,10 @@ export default function VinysDiagnostic({ onComplete }) {
         <Shell className="!pt-0">
           {/* Progress bar at top */}
           <div className="pt-4 pb-3">
-            <div className="flex items-center gap-1.5">
-              {Array.from({ length: progressTotal }).map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                    i <= postureIdx ? "bg-primary" : "bg-border"
-                  }`}
-                />
-              ))}
-              <span className="text-[11px] text-muted-foreground font-semibold ml-1.5 whitespace-nowrap">
-                {postureIdx + 1}/{progressTotal}
-              </span>
+          <div className="pt-4 pb-3">
+            <p className="text-xs text-muted-foreground mb-1.5">Posture {postureIdx + 1} of {progressTotal}</p>
+            <div className="w-full h-1 rounded-full bg-border overflow-hidden">
+              <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${((postureIdx + 1) / progressTotal) * 100}%` }} />
             </div>
           </div>
 
