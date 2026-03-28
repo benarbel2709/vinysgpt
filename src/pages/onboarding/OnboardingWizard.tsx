@@ -46,8 +46,8 @@ const RESTRICTION_OPTIONS = [
   "Avoid prone (face-down) positions",
 ];
 
-const STEPPER_STEPS = 6;
-const TOTAL_STEPS = 7; // internal: 0-5 = steps, 6 = confirmation
+const STEPPER_STEPS = 7;
+const TOTAL_STEPS = 8; // internal: 0-6 = steps, 7 = confirmation
 
 const tagBase =
   "px-3.5 py-1.5 rounded-[8px] border-2 text-[18px] font-semibold transition-all cursor-pointer leading-tight";
