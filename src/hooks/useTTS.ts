@@ -3,12 +3,16 @@ import { supabase } from "@/integrations/supabase/client";
 
 /**
  * TTS hook using ElevenLabs via the Supabase edge function.
+ * Includes a circuit breaker: after 3 consecutive 401/403 errors,
+ * permanently stops all TTS requests for the session.
  */
 export function useTTS() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const failCountRef = useRef(0);
+  const permanentlyFailedRef = useRef(false);
 
   const stop = useCallback(() => {
     const a = audioRef.current;
@@ -26,7 +30,8 @@ export function useTTS() {
     async (text: string) => {
       stop();
 
-      if (isMuted || !text) return;
+      // Circuit breaker: don't attempt if permanently failed or muted
+      if (isMuted || !text || permanentlyFailedRef.current) return;
 
       setIsLoading(true);
 
@@ -45,10 +50,21 @@ export function useTTS() {
         );
 
         if (!response.ok) {
+          // Circuit breaker for auth errors
+          if (response.status === 401 || response.status === 403) {
+            failCountRef.current += 1;
+            if (failCountRef.current >= 3) {
+              console.warn("TTS circuit breaker tripped: 3 consecutive auth failures. Disabling TTS for this session.");
+              permanentlyFailedRef.current = true;
+            }
+          }
           console.error("TTS error:", response.status);
           setIsLoading(false);
           return;
         }
+
+        // Reset fail count on success
+        failCountRef.current = 0;
 
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
