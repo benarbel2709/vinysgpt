@@ -369,8 +369,7 @@ export function selectExercisesScored(
   const seed = getSessionSeed(conditions);
 
   // Normalize user equipment for comparison
-  const normalizedEquip = userEquipment?.map(e => e.toLowerCase()) || [];
-  const hasEquipmentFilter = normalizedEquip.length > 0;
+  const normalizedEquip = (userEquipment || []).map(e => e.toLowerCase());
 
   const scored: ScoredExercise[] = [];
   for (const exercise of library) {
@@ -378,10 +377,10 @@ export function selectExercisesScored(
     if (!master) continue;
     if (!isSafeForConditions(master, conditions, mode)) continue;
 
-    // Equipment filter: skip exercises requiring equipment the user doesn't have
-    if (hasEquipmentFilter && master.equipment && master.equipment.length > 0) {
+    // Equipment filter: always run — skip exercises requiring equipment the user doesn't have
+    if (master.equipment && master.equipment.length > 0) {
       const needsUnavailable = master.equipment.some(
-        eq => !normalizedEquip.includes(eq.toLowerCase()) && eq.toLowerCase() !== "mat"
+        eq => eq.toLowerCase() !== "mat" && !normalizedEquip.includes(eq.toLowerCase())
       );
       if (needsUnavailable) continue;
     }
