@@ -759,7 +759,12 @@ export default function VinysDiagnostic({ onComplete }) {
             </div>
           )}
 
-          <PrimaryButton label="Continue →" onClick={() => { stopTTS(); setShowingVideo(false); }} />
+          <PrimaryButton label="Continue →" onClick={() => { stopTTS(); setVideoPlaying(false); setShowingVideo(false); }} />
+          <div className="flex justify-center">
+            <button onClick={() => { stopTTS(); setVideoPlaying(false); setShowingVideo(false); }} style={{ color: '#888', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', marginTop: 8 }}>
+              Skip video →
+            </button>
+          </div>
         </Shell>
       );
     }
