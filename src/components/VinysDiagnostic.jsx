@@ -468,6 +468,9 @@ export default function VinysDiagnostic({ onComplete }) {
     return () => stopTTS();
   }, [phase, showingVideo, postureIdx, qIdx]);
 
+  // Stop TTS on unmount
+  useEffect(() => () => stopTTS(), []);
+
   // --- Shell wrapper ---
   const Shell = ({ children, className = "" }) => (
     <div className={`min-h-screen bg-background flex justify-center items-start ${className}`} style={fadeInStyle}>
