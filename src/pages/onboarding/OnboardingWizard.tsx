@@ -677,12 +677,12 @@ export default function OnboardingWizard() {
               <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "420px" }}>
                 <div className="rounded-[12px] bg-surface-warm p-4 text-left space-y-2 text-sm mb-6">
                   {editRow("Conditions", selected.map((k) => label(k)).join(", "), 0)}
-                  {allRestrictions.length > 0 && editRow("Restrictions", allRestrictions.join(", "), 2)}
-                  {editRow("Time of day", practiceTime.charAt(0).toUpperCase() + practiceTime.slice(1), 3)}
-                  {editRow("Duration", `${minutesPerSession} min`, 3)}
-                  {editRow("Sessions / week", String(sessionsPerWeek), 3)}
-                  {equipment.length > 0 && editRow("Equipment", equipment.join(", "), 3)}
-                  {editRow("Session closing", CLOSING_OPTIONS.find((o) => o.value === closingPref)?.label || "", 4)}
+                  {allRestrictions.length > 0 && editRow("Restrictions", allRestrictions.join(", "), 3)}
+                  {editRow("Time of day", practiceTime.charAt(0).toUpperCase() + practiceTime.slice(1), 4)}
+                  {editRow("Duration", `${minutesPerSession} min`, 4)}
+                  {editRow("Sessions / week", String(sessionsPerWeek), 4)}
+                  {equipment.length > 0 && editRow("Equipment", equipment.join(", "), 4)}
+                  {editRow("Session closing", CLOSING_OPTIONS.find((o) => o.value === closingPref)?.label || "", 5)}
                 </div>
 
                 <Button variant="hero" size="lg" className="w-full rounded-full" onClick={() => handleBuild()}>
@@ -722,7 +722,7 @@ export default function OnboardingWizard() {
       </div>
 
       {/* ── FIXED BOTTOM BUTTONS ── */}
-      {step < 6 && step !== 1 && (
+      {step < 7 && step !== 1 && (
         <div
           className="fixed bottom-0 inset-x-0 z-40 pointer-events-none bg-background"
           style={{ paddingBottom: "40px", paddingTop: "16px", boxShadow: "0 -2px 8px rgba(0,0,0,0.04)" }}
