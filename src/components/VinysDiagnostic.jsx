@@ -692,7 +692,7 @@ export default function VinysDiagnostic({ onComplete }) {
           <div className="rounded-2xl overflow-hidden relative aspect-video bg-foreground/90 mb-4">
             <div
               className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-5 text-center"
-              style={{ background: `linear-gradient(145deg, ${posture.grad[0]}CC, ${posture.grad[1]}EE)` }}
+              style={{ background: '#2A2A2A' }}
             >
               {cleanSubtitle && (
                 <span className="text-[11px] text-white/60 font-bold tracking-widest uppercase">{cleanSubtitle}</span>
@@ -702,7 +702,6 @@ export default function VinysDiagnostic({ onComplete }) {
               <div className="mt-2.5 w-[52px] h-[52px] rounded-full bg-white/15 border-2 border-white/30 flex items-center justify-center">
                 <Play className="w-5 h-5 text-white/40 ml-0.5" />
               </div>
-              <span className="text-[11px] text-white/35 uppercase tracking-wider -mt-1">Video guide coming soon</span>
             </div>
           </div>
 
@@ -728,7 +727,7 @@ export default function VinysDiagnostic({ onComplete }) {
             </div>
           )}
 
-          <PrimaryButton label="Done — answer assessment questions →" onClick={() => { stopTTS(); setShowingVideo(false); }} />
+          <PrimaryButton label="Continue →" onClick={() => { stopTTS(); setShowingVideo(false); }} />
         </Shell>
       );
     }
@@ -926,11 +925,12 @@ function OptionTile({ label, selected, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full p-4 rounded-2xl border-2 text-left flex items-start gap-3.5 transition-all press-scale cursor-pointer ${
+      className={`w-full p-4 rounded-2xl text-left flex items-start gap-3.5 transition-all press-scale cursor-pointer ${
         selected
-          ? "border-primary bg-primary/5 text-foreground font-semibold"
-          : "border-border bg-card text-foreground hover:border-primary/30"
+          ? "border-l-4 border-primary bg-[#FFF8F3] text-foreground font-semibold shadow-sm"
+          : "border-l-4 border-transparent bg-card text-foreground hover:bg-card/80 border border-border rounded-2xl"
       }`}
+      style={selected ? { borderTop: '1px solid hsl(var(--border))', borderRight: '1px solid hsl(var(--border))', borderBottom: '1px solid hsl(var(--border))' } : {}}
     >
       <span
         className={`w-[22px] h-[22px] rounded-full flex-shrink-0 mt-0.5 border-[2.5px] flex items-center justify-center transition-all ${
@@ -939,7 +939,7 @@ function OptionTile({ label, selected, onClick }) {
       >
         {selected && <span className="w-2 h-2 rounded-full bg-white block" />}
       </span>
-      <span className="flex-1 text-[14.5px] leading-snug">{label}</span>
+      <span className={`flex-1 text-[14.5px] leading-snug ${selected ? "text-foreground" : ""}`}>{label}</span>
     </button>
   );
 }
