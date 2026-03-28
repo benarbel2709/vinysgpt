@@ -410,6 +410,8 @@ export default function VinysDiagnostic({ onComplete }) {
 
   const { speak, stop: stopTTS, isPlaying: ttsPlaying, isLoading: ttsLoading } = useTTS();
 
+  const [videoPlaying, setVideoPlaying] = useState(false);
+
   const areaLabel = area ? AREA_CONFIG[area].label.toLowerCase() : "this area";
 
   const INTAKE = [
@@ -703,22 +705,37 @@ export default function VinysDiagnostic({ onComplete }) {
             </div>
           )}
 
-          {/* Video placeholder card */}
-          <div className="rounded-2xl overflow-hidden relative aspect-video bg-foreground/90 mb-4">
-            <div
-              className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-5 text-center"
-              style={{ background: '#2A2A2A' }}
-            >
-              {cleanSubtitle && (
-                <span className="text-[11px] text-white/60 font-bold tracking-widest uppercase">{cleanSubtitle}</span>
-              )}
-              <span className="text-[22px] font-extrabold text-white leading-tight">{posture.name}</span>
-              {posture.time && <span className="text-[13px] text-white/55">{posture.time}</span>}
-              <div className="mt-2.5 w-[52px] h-[52px] rounded-full bg-white/15 border-2 border-white/30 flex items-center justify-center">
-                <Play className="w-5 h-5 text-white/40 ml-0.5" />
+          {/* Video card with fallback */}
+          {(() => {
+            const effectiveId = posture.videoId || DEFAULT_VIDEO_ID;
+            return (
+              <div className="rounded-2xl overflow-hidden relative aspect-video mb-4" style={{ background: '#2A2A2A' }}>
+                {videoPlaying ? (
+                  <iframe
+                    className="absolute inset-0 w-full h-full"
+                    src={`https://www.youtube.com/embed/${effectiveId}?autoplay=1&rel=0`}
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                    title={posture.name}
+                  />
+                ) : (
+                  <div
+                    className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-5 text-center cursor-pointer"
+                    onClick={() => setVideoPlaying(true)}
+                  >
+                    {cleanSubtitle && (
+                      <span className="text-[11px] text-white/60 font-bold tracking-widest uppercase">{cleanSubtitle}</span>
+                    )}
+                    <span className="text-[22px] font-extrabold text-white leading-tight">{posture.name}</span>
+                    {posture.time && <span className="text-[13px] text-white/55">{posture.time}</span>}
+                    <div className="mt-2.5 w-[52px] h-[52px] rounded-full bg-white/15 border-2 border-white/30 flex items-center justify-center">
+                      <Play className="w-5 h-5 text-white/40 ml-0.5" />
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          </div>
+            );
+          })()}
 
           {/* Instructions card with TTS */}
           {posture.how && (
