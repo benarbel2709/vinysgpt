@@ -503,7 +503,7 @@ export default function VinysDiagnostic({ onComplete }) {
             Start Assessment
           </button>
 
-          <p className="text-xs text-muted-foreground mt-4">Takes about 3 minutes</p>
+          <p className="text-xs text-muted-foreground mt-4">Takes about 3 minutes · {totalPostures} postures</p>
         </div>
       </Shell>
     );
