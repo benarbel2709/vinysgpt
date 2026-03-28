@@ -448,17 +448,32 @@ export default function VinysDiagnostic({ onComplete }) {
     setPhase("postures");
   }
 
-  // Reset video player when posture changes
-  useEffect(() => { setVideoPlaying(false); }, [postureIdx]);
+  // Reset video player when posture changes — auto-start video immediately
+  useEffect(() => { setVideoPlaying(true); }, [postureIdx]);
 
-  // Auto-speak posture instructions when video screen loads
+  // Auto-speak posture instructions when video screen loads, and loop TTS
+  const ttsTextRef = useRef("");
   useEffect(() => {
     if (phase === "postures" && showingVideo && activePostures[postureIdx]?.how && !isMuted) {
       const p = activePostures[postureIdx];
-      speak(`${p.name}. ${p.how}`);
+      ttsTextRef.current = `${p.name}. ${p.how}`;
+      speak(ttsTextRef.current);
+    } else {
+      ttsTextRef.current = "";
     }
     return () => stopTTS();
-  }, [phase, showingVideo, postureIdx]);
+  }, [phase, showingVideo, postureIdx, isMuted]);
+
+  // Re-trigger TTS when it finishes (loop audio while on video screen)
+  useEffect(() => {
+    if (phase === "postures" && showingVideo && !isMuted && !ttsPlaying && !ttsLoading && ttsTextRef.current) {
+      // Small delay before looping to avoid jarring restart
+      const timer = setTimeout(() => {
+        if (ttsTextRef.current) speak(ttsTextRef.current);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [ttsPlaying, ttsLoading, phase, showingVideo, isMuted]);
 
   // Auto-speak question text when question screen loads
   useEffect(() => {
