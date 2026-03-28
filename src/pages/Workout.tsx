@@ -295,7 +295,7 @@ export default function Workout() {
         <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/40 via-transparent to-transparent" />
 
         {/* ===== TOP OVERLAY (hidden when ended) ===== */}
-        {!isEnded && (
+        {!isEnded && !showClosing && (
           <div className="absolute top-0 left-0 right-0 z-20 p-4 md:p-6 flex items-center justify-between">
             <span className="hidden lg:block">
               <BrandLogo size="sm" variant="white" linkToHome={false} />
@@ -307,6 +307,8 @@ export default function Workout() {
                   i === activeIdx ? "w-8 bg-white" : i < activeIdx ? "w-2.5 bg-white/50" : "w-2.5 bg-white/25"
                 }`} />
               ))}
+              {/* Closing step dot */}
+              <div className={`h-2 rounded-full transition-all duration-300 w-2.5 bg-white/25`} />
             </div>
             <div className="flex items-center gap-2">
               <div className={`rounded-full px-4 py-2 bg-white/20 backdrop-blur-md ${timerDone ? "animate-pulse ring-2 ring-white/40" : ""}`}>
