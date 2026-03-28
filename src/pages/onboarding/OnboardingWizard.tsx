@@ -385,8 +385,62 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 3: Restrictions / Contraindications ═══ */}
-        {step === 2 && (
+        {/* ═══ STEP 3: Profile Summary ═══ */}
+        {step === 2 && diagnosticResult && (() => {
+          const IRRIT_LABELS: Record<number, string> = { 0: "Not sensitive", 1: "Mildly sensitive", 2: "Moderately sensitive", 3: "Highly sensitive" };
+          const AREA_LABELS: Record<string, string> = { LB: "Lower Back", HIP: "Hip", KNEE: "Knee", ANKLE: "Ankle" };
+          const PROFILE_LABELS: Record<string, string> = {
+            FL: "Flexion-Sensitive", EX: "Extension-Sensitive", NE: "Neural", LI: "Load-Sensitive", ST: "Stiffness-Dominant",
+            AN: "Anterior Overload", LA: "Lateral Overload", PO: "Posterior", PA: "Patellofemoral", ME: "Medial Stress",
+            AC: "Achilles / Posterior", PF: "Plantar Fascia", MO: "Mobility-First",
+          };
+          const FOCUS_DESC: Record<string, string> = {
+            FL: "Your sessions will focus on gentle backbends and avoiding sustained forward bending.",
+            EX: "Your sessions will focus on decompression and supported flexion positions.",
+            NE: "Your sessions will include gentle neural glides to reduce nerve irritation.",
+            LI: "Your sessions will start gently and build load progressively.",
+            ST: "Your sessions will focus on restoring range of motion through regular mobility work.",
+            AN: "Your sessions will avoid deep flexion under load and focus on decompression.",
+            LA: "Your sessions will focus on strengthening and graded lateral loading.",
+            PO: "Your sessions will address hip rotation and posterior chain flexibility.",
+            PA: "Your sessions will focus on quad control and step-down exercises.",
+            ME: "Your sessions will focus on alignment and reducing medial load.",
+            AC: "Your sessions will use graded loading and eccentric work for Achilles recovery.",
+            PF: "Your sessions will include calf release, foot strength, and graded loading.",
+            MO: "Your sessions will focus on progressive, never forced, range of motion work.",
+          };
+          const areaLabel = AREA_LABELS[diagnosticResult.area] || diagnosticResult.area;
+          const profileLabel = PROFILE_LABELS[diagnosticResult.primary] || diagnosticResult.primary;
+          const irr = diagnosticResult.irritability ?? 0;
+          const irrLabel = IRRIT_LABELS[irr] || "Not sensitive";
+          const focusDesc = FOCUS_DESC[diagnosticResult.primary] || "Your plan will be tailored to your specific pattern.";
+
+          return (
+            <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "460px" }}>
+              <div className="rounded-2xl bg-surface-warm p-6 text-left space-y-4 mb-6">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-sm">Area</span>
+                  <span className="font-semibold text-foreground">{areaLabel}</span>
+                </div>
+                <hr className="border-border" />
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-sm">Primary profile</span>
+                  <span className="font-semibold text-secondary">{profileLabel}</span>
+                </div>
+                <hr className="border-border" />
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-sm">Sensitivity</span>
+                  <span className="font-semibold text-foreground">{irrLabel}</span>
+                </div>
+                <hr className="border-border" />
+                <p className="text-sm text-foreground leading-relaxed">{focusDesc}</p>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* ═══ STEP 4: Restrictions / Contraindications ═══ */}
+        {step === 3 && (
           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
             <div className="flex flex-col" style={{ gap: "10px" }}>
               {RESTRICTION_OPTIONS.map((r) => {
@@ -425,8 +479,8 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 4: Practice time & schedule ═══ */}
-        {step === 3 && (
+        {/* ═══ STEP 5: Practice time & schedule ═══ */}
+        {step === 4 && (
           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
             <div>
               <h2 className="text-primary font-bold text-[21px]">Time of day</h2>
@@ -505,8 +559,8 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 5: Session Closing ═══ */}
-        {step === 4 && (
+        {/* ═══ STEP 6: Session Closing ═══ */}
+        {step === 5 && (
           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "440px" }}>
             <p className="text-muted-foreground text-sm mb-4">How would you like to end your session?</p>
             <div className="flex flex-col" style={{ gap: "10px" }}>
@@ -523,8 +577,8 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 6: How are you feeling + Safety check ═══ */}
-        {step === 5 && (
+        {/* ═══ STEP 7: How are you feeling + Safety check ═══ */}
+        {step === 6 && (
           <div
             className="w-full text-center"
             style={{ marginTop: "40px", maxWidth: "640px", display: "flex", flexDirection: "column", gap: "20px" }}
@@ -581,8 +635,8 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 7: Confirmation / Summary ═══ */}
-        {step === 6 &&
+        {/* ═══ STEP 8: Confirmation / Summary ═══ */}
+        {step === 7 &&
           (() => {
             const doStartOver = () => {
               setStep(0);
