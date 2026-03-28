@@ -628,7 +628,7 @@ export default function OnboardingWizard() {
                   {editRow("Session closing", CLOSING_OPTIONS.find((o) => o.value === closingPref)?.label || "", 4)}
                 </div>
 
-                <Button variant="hero" size="lg" className="w-full rounded-full" onClick={handleBuild}>
+                <Button variant="hero" size="lg" className="w-full rounded-full" onClick={() => handleBuild()}>
                   Start my practice
                 </Button>
                 <button

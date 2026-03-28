@@ -86,12 +86,12 @@ export default function Workout() {
   useEffect(() => { setRemaining(perExerciseMinutes * 60); setTimerDone(false); }, [activeIdx, perExerciseMinutes]);
 
   useEffect(() => {
-    if (!isPlaying || remaining <= 0) return;
+    if (!isPlaying || isInfoOpen || remaining <= 0) return;
     const timer = setInterval(() => {
       setRemaining((r) => { if (r <= 1) { setTimerDone(true); return 0; } return r - 1; });
     }, 1000);
     return () => clearInterval(timer);
-  }, [isPlaying, remaining]);
+  }, [isPlaying, isInfoOpen, remaining]);
 
   // Sync video play state
   useEffect(() => {
@@ -191,7 +191,7 @@ export default function Workout() {
   };
 
   const openInfo = () => { setIsInfoOpen(true); setIsPlaying(false); };
-  const closeInfo = () => { setIsInfoOpen(false); };
+  const closeInfo = () => { setIsInfoOpen(false); setIsPlaying(true); };
   const togglePlay = () => setIsPlaying(p => !p);
 
   const handleCheckinSave = async () => {
@@ -433,7 +433,7 @@ export default function Workout() {
                 Practice<br />complete!
               </h1>
               <p className="text-white/70 text-sm mt-4">
-                helps us adapt your next practice session.
+                Tell us how you felt — it helps us adapt your next practice session.
               </p>
               <div className="mt-8 space-y-3">
                 <button
