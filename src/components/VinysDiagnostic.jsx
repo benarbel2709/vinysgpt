@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useTTS } from "@/hooks/useTTS";
 import BrandLogo from "@/components/BrandLogo";
 import { Volume2, VolumeX, Play, ChevronRight, Check, RotateCcw, ArrowLeft } from "lucide-react";
@@ -448,17 +448,32 @@ export default function VinysDiagnostic({ onComplete }) {
     setPhase("postures");
   }
 
-  // Reset video player when posture changes
-  useEffect(() => { setVideoPlaying(false); }, [postureIdx]);
+  // Reset video player when posture changes — auto-start video immediately
+  useEffect(() => { setVideoPlaying(true); }, [postureIdx]);
 
-  // Auto-speak posture instructions when video screen loads
+  // Auto-speak posture instructions when video screen loads, and loop TTS
+  const ttsTextRef = useRef("");
   useEffect(() => {
     if (phase === "postures" && showingVideo && activePostures[postureIdx]?.how && !isMuted) {
       const p = activePostures[postureIdx];
-      speak(`${p.name}. ${p.how}`);
+      ttsTextRef.current = `${p.name}. ${p.how}`;
+      speak(ttsTextRef.current);
+    } else {
+      ttsTextRef.current = "";
     }
     return () => stopTTS();
-  }, [phase, showingVideo, postureIdx]);
+  }, [phase, showingVideo, postureIdx, isMuted]);
+
+  // Re-trigger TTS when it finishes (loop audio while on video screen)
+  useEffect(() => {
+    if (phase === "postures" && showingVideo && !isMuted && !ttsPlaying && !ttsLoading && ttsTextRef.current) {
+      // Small delay before looping to avoid jarring restart
+      const timer = setTimeout(() => {
+        if (ttsTextRef.current) speak(ttsTextRef.current);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [ttsPlaying, ttsLoading, phase, showingVideo, isMuted]);
 
   // Auto-speak question text when question screen loads
   useEffect(() => {
@@ -702,32 +717,23 @@ export default function VinysDiagnostic({ onComplete }) {
             </div>
           )}
 
-          {/* Video card with native HTML5 player */}
+          {/* Video card — auto-starts, loops silently */}
           <div className="rounded-2xl overflow-hidden relative aspect-video mb-4" style={{ background: '#2A2A2A' }}>
-            {videoPlaying ? (
-              <video
-                src={posture.videoSrc || universalVideo}
-                autoPlay
-                loop
-                muted
-                playsInline
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
-            ) : (
-              <div
-                className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-5 text-center cursor-pointer"
-                onClick={() => setVideoPlaying(true)}
-              >
-                {cleanSubtitle && (
-                  <span className="text-[11px] text-white/60 font-bold tracking-widest uppercase">{cleanSubtitle}</span>
-                )}
-                <span className="text-[22px] font-extrabold text-white leading-tight">{posture.name}</span>
-                {posture.time && <span className="text-[13px] text-white/55">{posture.time}</span>}
-                <div className="mt-2.5 w-[52px] h-[52px] rounded-full bg-white/15 border-2 border-white/30 flex items-center justify-center">
-                  <Play className="w-5 h-5 text-white/40 ml-0.5" />
-                </div>
-              </div>
-            )}
+            <video
+              src={posture.videoSrc || universalVideo}
+              autoPlay
+              loop
+              muted
+              playsInline
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+            {/* Posture name overlay */}
+            <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/50 to-transparent pointer-events-none">
+              {cleanSubtitle && (
+                <span className="text-[11px] text-white/60 font-bold tracking-widest uppercase block">{cleanSubtitle}</span>
+              )}
+              <span className="text-[18px] font-bold text-white leading-tight">{posture.name}</span>
+            </div>
 
             {/* TTS overlay bar */}
             <div style={{ position: "absolute", bottom: 10, left: 10, right: 10, display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 10 }}>
@@ -771,9 +777,9 @@ export default function VinysDiagnostic({ onComplete }) {
             </div>
           )}
 
-          <PrimaryButton label="Continue →" onClick={() => { stopTTS(); setVideoPlaying(false); setShowingVideo(false); }} />
+          <PrimaryButton label="Continue →" onClick={() => { ttsTextRef.current = ""; stopTTS(); setShowingVideo(false); }} />
           <div className="flex justify-center">
-            <button onClick={() => { stopTTS(); setVideoPlaying(false); setShowingVideo(false); }} style={{ color: '#888', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', marginTop: 8 }}>
+            <button onClick={() => { ttsTextRef.current = ""; stopTTS(); setShowingVideo(false); }} style={{ color: '#888', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', marginTop: 8 }}>
               Skip video →
             </button>
           </div>
