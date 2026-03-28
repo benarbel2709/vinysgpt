@@ -46,8 +46,8 @@ const RESTRICTION_OPTIONS = [
   "Avoid prone (face-down) positions",
 ];
 
-const STEPPER_STEPS = 6;
-const TOTAL_STEPS = 7; // internal: 0-5 = steps, 6 = confirmation
+const STEPPER_STEPS = 7;
+const TOTAL_STEPS = 8; // internal: 0-6 = steps, 7 = confirmation
 
 const tagBase =
   "px-3.5 py-1.5 rounded-[8px] border-2 text-[18px] font-semibold transition-all cursor-pointer leading-tight";
@@ -109,7 +109,7 @@ export default function OnboardingWizard() {
       return (conditionDetails[k] || []).length > 0;
     });
 
-  // Step mapping: 0=conditions, 1=details, 2=restrictions, 3=schedule, 4=closing, 5=energy+safety, 6=confirmation
+  // Step mapping: 0=conditions, 1=diagnostic, 2=profile summary, 3=restrictions, 4=schedule, 5=closing, 6=energy+safety, 7=confirmation
   const canGoNext = (): boolean => {
     switch (step) {
       case 0:
@@ -117,14 +117,16 @@ export default function OnboardingWizard() {
       case 1:
         return !!diagnosticResult;
       case 2:
-        return true; // restrictions are optional
+        return !!diagnosticResult; // profile summary — always can proceed
       case 3:
-        return timeSelected && durationSelected && sessionsSelected;
+        return true; // restrictions are optional
       case 4:
-        return !!closingPref;
+        return timeSelected && durationSelected && sessionsSelected;
       case 5:
-        return true;
+        return !!closingPref;
       case 6:
+        return true;
+      case 7:
         return true;
       default:
         return true;
@@ -177,7 +179,7 @@ export default function OnboardingWizard() {
   };
 
   const handleNext = () => {
-    if (step === 5 && redFlags.length > 0) {
+    if (step === 6 && redFlags.length > 0) {
       navigate("/onboarding/medical-stop");
       return;
     }
@@ -195,6 +197,7 @@ export default function OnboardingWizard() {
   const STEP_TITLES = [
     "Your conditions",
     "Body diagnostic",
+    "Your movement profile",
     "Any movements to avoid?",
     "Practice time & schedule",
     "Session closing",
@@ -215,7 +218,7 @@ export default function OnboardingWizard() {
         <div className="flex items-center h-[56px] px-6 lg:px-[100px]">
           <BrandLogo size="md" linkToHome={false} />
           <div className="flex-1 flex justify-center">
-            {step < 6 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
+            {step < 7 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
           </div>
           <button
             onClick={() => navigate("/")}
@@ -232,7 +235,7 @@ export default function OnboardingWizard() {
         className="flex-1 min-h-0 flex flex-col items-center overflow-y-auto overflow-x-hidden"
         style={{ maxWidth: "1100px", margin: "0 auto", width: "100%", padding: "0 24px 90px" }}
       >
-        {step !== 1 && (
+        {step !== 1 && step !== 2 && (
           <h1
             className="font-display text-foreground font-bold text-2xl text-center shrink-0"
             style={{ marginTop: "30px" }}
@@ -240,12 +243,12 @@ export default function OnboardingWizard() {
             {STEP_TITLES[step]}
           </h1>
         )}
-        {step === 2 && (
+        {step === 3 && (
           <p className="text-muted-foreground text-center text-sm mt-1 shrink-0">
             This helps us filter out anything that could cause harm.
           </p>
         )}
-        {step === 6 && (
+        {step === 7 && (
           <p className="text-muted-foreground text-center text-sm mt-1 shrink-0">
             We'll build your personalized practice.
           </p>
@@ -382,8 +385,62 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 3: Restrictions / Contraindications ═══ */}
-        {step === 2 && (
+        {/* ═══ STEP 3: Profile Summary ═══ */}
+        {step === 2 && diagnosticResult && (() => {
+          const IRRIT_LABELS: Record<number, string> = { 0: "Not sensitive", 1: "Mildly sensitive", 2: "Moderately sensitive", 3: "Highly sensitive" };
+          const AREA_LABELS: Record<string, string> = { LB: "Lower Back", HIP: "Hip", KNEE: "Knee", ANKLE: "Ankle" };
+          const PROFILE_LABELS: Record<string, string> = {
+            FL: "Flexion-Sensitive", EX: "Extension-Sensitive", NE: "Neural", LI: "Load-Sensitive", ST: "Stiffness-Dominant",
+            AN: "Anterior Overload", LA: "Lateral Overload", PO: "Posterior", PA: "Patellofemoral", ME: "Medial Stress",
+            AC: "Achilles / Posterior", PF: "Plantar Fascia", MO: "Mobility-First",
+          };
+          const FOCUS_DESC: Record<string, string> = {
+            FL: "Your sessions will focus on gentle backbends and avoiding sustained forward bending.",
+            EX: "Your sessions will focus on decompression and supported flexion positions.",
+            NE: "Your sessions will include gentle neural glides to reduce nerve irritation.",
+            LI: "Your sessions will start gently and build load progressively.",
+            ST: "Your sessions will focus on restoring range of motion through regular mobility work.",
+            AN: "Your sessions will avoid deep flexion under load and focus on decompression.",
+            LA: "Your sessions will focus on strengthening and graded lateral loading.",
+            PO: "Your sessions will address hip rotation and posterior chain flexibility.",
+            PA: "Your sessions will focus on quad control and step-down exercises.",
+            ME: "Your sessions will focus on alignment and reducing medial load.",
+            AC: "Your sessions will use graded loading and eccentric work for Achilles recovery.",
+            PF: "Your sessions will include calf release, foot strength, and graded loading.",
+            MO: "Your sessions will focus on progressive, never forced, range of motion work.",
+          };
+          const areaLabel = AREA_LABELS[diagnosticResult.area] || diagnosticResult.area;
+          const profileLabel = PROFILE_LABELS[diagnosticResult.primary] || diagnosticResult.primary;
+          const irr = diagnosticResult.irritability ?? 0;
+          const irrLabel = IRRIT_LABELS[irr] || "Not sensitive";
+          const focusDesc = FOCUS_DESC[diagnosticResult.primary] || "Your plan will be tailored to your specific pattern.";
+
+          return (
+            <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "460px" }}>
+              <div className="rounded-2xl bg-surface-warm p-6 text-left space-y-4 mb-6">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-sm">Area</span>
+                  <span className="font-semibold text-foreground">{areaLabel}</span>
+                </div>
+                <hr className="border-border" />
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-sm">Primary profile</span>
+                  <span className="font-semibold text-secondary">{profileLabel}</span>
+                </div>
+                <hr className="border-border" />
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-sm">Sensitivity</span>
+                  <span className="font-semibold text-foreground">{irrLabel}</span>
+                </div>
+                <hr className="border-border" />
+                <p className="text-sm text-foreground leading-relaxed">{focusDesc}</p>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* ═══ STEP 4: Restrictions / Contraindications ═══ */}
+        {step === 3 && (
           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
             <div className="flex flex-col" style={{ gap: "10px" }}>
               {RESTRICTION_OPTIONS.map((r) => {
@@ -422,8 +479,8 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 4: Practice time & schedule ═══ */}
-        {step === 3 && (
+        {/* ═══ STEP 5: Practice time & schedule ═══ */}
+        {step === 4 && (
           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
             <div>
               <h2 className="text-primary font-bold text-[21px]">Time of day</h2>
@@ -502,8 +559,8 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 5: Session Closing ═══ */}
-        {step === 4 && (
+        {/* ═══ STEP 6: Session Closing ═══ */}
+        {step === 5 && (
           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "440px" }}>
             <p className="text-muted-foreground text-sm mb-4">How would you like to end your session?</p>
             <div className="flex flex-col" style={{ gap: "10px" }}>
@@ -520,8 +577,8 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 6: How are you feeling + Safety check ═══ */}
-        {step === 5 && (
+        {/* ═══ STEP 7: How are you feeling + Safety check ═══ */}
+        {step === 6 && (
           <div
             className="w-full text-center"
             style={{ marginTop: "40px", maxWidth: "640px", display: "flex", flexDirection: "column", gap: "20px" }}
@@ -578,8 +635,8 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 7: Confirmation / Summary ═══ */}
-        {step === 6 &&
+        {/* ═══ STEP 8: Confirmation / Summary ═══ */}
+        {step === 7 &&
           (() => {
             const doStartOver = () => {
               setStep(0);
@@ -620,15 +677,15 @@ export default function OnboardingWizard() {
               <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "420px" }}>
                 <div className="rounded-[12px] bg-surface-warm p-4 text-left space-y-2 text-sm mb-6">
                   {editRow("Conditions", selected.map((k) => label(k)).join(", "), 0)}
-                  {allRestrictions.length > 0 && editRow("Restrictions", allRestrictions.join(", "), 2)}
-                  {editRow("Time of day", practiceTime.charAt(0).toUpperCase() + practiceTime.slice(1), 3)}
-                  {editRow("Duration", `${minutesPerSession} min`, 3)}
-                  {editRow("Sessions / week", String(sessionsPerWeek), 3)}
-                  {equipment.length > 0 && editRow("Equipment", equipment.join(", "), 3)}
-                  {editRow("Session closing", CLOSING_OPTIONS.find((o) => o.value === closingPref)?.label || "", 4)}
+                  {allRestrictions.length > 0 && editRow("Restrictions", allRestrictions.join(", "), 3)}
+                  {editRow("Time of day", practiceTime.charAt(0).toUpperCase() + practiceTime.slice(1), 4)}
+                  {editRow("Duration", `${minutesPerSession} min`, 4)}
+                  {editRow("Sessions / week", String(sessionsPerWeek), 4)}
+                  {equipment.length > 0 && editRow("Equipment", equipment.join(", "), 4)}
+                  {editRow("Session closing", CLOSING_OPTIONS.find((o) => o.value === closingPref)?.label || "", 5)}
                 </div>
 
-                <Button variant="hero" size="lg" className="w-full rounded-full" onClick={handleBuild}>
+                <Button variant="hero" size="lg" className="w-full rounded-full" onClick={() => handleBuild()}>
                   Start my practice
                 </Button>
                 <button
@@ -665,7 +722,7 @@ export default function OnboardingWizard() {
       </div>
 
       {/* ── FIXED BOTTOM BUTTONS ── */}
-      {step < 6 && step !== 1 && (
+      {step < 7 && step !== 1 && (
         <div
           className="fixed bottom-0 inset-x-0 z-40 pointer-events-none bg-background"
           style={{ paddingBottom: "40px", paddingTop: "16px", boxShadow: "0 -2px 8px rgba(0,0,0,0.04)" }}

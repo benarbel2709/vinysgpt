@@ -78,7 +78,8 @@ export default function Plan() {
   // ── Handlers ──
 
   const handleStartNextPractice = () => {
-    if (weekly.completed >= weekly.target) {
+    const effectiveCompleted = user ? weekly.completed : completedCount;
+    if (effectiveCompleted >= weekly.target) {
       setShowWeeklyDone(true);
       return;
     }
@@ -233,7 +234,7 @@ export default function Plan() {
 
         {/* 3) TOP STATS ROW */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <WeeklyTargetCard completedCount={weekly.completed} target={weekly.target} />
+          <WeeklyTargetCard completedCount={user ? weekly.completed : completedCount} target={weekly.target} />
           <div className="rounded-2xl bg-secondary text-secondary-foreground p-6 flex flex-col justify-between min-h-[120px]">
             <span className="text-sm font-medium opacity-90">Time practicing</span>
             <span className="text-[40px] sm:text-[44px] font-bold leading-[1.05] tracking-[-0.01em]">

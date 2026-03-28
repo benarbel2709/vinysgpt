@@ -496,7 +496,7 @@ export default function VinysDiagnostic({ onComplete }) {
     </div>
   );
 
-  const totalPostures = activePostures.length || Object.values(AREA_CONFIG).reduce(() => 4, 4);
+  const totalPostures = activePostures.length > 0 ? activePostures.filter(p => !p.isSummary).length : getPosturesForArea("LB").length;
 
   // ==========================================================================
   // PHASE: INTRO
@@ -755,24 +755,10 @@ export default function VinysDiagnostic({ onComplete }) {
             </div>
           </div>
 
-          {/* Instructions card with TTS */}
+          {/* Instructions card (no duplicate TTS button) */}
           {posture.how && (
             <div className="p-5 rounded-2xl bg-card border border-border shadow-calm mb-5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-bold text-primary uppercase tracking-widest">How to do this exercise</span>
-                <button
-                  onClick={() => speak(posture.how)}
-                  disabled={ttsPlaying || ttsLoading}
-                  className="p-1.5 rounded-lg hover:bg-primary/5 transition-colors disabled:opacity-50"
-                  aria-label="Read instructions aloud"
-                >
-                  {ttsPlaying || ttsLoading ? (
-                    <Volume2 className="w-4 h-4 text-primary animate-pulse" />
-                  ) : (
-                    <Volume2 className="w-4 h-4 text-muted-foreground" />
-                  )}
-                </button>
-              </div>
+              <span className="text-[11px] font-bold text-primary uppercase tracking-widest block mb-3">How to do this exercise</span>
               <p className="text-[15px] text-foreground leading-[1.7]">{posture.how}</p>
             </div>
           )}
