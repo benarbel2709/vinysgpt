@@ -725,6 +725,25 @@ export default function VinysDiagnostic({ onComplete }) {
                 </div>
               </div>
             )}
+
+            {/* TTS overlay bar */}
+            <div style={{ position: "absolute", bottom: 10, left: 10, right: 10, display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 10 }}>
+              <button
+                onClick={() => setMuted(!isMuted)}
+                disabled={ttsLoading}
+                style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.15)", backdropFilter: "blur(6px)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}
+                aria-label={isMuted ? "Unmute" : "Mute"}
+              >
+                {ttsLoading ? <RotateCcw className="w-4 h-4 animate-spin" /> : isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+              </button>
+              <button
+                onClick={() => speak(`${posture.name}. ${posture.how}`)}
+                style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.15)", backdropFilter: "blur(6px)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}
+                aria-label="Replay instructions"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Instructions card with TTS */}
