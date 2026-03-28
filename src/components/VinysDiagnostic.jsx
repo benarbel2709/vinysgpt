@@ -407,7 +407,7 @@ export default function VinysDiagnostic({ onComplete }) {
   const [diagnosticOutput, setDiagnosticOutput] = useState(null);
   const [showingVideo, setShowingVideo] = useState(true);
 
-  const { speak, stop: stopTTS, isPlaying: ttsPlaying, isLoading: ttsLoading } = useTTS();
+  const { speak, stop: stopTTS, isPlaying: ttsPlaying, isLoading: ttsLoading, isMuted, setMuted } = useTTS();
 
   const [videoPlaying, setVideoPlaying] = useState(false);
 
@@ -453,8 +453,9 @@ export default function VinysDiagnostic({ onComplete }) {
 
   // Auto-speak posture instructions when video screen loads
   useEffect(() => {
-    if (phase === "postures" && showingVideo && activePostures[postureIdx]?.how) {
-      speak(activePostures[postureIdx].how);
+    if (phase === "postures" && showingVideo && activePostures[postureIdx]?.how && !isMuted) {
+      const p = activePostures[postureIdx];
+      speak(`${p.name}. ${p.how}`);
     }
     return () => stopTTS();
   }, [phase, showingVideo, postureIdx]);
@@ -466,6 +467,9 @@ export default function VinysDiagnostic({ onComplete }) {
     }
     return () => stopTTS();
   }, [phase, showingVideo, postureIdx, qIdx]);
+
+  // Stop TTS on unmount
+  useEffect(() => () => stopTTS(), []);
 
   // --- Shell wrapper ---
   const Shell = ({ children, className = "" }) => (
@@ -704,9 +708,10 @@ export default function VinysDiagnostic({ onComplete }) {
               <video
                 src={posture.videoSrc || universalVideo}
                 autoPlay
-                controls
+                loop
+                muted
                 playsInline
-                style={{ width: "100%", borderRadius: 18 }}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
             ) : (
               <div
@@ -723,6 +728,25 @@ export default function VinysDiagnostic({ onComplete }) {
                 </div>
               </div>
             )}
+
+            {/* TTS overlay bar */}
+            <div style={{ position: "absolute", bottom: 10, left: 10, right: 10, display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 10 }}>
+              <button
+                onClick={() => setMuted(!isMuted)}
+                disabled={ttsLoading}
+                style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.15)", backdropFilter: "blur(6px)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}
+                aria-label={isMuted ? "Unmute" : "Mute"}
+              >
+                {ttsLoading ? <RotateCcw className="w-4 h-4 animate-spin" /> : isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+              </button>
+              <button
+                onClick={() => speak(`${posture.name}. ${posture.how}`)}
+                style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.15)", backdropFilter: "blur(6px)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}
+                aria-label="Replay instructions"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Instructions card with TTS */}
