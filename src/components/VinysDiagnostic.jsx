@@ -3,6 +3,10 @@ import { useTTS } from "@/hooks/useTTS";
 import BrandLogo from "@/components/BrandLogo";
 import { Volume2, VolumeX, Play, ChevronRight, Check, RotateCcw, ArrowLeft } from "lucide-react";
 
+const DEFAULT_VIDEO_ID = "PASTE_YOUR_YOUTUBE_ID_HERE";
+
+const fadeInStyle = { animation: "fadeIn 0.3s ease" };
+
 // --- AREAS --------------------------------------------------------------------
 const AREA_CONFIG = {
   LB: { label: "Lower Back", icon: "◎", crossoverTo: null },
@@ -461,12 +465,15 @@ export default function VinysDiagnostic({ onComplete }) {
 
   // --- Shell wrapper ---
   const Shell = ({ children, className = "" }) => (
-    <div className={`min-h-screen bg-background flex justify-center items-start ${className}`}>
+    <div className={`min-h-screen bg-background flex justify-center items-start ${className}`} style={fadeInStyle}>
+      <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
       <div className="w-full max-w-[460px] px-5 py-9">
         {children}
       </div>
     </div>
   );
+
+  const totalPostures = activePostures.length || Object.values(AREA_CONFIG).reduce(() => 4, 4);
 
   // ==========================================================================
   // PHASE: INTRO
