@@ -218,7 +218,7 @@ export default function OnboardingWizard() {
         <div className="flex items-center h-[56px] px-6 lg:px-[100px]">
           <BrandLogo size="md" linkToHome={false} />
           <div className="flex-1 flex justify-center">
-            {step < 6 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
+            {step < 7 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
           </div>
           <button
             onClick={() => navigate("/")}
@@ -235,7 +235,7 @@ export default function OnboardingWizard() {
         className="flex-1 min-h-0 flex flex-col items-center overflow-y-auto overflow-x-hidden"
         style={{ maxWidth: "1100px", margin: "0 auto", width: "100%", padding: "0 24px 90px" }}
       >
-        {step !== 1 && (
+        {step !== 1 && step !== 2 && (
           <h1
             className="font-display text-foreground font-bold text-2xl text-center shrink-0"
             style={{ marginTop: "30px" }}
@@ -243,12 +243,12 @@ export default function OnboardingWizard() {
             {STEP_TITLES[step]}
           </h1>
         )}
-        {step === 2 && (
+        {step === 3 && (
           <p className="text-muted-foreground text-center text-sm mt-1 shrink-0">
             This helps us filter out anything that could cause harm.
           </p>
         )}
-        {step === 6 && (
+        {step === 7 && (
           <p className="text-muted-foreground text-center text-sm mt-1 shrink-0">
             We'll build your personalized practice.
           </p>
