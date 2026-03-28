@@ -451,6 +451,14 @@ export default function VinysDiagnostic({ onComplete }) {
     return () => stopTTS();
   }, [phase, showingVideo, postureIdx]);
 
+  // Auto-speak question text when question screen loads
+  useEffect(() => {
+    if (phase === "postures" && !showingVideo && activePostures[postureIdx]?.qs?.[qIdx]?.text) {
+      speak(activePostures[postureIdx].qs[qIdx].text);
+    }
+    return () => stopTTS();
+  }, [phase, showingVideo, postureIdx, qIdx]);
+
   // --- Shell wrapper ---
   const Shell = ({ children, className = "" }) => (
     <div className={`min-h-screen bg-background flex justify-center items-start ${className}`}>
