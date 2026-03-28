@@ -165,10 +165,10 @@ export default function OnboardingWizard() {
     };
     const assessment: Assessment = { id: assessmentId, createdAt: new Date().toISOString(), type: "generic", data };
     const plan = generatePlan(updatedProfile, assessmentId, undefined, state.exerciseLibrary, {
-      pain: 5,
-      fatigue: 5,
+      pain: (diagnosticResult?.irritability ?? 0) >= 2 ? 7 : 5,
+      fatigue: (diagnosticResult?.irritability ?? 0) >= 2 ? 7 : 5,
       sleep: 5,
-      flareNow: "no",
+      flareNow: (diagnosticResult?.irritability ?? 0) >= 3 ? "yes" : "no",
     });
     updateState({ assessments: [...state.assessments, assessment], currentPlan: plan });
     trackEvent("plan_generated", { condition: selected[0], duration: plan.sessions[0]?.durationMinutes });
@@ -355,8 +355,27 @@ export default function OnboardingWizard() {
           <div className="w-full" style={{ marginTop: "20px" }}>
             <VinysDiagnostic
               onComplete={(result: any) => {
+                // Map diagnostic area to ConditionKey so plan targets the right body area
+                const areaToCondKey: Record<string, string> = {
+                  LB: "back_pain",
+                  HIP: "hip_pain",
+                  KNEE: "knee_pain",
+                  ANKLE: "back_pain",
+                };
+                const derivedKey = areaToCondKey[result.area ?? "LB"] ?? "back_pain";
+                // Promote derived condition so generatePlan targets the diagnosed area
+                setSelected((prev) =>
+                  prev.includes(derivedKey as any)
+                    ? prev
+                    : [derivedKey as any, ...prev.filter((c) => c !== derivedKey)],
+                );
                 setDiagnosticResult(result);
-                updateProfile({ diagnosticResult: result } as any);
+                updateProfile({
+                  diagnosticResult: result,
+                  diagnosticArea: result.area,
+                  diagnosticProfile: result.primary,
+                  diagnosticIrritability: result.irritability ?? 0,
+                } as any);
                 setStep(2);
               }}
             />
