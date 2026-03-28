@@ -449,6 +449,9 @@ export default function VinysDiagnostic({ onComplete }) {
     setPhase("postures");
   }
 
+  // Reset video player when posture changes
+  useEffect(() => { setVideoPlaying(false); }, [postureIdx]);
+
   // Auto-speak posture instructions when video screen loads
   useEffect(() => {
     if (phase === "postures" && showingVideo && activePostures[postureIdx]?.how) {
