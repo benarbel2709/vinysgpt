@@ -687,7 +687,6 @@ export default function VinysDiagnostic({ onComplete }) {
         <Shell className="!pt-0">
           {/* Progress bar at top */}
           <div className="pt-4 pb-3">
-          <div className="pt-4 pb-3">
             <p className="text-xs text-muted-foreground mb-1.5">Posture {postureIdx + 1} of {progressTotal}</p>
             <div className="w-full h-1 rounded-full bg-border overflow-hidden">
               <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${((postureIdx + 1) / progressTotal) * 100}%` }} />
