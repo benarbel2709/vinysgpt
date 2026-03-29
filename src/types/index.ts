@@ -75,6 +75,15 @@ export interface Profile {
   practiceTime: PracticeTime;
   energyLevel: EnergyLevel;
   closingPreference: "savasana" | "meditation" | "body_rest";
+  irritability?: number;
+  acuity?: "high" | "medium" | "low" | "unknown";
+  mode?: "normal" | "easier" | "flare";
+  redFlagsPassed?: boolean;
+  restrictions?: string[];
+  availableEquipment?: string[];
+  movementProfile?: string;
+  sensitivity?: string;
+  confidence?: string;
 }
 
 export interface CurrentPlan {
