@@ -1,13 +1,13 @@
 import { motion } from "framer-motion";
 
 const FLOW_STEPS = [
-  "User Inputs",
+  "Your Inputs",
   "Condition Profile",
   "Movement Library",
   "Safety Filtering",
-  "Session Generation",
-  "Feedback",
-  "Adaptive Progression",
+  "Session Generated",
+  "Your Feedback",
+  "Practice Adapts",
 ];
 
 export default function SessionFlowVisual() {
@@ -18,7 +18,7 @@ export default function SessionFlowVisual() {
           How your session is built
         </h2>
         <p className="text-sm text-muted-foreground text-center mb-10 max-w-[520px] mx-auto leading-relaxed">
-          Vinys combines your inputs with a condition-specific movement library to generate a session tailored to your body and your current capacity.
+          Vinys takes your inputs, filters them through your condition profile and movement library, and generates a session matched to your body today.
         </p>
 
         {/* Horizontal flow — desktop */}

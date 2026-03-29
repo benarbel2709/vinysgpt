@@ -7,12 +7,8 @@ import GuidedWalkthrough from "@/components/home/GuidedWalkthrough";
 import SocialProof from "@/components/home/SocialProof";
 import WhyThisApproachWorks from "@/components/home/WhyThisApproachWorks";
 import WhatMakesVinysDifferent from "@/components/home/WhatMakesVinysDifferent";
-import PersonalizationEngine from "@/components/home/PersonalizationEngine";
 import SafetyArchitecture from "@/components/home/SafetyArchitecture";
 import SessionFlowVisual from "@/components/home/SessionFlowVisual";
-import AdaptivePracticeEngine from "@/components/home/AdaptivePracticeEngine";
-import HowItWorks from "@/components/home/HowItWorks";
-import FirstSessionPreview from "@/components/home/FirstSessionPreview";
 import WhoVinysIsFor from "@/components/home/WhoVinysIsFor";
 import ConditionsSection from "@/components/home/ConditionsSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
@@ -62,12 +58,8 @@ export default function Home() {
         <SocialProof />
         <WhyThisApproachWorks />
         <WhatMakesVinysDifferent />
-        <PersonalizationEngine />
         <SafetyArchitecture />
         <SessionFlowVisual />
-        <AdaptivePracticeEngine />
-        <HowItWorks />
-        <FirstSessionPreview />
         <WhoVinysIsFor />
         <ConditionsSection />
         <TestimonialsSection />

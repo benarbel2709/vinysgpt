@@ -4,21 +4,21 @@ import { User, ShieldCheck, Sun } from "lucide-react";
 const STATS = [
   {
     icon: <User size={28} className="text-secondary" />,
-    label: "Built around your body today",
-    desc: "Your session is generated from your condition, your current energy level, and the time you actually have available.",
-    desc2: "Vinys adapts to the body you have today — not the one a program assumes.",
+    label: "Built around your body",
+    desc: "Your session is shaped by your condition.",
+    desc2: "Vinys meets you where you are — not where a program assumes you should be.",
   },
   {
     icon: <Sun size={28} className="text-secondary" />,
     label: "Fits into real life",
-    desc: "Practice for ten minutes before work or thirty minutes on the weekend.",
-    desc2: "No studio, no booking, and no fixed schedule.",
+    desc: "Ten minutes before work or thirty on the weekend — no studio, no booking, no fixed schedule.",
+    desc2: "Vinys adapts to your time and space.",
   },
   {
     icon: <ShieldCheck size={28} className="text-secondary" />,
-    label: "Responsive over time",
-    desc: "After each session, you record how your body responded.",
-    desc2: "Vinys gradually adapts your practice so progression happens safely and consistently.",
+    label: "Gets smarter over time",
+    desc: "Each session ends with a quick check-in.",
+    desc2: "Vinys uses that feedback to gradually adjust your practice so progress happens safely.",
   },
 ];
 

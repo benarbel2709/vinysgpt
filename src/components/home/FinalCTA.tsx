@@ -14,10 +14,10 @@ export default function FinalCTA() {
             Meet your body where it is today.
           </h2>
           <p className="text-muted-foreground mb-8 max-w-[560px] mx-auto leading-relaxed" style={{ fontSize: "clamp(17px, 1.8vw, 20px)" }}>
-            A structured yoga practice that adapts to your condition, your energy, and your pace.
+            A therapeutic yoga practice built around your condition, your energy, and your pace — starting now.
           </p>
           <Button onClick={handleGetStarted} variant="hero" size="lg" className="gap-2">
-            Build My Plan
+            Start My Plan
             <ArrowRight size={16} />
           </Button>
         </div>

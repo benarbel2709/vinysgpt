@@ -18,7 +18,7 @@ export default function WhyThisApproachWorks() {
             <p>Many yoga programs assume the same practice works for everyone.</p>
             <p>But people navigating pain, recovery, or fluctuating energy need something different.</p>
             <p>Vinys adapts the practice to the individual — adjusting movement selection, intensity, and progression based on how the body responds over time.</p>
-            <p>This approach prioritizes consistency and safe progress rather than intensity.</p>
+            <p>Adaptive sessions are designed to fit your schedule — even short weeks and low-energy days. This approach prioritizes consistency and safe progress rather than intensity.</p>
           </div>
         </motion.div>
       </div>

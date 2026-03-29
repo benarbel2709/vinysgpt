@@ -52,7 +52,7 @@ const CATEGORIES = [
     conditions: ["Fibromyalgia", "Chronic fatigue syndrome", "Long COVID recovery", "Low energy phases", "Post-illness deconditioning"],
   },
   {
-    name: "Posture & Functional Patterns",
+    name: "Posture & Functional Movement",
     icon: (
       <svg width="36" height="36" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="16" cy="5" r="3" /><line x1="16" y1="8" x2="16" y2="22" /><line x1="10" y1="13" x2="22" y2="13" />

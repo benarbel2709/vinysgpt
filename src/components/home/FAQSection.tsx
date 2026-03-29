@@ -9,28 +9,28 @@ import {
 const FAQ_ITEMS = [
   {
     q: "Is Vinys safe for people with medical conditions?",
-    a: "Vinys is designed specifically for people navigating physical and health conditions. Every session is filtered against your restrictions and adapted to your capacity. However, the platform provides educational movement guidance only and is not a substitute for medical advice. Always consult your healthcare provider before beginning a new movement program.",
+    a: "Vinys is built specifically for people with physical and health conditions. Every session is filtered against your restrictions and adapted to your capacity. That said, Vinys provides educational movement guidance only — it's not a substitute for medical advice. Always check with your healthcare provider before starting a new movement program.",
   },
   {
-    q: "Do I need any yoga experience?",
-    a: "No. Vinys is built for people starting from scratch or returning after injury or illness. Every session is matched to your current body.",
+    q: "Do I need yoga experience?",
+    a: "None at all. Vinys is designed for people starting from zero — or returning after a long break, injury, or illness. Every session is matched to where your body is right now.",
   },
   {
-    q: "How is this different from a yoga video class?",
-    a: "A video class is the same for everyone. Vinys adapts to your condition, your energy level, and your available time — every session, every day.",
+    q: "How is this different from yoga videos?",
+    a: "A video is the same for everyone who watches it. Vinys generates a session specifically for your condition, energy level, and available time — every single day.",
   },
   {
     q: "Is there a free trial?",
-    a: "Yes. You can start building your practice right now at no cost.",
+    a: "Yes. You can create your first session right now — no credit card required.",
     cta: true,
   },
   {
     q: "What equipment do I need?",
-    a: "Nothing. Most sessions can be done with just a mat and a wall. You can add equipment like a chair, strap, or bolster in your settings.",
+    a: "Just a mat and a wall. Most sessions need nothing else. You can optionally add a chair, strap, or bolster in your settings.",
   },
   {
     q: "How long are the sessions?",
-    a: "You choose: 10, 15, 20, 30, or 45 minutes. Vinys adapts the session content to your chosen time.",
+    a: "You choose: 10, 15, 20, 30, or 45 minutes. The session is built to fit the time you pick.",
   },
 ];
 
