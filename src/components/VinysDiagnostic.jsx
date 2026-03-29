@@ -693,6 +693,8 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
             onClick={() => {
               setNoneChecked(true);
               setRedFlagsChecked([]);
+              // Auto-advance since this is a "clear all" action
+              setTimeout(() => setPhase("intake"), 300);
             }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-[12px] border-2 transition-all text-left ${
               noneChecked ? "border-secondary bg-secondary/10" : "border-border bg-card"
@@ -707,19 +709,21 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
           </button>
         </div>
 
-        <div className="mt-6">
-          <PrimaryButton
-            label="Continue"
-            disabled={!hasSelection}
-            onClick={() => {
-              if (hasRedFlag) {
-                setPhase("red_flag_stop");
-              } else {
-                setPhase("intake");
-              }
-            }}
-          />
-        </div>
+        {/* Only show Continue if red flags are checked (not "None") */}
+        {redFlagsChecked.length > 0 && (
+          <div className="mt-6">
+            <PrimaryButton
+              label="Continue"
+              onClick={() => {
+                if (hasRedFlag) {
+                  setPhase("red_flag_stop");
+                } else {
+                  setPhase("intake");
+                }
+              }}
+            />
+          </div>
+        )}
       </Shell>
     );
   }
@@ -770,33 +774,27 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
 
         <div className="space-y-2.5">
           {q.opts.map((opt, i) => (
-            <OptionTile key={i} label={opt} selected={selected === opt} onClick={() => setSelected(opt)} />
+            <OptionTile key={i} label={opt} selected={selected === opt} onClick={() => {
+              setSelected(opt);
+              setTimeout(() => {
+                if (intakeStep === 0) {
+                  const irr = getIrritabilityFromAnswer(opt);
+                  setIrritability(irr);
+                }
+                if (intakeStep === 1) {
+                  const ac = getAcuityFromAnswer(opt);
+                  setAcuity(ac);
+                }
+                if (intakeStep < INTAKE.length - 1) {
+                  setIntakeStep((s) => s + 1);
+                  setSelected(null);
+                } else {
+                  setSelected(null);
+                  startPostures(area, irritability);
+                }
+              }, 250);
+            }} />
           ))}
-        </div>
-
-        <div className="mt-6">
-          <PrimaryButton
-            label={intakeStep < INTAKE.length - 1 ? "Continue" : "Begin assessment →"}
-            disabled={!selected}
-            onClick={() => {
-              const ans = selected;
-              if (intakeStep === 0) {
-                const irr = getIrritabilityFromAnswer(ans);
-                setIrritability(irr);
-              }
-              if (intakeStep === 1) {
-                const ac = getAcuityFromAnswer(ans);
-                setAcuity(ac);
-              }
-              if (intakeStep < INTAKE.length - 1) {
-                setIntakeStep((s) => s + 1);
-                setSelected(null);
-              } else {
-                setSelected(null);
-                startPostures(area, irritability);
-              }
-            }}
-          />
         </div>
       </Shell>
     );
