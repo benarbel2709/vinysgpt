@@ -1084,47 +1084,42 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
 
         <div className="space-y-2.5">
           {currentQ.opts.map((opt, i) => (
-            <OptionTile key={i} label={opt} selected={selected === opt} onClick={() => setSelected(opt)} />
+            <OptionTile key={i} label={opt} selected={selected === opt} onClick={() => {
+              setSelected(opt);
+
+              // Auto-advance after brief highlight
+              setTimeout(() => {
+                const newAnswers = { ...clarifyAnswers, [`clarify_${clarifyStep}`]: opt };
+                setClarifyAnswers(newAnswers);
+
+                // Update profile based on clarification
+                if (clarifyStep === 0) {
+                  const painMap = {
+                    "No pain — I moved freely": 1,
+                    "Mild discomfort — manageable": 2,
+                    "Moderate pain — I had to be careful": 3,
+                    "Strong pain — I stopped or modified most movements": 4,
+                  };
+                  const clarifiedIrr = painMap[opt] || irritability;
+                  const newIrr = Math.round((irritability + clarifiedIrr) / 2);
+                  setIrritability(newIrr);
+                  setDiagnosticOutput(prev => ({
+                    ...prev,
+                    irritability: newIrr,
+                    mode: getModeFromIrritability(newIrr),
+                  }));
+                }
+
+                if (clarifyStep < totalClarifyQs - 1) {
+                  setClarifyStep(s => s + 1);
+                  setSelected(null);
+                } else {
+                  setSelected(null);
+                  setPhase("summary");
+                }
+              }, 250);
+            }} />
           ))}
-        </div>
-
-        <div className="mt-6">
-          <PrimaryButton
-            label={clarifyStep < totalClarifyQs - 1 ? "Continue" : "See your profile →"}
-            disabled={!selected}
-            onClick={() => {
-              const newAnswers = { ...clarifyAnswers, [`clarify_${clarifyStep}`]: selected };
-              setClarifyAnswers(newAnswers);
-
-              // Update profile based on clarification
-              if (clarifyStep === 0) {
-                // Pain severity → adjust irritability
-                const painMap = {
-                  "No pain — I moved freely": 1,
-                  "Mild discomfort — manageable": 2,
-                  "Moderate pain — I had to be careful": 3,
-                  "Strong pain — I stopped or modified most movements": 4,
-                };
-                const clarifiedIrr = painMap[selected] || irritability;
-                // Average with existing irritability
-                const newIrr = Math.round((irritability + clarifiedIrr) / 2);
-                setIrritability(newIrr);
-                setDiagnosticOutput(prev => ({
-                  ...prev,
-                  irritability: newIrr,
-                  mode: getModeFromIrritability(newIrr),
-                }));
-              }
-
-              if (clarifyStep < totalClarifyQs - 1) {
-                setClarifyStep(s => s + 1);
-                setSelected(null);
-              } else {
-                setSelected(null);
-                setPhase("summary");
-              }
-            }}
-          />
         </div>
       </Shell>
     );
