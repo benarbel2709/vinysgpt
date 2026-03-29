@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+
 
 /**
  * TTS hook using ElevenLabs via the Supabase edge function.
