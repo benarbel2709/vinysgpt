@@ -1,22 +1,19 @@
 import { motion } from "framer-motion";
 
 const STEPS = [
-  { num: 1, title: "Tell Vinys about your body", desc: "Choose your condition, current discomfort level, available time, and equipment." },
-  { num: 2, title: "A session is generated for you", desc: "Vinys builds a structured session using a therapeutic movement library designed for specific conditions." },
-  { num: 3, title: "Practice at your own pace", desc: "Follow guided movement demonstrations and breath cues." },
-  { num: 4, title: "Your practice adapts over time", desc: "After each session you record how your body responded.", desc2: "Future sessions evolve based on your feedback." },
+  { num: 1, title: "Tell Vinys about you", desc: "Select your condition, discomfort level, current capacity, available time, and any equipment you have." },
+  { num: 2, title: "Your session is built instantly", desc: "Vinys assembles a structured session from a therapeutic movement library matched to your condition." },
+  { num: 3, title: "Practice at your own pace", desc: "Follow guided movement demonstrations and breath cues — no prior yoga experience needed." },
+  { num: 4, title: "Your practice evolves with you", desc: "After each session, note how your body felt.", desc2: "Your next session adjusts based on that feedback." },
 ];
 
 export default function GuidedWalkthrough() {
   return (
     <section className="w-full vinys-section">
       <div className="vinys-container">
-        <h2 className="font-display font-bold text-foreground text-center mb-3" style={{ fontSize: "clamp(24px, 2.8vw, 32px)" }}>
-          See how Vinys adapts to your body
+        <h2 className="font-display font-bold text-foreground text-center mb-10" style={{ fontSize: "clamp(24px, 2.8vw, 32px)" }}>
+          How it works
         </h2>
-        <p className="text-sm text-muted-foreground text-center mb-10 max-w-[540px] mx-auto leading-relaxed">
-          Vinys creates a yoga practice that adapts to your condition, your energy level, and how your body responds over time.
-        </p>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-[960px] mx-auto">
           {STEPS.map((step, i) => (
             <motion.div

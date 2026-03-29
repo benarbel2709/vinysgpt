@@ -12,11 +12,11 @@ export default function ConsistencyOverIntensity() {
           transition={{ duration: 0.4 }}
         >
           <h2 className="font-display font-bold text-foreground mb-4" style={{ fontSize: "clamp(24px, 2.8vw, 32px)" }}>
-            Consistency matters more than intensity
+            Consistency beats intensity
           </h2>
           <div className="text-[15px] text-muted-foreground leading-relaxed space-y-4 text-center sm:text-left">
-            <p>For many people navigating pain, fatigue, or recovery, the biggest challenge is not motivation — it is finding a practice that works with their body.</p>
-            <p>Vinys focuses on creating sessions that are achievable and sustainable so that practice becomes consistent over time.</p>
+            <p>For people navigating pain, fatigue, or recovery, the hardest part isn't motivation — it's finding a practice that actually works with their body.</p>
+            <p>Vinys focuses on sessions that are achievable enough to show up for, day after day.</p>
           </div>
         </motion.div>
       </div>

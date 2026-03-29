@@ -28,7 +28,7 @@ export default function HomeHero() {
         <div className="relative z-[2] flex items-end sm:items-center h-full vinys-container pb-12 sm:pb-0" style={{ paddingTop: "100px" }}>
           <div className="max-w-[520px] text-center sm:text-left">
             <p className="text-xs font-semibold uppercase tracking-[0.15em] mb-3" style={{ color: "rgba(255,255,255,0.55)" }}>
-              Adaptive Therapeutic Yoga
+              Therapeutic Yoga, Built for Your Body
             </p>
             <h1
               className="font-display font-extrabold text-white mb-4"
@@ -37,29 +37,25 @@ export default function HomeHero() {
               Yoga that adapts to you
             </h1>
             <p style={{ fontSize: "clamp(15px, 1.5vw, 17px)", lineHeight: 1.6, maxWidth: "46ch", color: "rgba(255,255,255,0.72)" }}>
-              Vinys creates personalized therapeutic yoga sessions based on your condition, your energy level, and what your body can safely handle today.
-            </p>
-            <p style={{ fontSize: "clamp(14px, 1.3vw, 15px)", lineHeight: 1.6, maxWidth: "46ch", color: "rgba(255,255,255,0.55)", marginTop: "12px" }}>
-              Not a library of yoga videos — a structured practice generated for your body.
+              You need a practice that actually knows your body — what it's carrying today, what it can handle safely, and how to move it forward. That's Vinys.
             </p>
             <p className="mb-7" style={{ fontSize: "clamp(14px, 1.3vw, 15px)", lineHeight: 1.6, maxWidth: "46ch", color: "rgba(255,255,255,0.50)", marginTop: "8px", fontStyle: "italic" }}>
               Movement should support your body — not fight against it.
             </p>
             <div className="flex flex-col items-center sm:items-start gap-3">
               <Button onClick={handleGetStarted} variant="hero" size="lg" className="gap-2">
-                Build My Plan
+                Start My Plan
                 <ArrowRight size={16} />
               </Button>
-              <p className="text-xs text-white/50">Free to start. No credit card required.</p>
-              <p className="text-xs text-white/40">Takes about 60 seconds to set up your first session.</p>
-              <p className="text-xs text-white/40">Sessions typically range from 10–30 minutes depending on your preference.</p>
-              <p className="text-xs text-white/35">No subscription required to create your first session.</p>
+              <p className="text-xs text-white/50">Free to start — no credit card required.</p>
+              <p className="text-xs text-white/40">Sessions run 15–45 minutes, or however long you choose.</p>
+              <p className="text-xs text-white/35">No subscription needed to try it.</p>
               <button
                 onClick={handleSecondary}
                 className="text-sm font-semibold underline underline-offset-4 transition-colors"
                 style={{ color: "rgba(255,255,255,0.80)" }}
               >
-                See what it covers ↓
+                See how it works ↓
               </button>
             </div>
           </div>

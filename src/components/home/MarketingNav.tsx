@@ -87,7 +87,7 @@ export default function MarketingNav() {
             </button>
           )}
           <Button onClick={handleGetStarted} variant="hero" size="sm" className="text-sm">
-            {isAuthenticated && hasPlan ? "Edit my plan" : "Get started"}
+            {isAuthenticated && hasPlan ? "Edit my plan" : "Get Started"}
           </Button>
         </div>
       </div>

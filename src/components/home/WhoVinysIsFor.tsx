@@ -2,11 +2,11 @@ import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 
 const AUDIENCES = [
-  "People navigating physical conditions",
+  "People living with chronic physical conditions",
   "People returning to movement after injury or illness",
-  "People experiencing fluctuating energy levels",
-  "People who want structured guidance instead of generic yoga classes",
-  "People who want yoga to adapt to their body instead of the other way around",
+  "People dealing with unpredictable energy levels",
+  "People who want structured guidance — not generic yoga classes",
+  "People who are tired of adapting themselves to a yoga program",
 ];
 
 export default function WhoVinysIsFor() {
@@ -14,7 +14,7 @@ export default function WhoVinysIsFor() {
     <section className="w-full vinys-section" style={{ background: "hsl(var(--surface-soft))" }}>
       <div className="vinys-container max-w-[640px]">
         <h2 className="font-display font-bold text-foreground text-center mb-8" style={{ fontSize: "clamp(24px, 2.8vw, 32px)" }}>
-          Who Vinys is designed for
+          Who Vinys is for
         </h2>
         <div className="space-y-4">
           {AUDIENCES.map((item, i) => (

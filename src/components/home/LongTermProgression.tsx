@@ -15,13 +15,13 @@ export default function LongTermProgression() {
             className="font-display font-bold text-foreground mb-4"
             style={{ fontSize: "clamp(24px, 2.8vw, 32px)" }}
           >
-            A practice designed for the long term
+            Built for the long term
           </h2>
           <div className="text-[15px] text-muted-foreground leading-relaxed space-y-4 text-center sm:text-left">
-            <p>Real change rarely comes from intense programs.</p>
-            <p>It comes from consistent practice that adapts to the body over time.</p>
-            <p>Vinys focuses on creating sessions that people can sustain — even on difficult days.</p>
-            <p>Over weeks and months, this consistency helps build strength, mobility, and confidence in movement again.</p>
+            <p>Lasting change doesn't come from intense programs.</p>
+            <p>It comes from consistent, adaptive practice that fits your body over time.</p>
+            <p>Vinys is built to be practiced on the hard days — not just the good ones.</p>
+            <p>Over weeks and months, that consistency rebuilds strength, mobility, and confidence in your body.</p>
           </div>
         </motion.div>
       </div>

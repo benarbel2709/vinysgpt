@@ -22,7 +22,7 @@ export default function MarketingFooter() {
 
         {/* Right — Trust */}
         <p className="text-xs text-muted-foreground max-w-[320px] leading-relaxed">
-          Vinys is a US-based service. Content is provided for educational and movement purposes only and does not constitute medical advice. Always consult your healthcare provider before beginning any new movement program.
+          Vinys is a US-based service. Content is for educational and movement purposes only — not medical advice. Always consult your healthcare provider before starting any new movement program.
         </p>
       </div>
       <div className="border-t border-border pt-6 flex flex-col sm:flex-row justify-between gap-2">

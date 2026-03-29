@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 const PILLARS = [
   "Therapeutic yoga foundation",
-  "Individual adaptation principles",
+  "Individual adaptation",
   "Structured progression",
 ];
 
@@ -11,10 +11,10 @@ export default function TrustCredibility() {
     <section className="w-full vinys-section">
       <div className="vinys-container max-w-[640px] text-center">
         <h2 className="font-display font-bold text-foreground mb-3" style={{ fontSize: "clamp(24px, 2.8vw, 32px)" }}>
-          Built on therapeutic yoga principles
+          Grounded in therapeutic yoga
         </h2>
         <p className="text-sm text-muted-foreground leading-relaxed max-w-[520px] mx-auto mb-8">
-          Vinys draws on decades of therapeutic yoga practice and principles used in individualized yoga therapy. The system is designed to support safe adaptation, gradual progression, and long-term consistency.
+          Vinys is built on decades of therapeutic yoga practice. The system is designed around the same principles used in individualized yoga therapy: safe adaptation, gradual progression, and long-term consistency.
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           {PILLARS.map((pillar, i) => (

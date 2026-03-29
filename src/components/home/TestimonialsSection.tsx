@@ -6,19 +6,19 @@ const TESTIMONIALS = [
     quote: "I've had fibromyalgia for six years. This is the first yoga practice I've actually stuck with for more than two weeks. It knows when I'm having a bad day.",
     name: "Sarah M.",
     condition: "Fibromyalgia",
-    duration: "Member for 4 months",
+    duration: "Verified member · 4 months",
   },
   {
-    quote: "After my back surgery I was terrified of getting back to movement. Vinys filtered out everything I couldn't safely do and built my confidence back slowly.",
+    quote: "After my back surgery I was terrified of moving again. Vinys filtered out what I couldn't do and slowly rebuilt my confidence.",
     name: "James R.",
     condition: "Post-surgical recovery",
-    duration: "Member for 3 months",
+    duration: "Verified member · 3 months",
   },
   {
-    quote: "Perimenopause wrecked my energy and my sleep. Having a practice that actually adjusts to how I feel each day changed everything.",
+    quote: "Perimenopause wrecked my energy and my sleep. Having a practice that adjusts to how I feel each day changed everything.",
     name: "Donna K.",
     condition: "Perimenopause & hormonal fatigue",
-    duration: "Member for 5 months",
+    duration: "Verified member · 5 months",
   },
 ];
 
@@ -33,10 +33,10 @@ export default function TestimonialsSection() {
           Real people. Real conditions. Real practice.
         </h2>
         <p className="text-xs text-muted-foreground/70 text-center mb-2 max-w-[520px] mx-auto">
-          Names have been shortened for privacy. Experiences reflect individual use of the Vinys platform.
+          Names shortened for privacy. Experiences reflect individual use.
         </p>
         <p className="text-xs text-muted-foreground/50 text-center mb-8 max-w-[520px] mx-auto">
-          Experiences shared with permission. Individual results may vary.
+          Shared with permission. Individual results may vary.
         </p>
         <div className="grid sm:grid-cols-3 gap-6 max-w-[960px] mx-auto">
           {TESTIMONIALS.map((t, i) => (
@@ -56,7 +56,7 @@ export default function TestimonialsSection() {
                 </div>
                 <p className="text-sm font-semibold text-foreground">{t.name}</p>
                 <p className="text-xs text-muted-foreground">{t.condition}</p>
-                <p className="text-[11px] text-muted-foreground/70 mt-1">Verified Vinys member · {t.duration}</p>
+                <p className="text-[11px] text-muted-foreground/70 mt-1">{t.duration}</p>
               </div>
             </motion.div>
           ))}

@@ -4,8 +4,8 @@ import { ShieldCheck, Filter, TrendingUp, Clock, Heart } from "lucide-react";
 const POINTS = [
   {
     icon: <ShieldCheck size={20} className="text-secondary" />,
-    title: "Condition-aware session generation",
-    desc: "Sessions are assembled using condition-specific movement libraries.",
+    title: "Sessions built around your condition",
+    desc: "Every session is assembled from a movement library matched to your specific condition.",
   },
   {
     icon: <Filter size={20} className="text-secondary" />,
@@ -16,18 +16,18 @@ const POINTS = [
   },
   {
     icon: <TrendingUp size={20} className="text-secondary" />,
-    title: "Gradual progression",
-    desc: "Sessions evolve slowly based on feedback and consistency.",
+    title: "Gradual, sustainable progression",
+    desc: "Your practice evolves slowly and deliberately, based on real feedback — not an arbitrary schedule.",
   },
   {
     icon: <Clock size={20} className="text-secondary" />,
-    title: "Short, practical sessions",
-    desc: "Sessions are designed to fit into real schedules — even on low-energy days.",
+    title: "Short sessions that fit real schedules",
+    desc: "Sessions are designed for real life — including the days when energy is low.",
   },
   {
     icon: <Heart size={20} className="text-secondary" />,
-    title: "Adaptation over perfection",
-    desc: "The system prioritizes safe progress over ideal performance.",
+    title: "Progress over perfection",
+    desc: "The system is built around what's safe and sustainable — not what looks impressive.",
   },
 ];
 
