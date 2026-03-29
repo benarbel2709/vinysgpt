@@ -822,7 +822,7 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
         if (target) {
           setCrossoverTriggered(true);
           setOriginalArea(area);
-          setCrossoverTarget(target);
+          setCrossoverTarget(area); // Phase 2 stays in the same body area
           const miniPostures = getCrossoverPostures(area);
           setActivePostures(miniPostures);
           setPostureIdx(0);
