@@ -890,34 +890,23 @@ export default function VinysDiagnostic({ onComplete }) {
             </div>
           )}
 
-          {/* Video card — branded placeholder when using fallback */}
+          {/* Video card — uses universal fallback video like Workout.tsx */}
           <div className="rounded-2xl overflow-hidden relative aspect-video mb-4" style={{ background: '#2A2A2A' }}>
-            {posture.videoSrc ? (
-              <video
-                src={posture.videoSrc}
-                autoPlay
-                loop
-                muted
-                playsInline
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
-            ) : (
-              /* Branded placeholder instead of black video */
-              <div className="w-full h-full flex flex-col items-center justify-center" style={{ background: "#028090" }}>
-                <Play className="w-10 h-10 text-white/40 mb-3" />
-                <span className="text-white font-semibold text-[16px] text-center px-4">{posture.name}</span>
-                {cleanSubtitle && <span className="text-white/60 text-[12px] mt-1">{cleanSubtitle}</span>}
-              </div>
-            )}
-            {/* Posture name overlay (only when real video) */}
-            {posture.videoSrc && (
-              <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/50 to-transparent pointer-events-none">
-                {cleanSubtitle && (
-                  <span className="text-[11px] text-white/60 font-bold tracking-widest uppercase block">{cleanSubtitle}</span>
-                )}
-                <span className="text-[18px] font-bold text-white leading-tight">{posture.name}</span>
-              </div>
-            )}
+            <video
+              src={posture.videoSrc || universalVideo}
+              autoPlay
+              loop
+              muted
+              playsInline
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+            {/* Posture name overlay */}
+            <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/50 to-transparent pointer-events-none">
+              {cleanSubtitle && (
+                <span className="text-[11px] text-white/60 font-bold tracking-widest uppercase block">{cleanSubtitle}</span>
+              )}
+              <span className="text-[18px] font-bold text-white leading-tight">{posture.name}</span>
+            </div>
 
             {/* TTS overlay bar */}
             <div style={{ position: "absolute", bottom: 10, left: 10, right: 10, display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 10 }}>
