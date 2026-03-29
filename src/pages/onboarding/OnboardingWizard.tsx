@@ -315,63 +315,53 @@ export default function OnboardingWizard() {
           </p>
         )}
 
-        {/* ═══ STEP 0: Condition category grid ═══ */}
+        {/* ═══ STEP 0: Body area picker ═══ */}
         {step === 0 && (
-          <div className="w-full" style={{ marginTop: "20px", maxWidth: "1100px", margin: "20px auto 0" }}>
-            <div className="flex flex-wrap justify-center" style={{ gap: "20px", marginBottom: "20px" }}>
-              {CONDITION_CATEGORIES.slice(0, 3).map((cat) => (
-                <div
-                  key={cat.name}
-                  className="rounded-[12px] bg-surface-warm"
-                  style={{ padding: "20px", width: "340px", flexShrink: 0 }}
+          <div className="w-full" style={{ marginTop: "16px", maxWidth: "520px", margin: "16px auto 0" }}>
+            <p className="text-muted-foreground text-center text-[15px] mb-6 leading-relaxed">
+              Select the area that's been bothering you most. We'll run a short movement assessment to find the right approach.
+            </p>
+
+            <div className="space-y-3">
+              {BODY_AREAS.filter(a => a.available).map((area) => (
+                <button
+                  key={area.id}
+                  onClick={() => {
+                    setSelectedArea(area.id);
+                    setStep(1);
+                  }}
+                  className={`w-full p-5 rounded-2xl border-2 text-left flex items-center gap-4 transition-all group ${
+                    "border-border bg-card hover:border-primary/40 hover:shadow-calm press-scale"
+                  }`}
                 >
-                  <h3 className="font-bold text-primary text-center text-[18px]" style={{ marginBottom: "14px" }}>
-                    {cat.name}
-                  </h3>
-                  <div className="flex flex-wrap justify-center" style={{ gap: "10px" }}>
-                    {cat.conditions.map((key) => (
-                      <button
-                        key={key}
-                        onClick={() => toggle(key)}
-                        className={`rounded-[8px] border-2 text-[16px] font-semibold transition-all cursor-pointer ${selected.includes(key) ? tagSelected : tagUnselected}`}
-                        style={{ paddingLeft: "10px", paddingRight: "10px", paddingTop: "5px", paddingBottom: "5px", lineHeight: "1.2" }}
-                      >
-                        {label(key)}
-                      </button>
-                    ))}
+                  <div className="w-12 h-12 rounded-xl bg-primary/8 flex items-center justify-center flex-shrink-0">
+                    <span className="text-primary text-lg font-bold">{area.label.charAt(0)}</span>
                   </div>
-                </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[17px] font-bold text-foreground mb-0.5">{area.label}</div>
+                    <div className="text-[13px] text-muted-foreground leading-snug">{area.desc}</div>
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-primary/8 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/15 transition-colors">
+                    <span className="text-primary text-sm">→</span>
+                  </div>
+                </button>
               ))}
             </div>
-            <div className="flex flex-wrap justify-center" style={{ gap: "20px" }}>
-              {CONDITION_CATEGORIES.slice(3, 5).map((cat) => (
-                <div key={cat.name} className="rounded-[12px] bg-surface-warm" style={{ padding: "20px", width: "340px", flexShrink: 0 }}>
-                  <h3 className="font-bold text-primary text-center text-[18px]" style={{ marginBottom: "14px" }}>{cat.name}</h3>
-                  <div className="flex flex-wrap justify-center" style={{ gap: "10px" }}>
-                    {cat.conditions.map((key) => (
-                      <button key={key} onClick={() => toggle(key)}
-                        className={`rounded-[8px] border-2 text-[16px] font-semibold transition-all cursor-pointer ${selected.includes(key) ? tagSelected : tagUnselected}`}
-                        style={{ paddingLeft: "10px", paddingRight: "10px", paddingTop: "5px", paddingBottom: "5px", lineHeight: "1.2" }}
-                      >{label(key)}</button>
-                    ))}
+
+            {/* Coming soon section */}
+            <div className="mt-8">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 mb-3 text-center">Coming soon</p>
+              <div className="grid grid-cols-2 gap-2.5">
+                {BODY_AREAS.filter(a => !a.available).map((area) => (
+                  <div
+                    key={area.id}
+                    className="p-4 rounded-xl border border-border/60 bg-muted/30 opacity-60"
+                  >
+                    <div className="text-[15px] font-semibold text-foreground/50 mb-0.5">{area.label}</div>
+                    <div className="text-[11px] text-muted-foreground/60 leading-snug">{area.desc}</div>
                   </div>
-                </div>
-              ))}
-            </div>
-            <div className="flex flex-wrap justify-center" style={{ gap: "20px", marginTop: "20px" }}>
-              {CONDITION_CATEGORIES.slice(5).map((cat) => (
-                <div key={cat.name} className="rounded-[12px] bg-surface-warm" style={{ padding: "20px", width: "340px", flexShrink: 0 }}>
-                  <h3 className="font-bold text-primary text-center text-[18px]" style={{ marginBottom: "14px" }}>{cat.name}</h3>
-                  <div className="flex flex-wrap justify-center" style={{ gap: "10px" }}>
-                    {cat.conditions.map((key) => (
-                      <button key={key} onClick={() => toggle(key)}
-                        className={`rounded-[8px] border-2 text-[16px] font-semibold transition-all cursor-pointer ${selected.includes(key) ? tagSelected : tagUnselected}`}
-                        style={{ paddingLeft: "10px", paddingRight: "10px", paddingTop: "5px", paddingBottom: "5px", lineHeight: "1.2" }}
-                      >{label(key)}</button>
-                    ))}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         )}
