@@ -104,12 +104,12 @@ export default function Workout() {
     return () => clearInterval(timer);
   }, [showClosing, closingRemaining]);
 
-  // Sync video play state
+  // Sync video play state (no activeIdx dep — same video for all exercises)
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
     if (isPlaying && !isEnded && !showPreview) { v.play().catch(() => {}); } else { v.pause(); }
-  }, [isPlaying, activeIdx, isEnded, showPreview]);
+  }, [isPlaying, isEnded, showPreview]);
 
   // ── TTS: speak current exercise (single source of truth) ──
   const speakExercise = useCallback((exercise: typeof state.exerciseLibrary[0]) => {
