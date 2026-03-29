@@ -68,9 +68,9 @@ export default function Privacy() {
             <h2 className="text-lg font-semibold text-foreground">6. Your General Rights</h2>
             <p>You have the right to:</p>
             <ul className="list-disc pl-6 space-y-1">
-              <li><strong>Access</strong> your personal data at any time through the Settings page</li>
-              <li><strong>Export</strong> your data using the built-in export feature</li>
-              <li><strong>Delete</strong> your data by performing a full reset in Settings or by contacting us</li>
+              <li><strong>Access</strong> your personal data at any time through the <Link to="/settings" className="text-primary hover:text-primary/80 underline underline-offset-2">Settings page</Link></li>
+              <li><strong>Export</strong> your data using the built-in export feature in <Link to="/settings" className="text-primary hover:text-primary/80 underline underline-offset-2">Settings</Link></li>
+              <li><strong>Delete</strong> your data by performing a full reset in <Link to="/settings" className="text-primary hover:text-primary/80 underline underline-offset-2">Settings</Link> or by contacting us at <span className="text-accent font-medium">privacy@vinys.app</span></li>
               <li><strong>Withdraw consent</strong> and close your account at any time</li>
             </ul>
           </section>

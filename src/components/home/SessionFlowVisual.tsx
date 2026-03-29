@@ -48,12 +48,12 @@ export default function SessionFlowVisual() {
           ))}
         </div>
 
-        {/* Scrollable horizontal flow — mobile */}
-        <div className="flex sm:hidden overflow-x-auto pb-4 -mx-4 px-4 gap-0 items-center scrollbar-hide">
+        {/* Vertical stacked flow — mobile */}
+        <div className="flex sm:hidden flex-col items-center gap-0">
           {FLOW_STEPS.map((step, i) => (
-            <div key={step} className="flex items-center flex-shrink-0">
+            <div key={step} className="flex flex-col items-center">
               <div
-                className="px-4 py-2 rounded-lg text-xs font-semibold text-foreground text-center whitespace-nowrap"
+                className="px-5 py-2.5 rounded-lg text-xs font-semibold text-foreground text-center"
                 style={{
                   background: "hsl(var(--card))",
                   border: "1px solid hsl(var(--border))",
@@ -62,7 +62,7 @@ export default function SessionFlowVisual() {
                 {step}
               </div>
               {i < FLOW_STEPS.length - 1 && (
-                <span className="text-muted-foreground/50 text-sm px-1.5">→</span>
+                <span className="text-muted-foreground/50 text-sm py-1">↓</span>
               )}
             </div>
           ))}

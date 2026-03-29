@@ -169,8 +169,19 @@ export default function Plan() {
 
   // ── Greeting ──
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-  const greetingDisplay = firstName ? `${greeting}, ${firstName}` : greeting;
+  const practiceTime = state.profile.practiceTime;
+  const timeGreeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  const greetingSuffix = practiceTime === "morning"
+    ? "your morning practice is ready."
+    : practiceTime === "afternoon"
+    ? "time for today's practice."
+    : practiceTime === "evening"
+    ? "your evening practice is waiting."
+    : null;
+  const greeting = firstName
+    ? `${timeGreeting}, ${firstName}`
+    : timeGreeting;
+  const greetingDisplay = greeting;
 
   // No plan state
   if (!plan) {
@@ -178,7 +189,7 @@ export default function Plan() {
       <Layout hideHeader hideFooter>
         <NavBar onStart={handleStartNextPractice} onAccountClick={() => setShowAccount(true)} onLibraryClick={() => { setLibraryInitialId(null); setShowLibrary(true); }} />
         <div className="px-6 py-10 max-w-5xl mx-auto space-y-6">
-          <GreetingBlock greeting={greetingDisplay} user={user} showAccount={showAccount} setShowAccount={setShowAccount} firstName={firstName} setFirstName={setFirstName} />
+          <GreetingBlock greeting={greetingDisplay} greetingSuffix={greetingSuffix} user={user} showAccount={showAccount} setShowAccount={setShowAccount} firstName={firstName} setFirstName={setFirstName} />
           <p className="text-muted-foreground">No practice plan yet</p>
           <Button variant="hero" size="lg" onClick={() => navigate("/onboarding")} className="w-full">
             Start a new plan
@@ -202,7 +213,7 @@ export default function Plan() {
 
       <div className="px-6 py-8 max-w-5xl mx-auto space-y-8">
         {/* 2) GREETING */}
-        <GreetingBlock greeting={greetingDisplay} user={user} showAccount={showAccount} setShowAccount={setShowAccount} firstName={firstName} setFirstName={setFirstName} />
+        <GreetingBlock greeting={greetingDisplay} greetingSuffix={greetingSuffix} user={user} showAccount={showAccount} setShowAccount={setShowAccount} firstName={firstName} setFirstName={setFirstName} />
 
         {/* First-session welcome banner (before any sessions done) */}
         {completedCount === 0 && (
@@ -566,6 +577,7 @@ export default function Plan() {
 /* ── Sub-components ── */
 
 function NavBar({ onStart, onAccountClick, onLibraryClick }: { onStart: () => void; onAccountClick: () => void; onLibraryClick: () => void }) {
+  const nav = useNavigate();
   return (
     <header
       className="sticky top-0 z-50 w-full border-b border-black/5"
@@ -589,6 +601,14 @@ function NavBar({ onStart, onAccountClick, onLibraryClick }: { onStart: () => vo
             <LayoutGrid size={20} />
           </button>
           <button
+            onClick={() => nav("/settings")}
+            aria-label="Settings"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-foreground/60 hover:text-foreground transition-colors"
+            style={{ background: "rgba(255,255,255,0.5)", border: "1px solid rgba(0,0,0,0.08)" }}
+          >
+            <Settings size={20} />
+          </button>
+          <button
             onClick={onAccountClick}
             aria-label="Account"
             className="w-10 h-10 rounded-full flex items-center justify-center text-foreground/60 hover:text-foreground transition-colors"
@@ -606,7 +626,7 @@ function NavBar({ onStart, onAccountClick, onLibraryClick }: { onStart: () => vo
   );
 }
 
-function GreetingBlock({ greeting, user, showAccount, setShowAccount, firstName, setFirstName }: { greeting: string; user: any; showAccount: boolean; setShowAccount: (v: boolean) => void; firstName: string; setFirstName: (v: string) => void }) {
+function GreetingBlock({ greeting, greetingSuffix, user, showAccount, setShowAccount, firstName, setFirstName }: { greeting: string; greetingSuffix: string | null; user: any; showAccount: boolean; setShowAccount: (v: boolean) => void; firstName: string; setFirstName: (v: string) => void }) {
   const [showUsernameEdit, setShowUsernameEdit] = useState(false);
   const [showFirstNameEdit, setShowFirstNameEdit] = useState(false);
   const [newUsername, setNewUsername] = useState("");
@@ -703,7 +723,7 @@ function GreetingBlock({ greeting, user, showAccount, setShowAccount, firstName,
         <h1 className="font-display text-foreground font-semibold" style={{ fontSize: "clamp(26px, 4vw, 34px)", lineHeight: 1.2, letterSpacing: "-0.5px" }}>
           {greeting}
         </h1>
-        <p className="text-muted-foreground text-base">Here's your plan</p>
+        <p className="text-muted-foreground text-base">{greetingSuffix || "Here's your plan"}</p>
       </div>
 
       <Dialog open={showAccount} onOpenChange={(v) => { setShowAccount(v); if (!v) { setShowUsernameEdit(false); setShowFirstNameEdit(false); } }}>
@@ -1141,16 +1161,19 @@ function QuickCheckinCard({ hasCompletedSessions }: { hasCompletedSessions: bool
       <div className="rounded-2xl bg-surface-warm p-6 flex flex-col overflow-hidden">
         {!hasCompletedSessions ? (
           <div className="flex-1 flex flex-col items-center justify-center">
-            <h3 className="text-lg font-bold text-foreground mb-1">Quick Check-In</h3>
-            <p className="text-sm text-muted-foreground mb-4 text-center max-w-[220px]">
-              Complete your first session to see your check-in data.
+            <h3 className="text-lg font-bold text-foreground mb-2">Quick Check-In</h3>
+            <p className="text-sm text-muted-foreground mb-5 text-center max-w-[280px] leading-relaxed">
+              After your first session, you'll see how your pain and energy levels respond over time. This is how Vinys learns to adapt.
             </p>
-            <div className="grid grid-cols-2 gap-3 w-full opacity-40 pointer-events-none">
-              <div className="text-center"><span className="text-sm text-muted-foreground">Pain before</span><p className="text-lg font-bold text-foreground">–</p></div>
-              <div className="text-center"><span className="text-sm text-muted-foreground">Pain after</span><p className="text-lg font-bold text-foreground">–</p></div>
-              <div className="text-center"><span className="text-sm text-muted-foreground">Fatigue before</span><p className="text-lg font-bold text-foreground">–</p></div>
-              <div className="text-center"><span className="text-sm text-muted-foreground">Fatigue after</span><p className="text-lg font-bold text-foreground">–</p></div>
-            </div>
+            <button
+              onClick={() => {
+                const el = document.querySelector('[data-session-card="first"]');
+                if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+              }}
+              className="text-sm text-primary font-semibold hover:text-primary/80 transition-colors"
+            >
+              Start Practice 01 →
+            </button>
           </div>
         ) : !checkin ? (
           <div className="flex-1 flex flex-col items-center justify-center">

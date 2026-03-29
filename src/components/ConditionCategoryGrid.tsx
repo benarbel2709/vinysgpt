@@ -87,31 +87,41 @@ export default function ConditionCategoryGrid() {
         isMobile ? (
           <MobileCard key={cat.name} category={cat} isOpen={openIndex === i} onToggle={() => toggleMobile(i)} index={i} />
         ) : (
-          <DesktopCard key={cat.name} category={cat} index={i} />
+          <DesktopCard key={cat.name} category={cat} index={i} isOpen={openIndex === i} onToggle={() => toggleMobile(i)} />
         )
       ))}
     </div>
   );
 }
 
-function DesktopCard({ category, index }: { category: typeof CATEGORIES[0]; index: number }) {
+function DesktopCard({ category, index, isOpen, onToggle }: { category: typeof CATEGORIES[0]; index: number; isOpen: boolean; onToggle: () => void }) {
   return (
     <motion.div
-      className="vinys-card shadow-sm overflow-hidden"
+      className="vinys-card shadow-sm overflow-hidden cursor-pointer hover:border-primary/30 transition-colors"
       style={{ padding: "28px 24px" }}
+      onClick={onToggle}
     >
       <div className="flex flex-col items-center text-center">
         <span className="text-secondary mb-2">{category.icon}</span>
-        <h3 className="font-bold text-foreground mb-3" style={{ fontSize: "16px" }}>
-          {category.name}
-        </h3>
-        <div className="flex flex-col items-start w-full">
-          {category.conditions.map((c) => (
-            <span key={c} className="text-muted-foreground py-0.5" style={{ fontSize: "13px" }}>
-              · {c}
-            </span>
-          ))}
+        <div className="flex items-center gap-1.5 mb-3">
+          <h3 className="font-bold text-foreground" style={{ fontSize: "16px" }}>
+            {category.name}
+          </h3>
+          <ChevronDown size={14} className="text-muted-foreground transition-transform duration-200" style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
         </div>
+        <AnimatePresence initial={false}>
+          {isOpen && (
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25, ease: "easeOut" }} className="overflow-hidden w-full">
+              <div className="flex flex-col items-start w-full">
+                {category.conditions.map((c) => (
+                  <span key={c} className="text-muted-foreground py-0.5" style={{ fontSize: "13px" }}>
+                    · {c}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>
   );
