@@ -37,7 +37,10 @@ export default function HomeHero() {
               Yoga that adapts to you
             </h1>
             <p style={{ fontSize: "clamp(15px, 1.5vw, 17px)", lineHeight: 1.6, maxWidth: "46ch", color: "rgba(255,255,255,0.72)" }}>
-              You need a practice that actually knows your body — what it's carrying today, what it can handle safely, and how to move it forward. That's Vinys.
+              You need a practice that actually knows your body — what it's carrying today, what it can handle safely, and how to move it forward.
+            </p>
+            <p className="font-bold" style={{ fontSize: "clamp(16px, 1.6vw, 19px)", color: "rgba(255,255,255,0.90)", marginTop: "10px" }}>
+              That's Vinys.
             </p>
             <p className="mb-7" style={{ fontSize: "clamp(14px, 1.3vw, 15px)", lineHeight: 1.6, maxWidth: "46ch", color: "rgba(255,255,255,0.50)", marginTop: "8px", fontStyle: "italic" }}>
               Movement should support your body — not fight against it.
