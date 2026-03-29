@@ -673,3 +673,52 @@ export default function OnboardingWizard() {
     </div>
   );
 }
+
+function ComingSoonCard({ area }: { area: { id: string; label: string; desc: string } }) {
+  const [expanded, setExpanded] = useState(false);
+  const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  return (
+    <div className="rounded-xl border border-border/60 bg-muted/30 opacity-60 overflow-hidden">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full p-4 text-left"
+      >
+        <div className="flex items-center gap-2 mb-0.5">
+          <Clock size={12} className="text-muted-foreground/50 shrink-0" />
+          <span className="text-[15px] font-semibold text-foreground/50">{area.label}</span>
+        </div>
+        <div className="text-[11px] text-muted-foreground/60 leading-snug">{area.desc}</div>
+      </button>
+      {expanded && (
+        <div className="px-4 pb-4 pt-0">
+          {submitted ? (
+            <p className="text-xs text-secondary font-medium">You're on the list — we'll let you know!</p>
+          ) : (
+            <>
+              <p className="text-[11px] text-muted-foreground mb-2">
+                We're building the {area.label} program. Want to know when it's ready?
+              </p>
+              <div className="flex gap-1.5">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  className="flex-1 text-xs px-2.5 py-1.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground outline-none"
+                />
+                <button
+                  onClick={() => { if (email.includes("@")) setSubmitted(true); }}
+                  className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors whitespace-nowrap"
+                >
+                  Notify me →
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
