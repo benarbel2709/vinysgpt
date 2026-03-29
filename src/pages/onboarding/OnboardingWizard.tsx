@@ -370,6 +370,7 @@ export default function OnboardingWizard() {
         {step === 1 && (
           <div className="w-full" style={{ marginTop: "20px" }}>
             <VinysDiagnostic
+              initialArea={selectedArea}
               onComplete={(result: any) => {
                 const areaToCondKey: Record<string, string> = {
                   LB: "back_pain", HIP: "hip_pain", KNEE: "knee_pain", ANKLE: "back_pain",
