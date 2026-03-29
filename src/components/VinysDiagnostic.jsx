@@ -208,7 +208,7 @@ const HIP_POSTURES = [
   { id: "hip_p5", name: "Chair Pose", subtitle: "Utkatasana  ★ ×2", grad: ["#D0BCA8", "#B09880"], time: "~45 sec", conditional: false, double_score: false, videoId: null, how: "Stand feet hip-width. Bend knees and lower hips as if sitting into a chair. Hold 4 breaths. Come up slowly.", qs: [{ id: "hip_p5q1", text: "How did your hips feel in Chair Pose?", opts: [{ t: "Strong and stable", sig: {} }, { t: "Tight hips", sig: { MO: 2 } }, { t: "Pain in front of hip or groin", sig: { AN: 2 } }, { t: "Pain in knees", sig: {} }, { t: "Pain in lower back", sig: {}, xover: true }] }] },
   { id: "hip_p6", name: "Low Lunge", subtitle: "Anjaneyasana", grad: ["#B4D0B0", "#80B07C"], time: "~60 sec", conditional: false, double_score: false, videoId: null, how: "Step one foot forward into a lunge, back knee on the floor. Gently lower hips toward the floor. Hold 4 breaths each side.", qs: [{ id: "hip_p6q1", text: "How did your front hip feel in Low Lunge?", opts: [{ t: "Stretch front of hip", sig: {} }, { t: "Tight front of hip", sig: { MO: 1 } }, { t: "Deep groin pain", sig: { AN: 1 } }, { t: "Lower back pain", sig: {}, xover: true }, { t: "Sharp pain in front of hip", sig: { AN: 1 } }] }] },
   { id: "hip_p7", name: "Prasarita Padottanasana", subtitle: "Wide-Leg Forward Fold", grad: ["#B4D4C4", "#7CB898"], time: "~60 sec", conditional: false, double_score: false, videoId: null, how: "Stand with feet wide apart. Hinge forward from your hips, letting your upper body hang. Hold 4 breaths.", qs: [{ id: "hip_p7q1", text: "How did your hips feel in the wide-leg forward fold?", opts: [{ t: "Stretch in the inner thighs", sig: {} }, { t: "Tight movement", sig: { MO: 1 } }, { t: "One hip tighter than the other", sig: { MO: 1 } }, { t: "Pain in one hip joint", sig: { AN: 1 } }, { t: "Pain in lower back", sig: {}, xover: true }] }] },
-  { id: "hip_p8", name: "Tree Pose", subtitle: "Vrksasana", grad: ["#C8B8DC", "#A090C0"], time: "~60 sec", conditional: false, double_score: false, videoId: null, how: "Stand on one leg. Place foot on inner calf or inner thigh (never on the knee). Hold 4 breaths. Switch sides.", qs: [{ id: "hip_p8q1", text: "How did your standing hip feel during Tree Pose?", opts: [{ t: "Stable", sig: {} }, { t: "Slight wobble", sig: { ST: 1 } }, { t: "One side weaker", sig: { ST: 1 } }, { t: "Pain on outside of hip", sig: { LA: 1 } }, { t: "Could not keep balance", sig: { ST: 1 } }] }] },
+  { id: "hip_p8", name: "Tree Pose", subtitle: "Vrksasana", grad: ["#C8B8DC", "#A090C0"], time: "~60 sec", conditional: false, double_score: false, videoId: null, how: "Stand on one leg. Place foot on inner calf or inner thigh (never on the knee). Hold 4 breaths each side.", qs: [{ id: "hip_p8q1", text: "How did your standing hip feel during Tree Pose?", opts: [{ t: "Stable", sig: {} }, { t: "Slight wobble", sig: { ST: 1 } }, { t: "One side weaker", sig: { ST: 1 } }, { t: "Pain on outside of hip", sig: { LA: 1 } }, { t: "Could not keep balance", sig: { ST: 1 } }] }] },
   { id: "hip_p9", name: "Warrior I → Warrior III", subtitle: "Virabhadrasana", grad: ["#DCC8B0", "#C0A484"], time: "~75 sec", conditional: false, double_score: false, videoId: null, how: "From Warrior I, slowly shift weight forward and extend back leg into Warrior III. Hands on wall for balance if needed. Both sides.", qs: [{ id: "hip_p9q1", text: "How did your hip respond to Warrior?", opts: [{ t: "Smooth and controlled", sig: {} }, { t: "Hard to control", sig: { ST: 1 } }, { t: "Tightness in hip", sig: { MO: 1 } }, { t: "Pain in hip or buttock", sig: { LA: 1, PO: 1 } }, { t: "Could not maintain balance", sig: { ST: 1 } }] }] },
 ];
 
@@ -315,7 +315,14 @@ function resolveProfile(area, rawScores, sessionAnswers, irritabilityLevel) {
   }
   const summaryAns = sessionAnswers["knee_summary_q"] || sessionAnswers["ankle_summary_q"];
   let reassess = isTie || allZero;
-  let confidence = isTie ? "Low" : topScore >= 4 ? "High" : "Medium";
+  
+  // Confidence scoring: count total signal points
+  const totalSignal = Object.values(s).reduce((sum, v) => sum + v, 0);
+  let confidence;
+  if (totalSignal >= 5 && !isTie) confidence = "High";
+  else if (totalSignal >= 3) confidence = "Medium";
+  else confidence = "Low";
+  
   if (summaryAns === "Significantly worse — pain increased") { reassess = true; confidence = "Low"; }
   if (summaryAns === "Better — less pain or more comfortable" && confidence === "Medium") confidence = "High";
   return { primary, secondary, confidence, reassess, scores: s };
@@ -380,6 +387,19 @@ function getPosturesForArea(area) {
   return [];
 }
 
+// --- RED FLAGS for pre-diagnostic safety check --------------------------------
+const DIAGNOSTIC_RED_FLAGS = [
+  "Loss of bladder or bowel control",
+  "Progressive weakness in your leg(s)",
+  "Numbness in the groin or inner thighs",
+  "Severe pain following a fall or accident",
+  "Fever combined with back pain",
+  "Unexplained weight loss",
+  "History of cancer with new onset back pain",
+  "Pain that consistently wakes you at night",
+  "Rapidly worsening symptoms",
+];
+
 // --- AFFIRMATIONS -------------------------------------------------------------
 const AFFIRMATIONS = [
   "Good work — keep going.",
@@ -398,6 +418,7 @@ export default function VinysDiagnostic({ onComplete }) {
   const [crossoverTriggered, setCrossoverTriggered] = useState(false);
   const [crossoverTarget, setCrossoverTarget] = useState(null);
   const [irritability, setIrritability] = useState(0);
+  const [acuity, setAcuity] = useState("unknown");
   const [intakeStep, setIntakeStep] = useState(0);
   const [postureIdx, setPostureIdx] = useState(0);
   const [qIdx, setQIdx] = useState(0);
@@ -406,6 +427,12 @@ export default function VinysDiagnostic({ onComplete }) {
   const [selected, setSelected] = useState(null);
   const [diagnosticOutput, setDiagnosticOutput] = useState(null);
   const [showingVideo, setShowingVideo] = useState(true);
+  // Red flags
+  const [redFlagsChecked, setRedFlagsChecked] = useState([]);
+  const [noneChecked, setNoneChecked] = useState(false);
+  // Clarification questions
+  const [clarifyStep, setClarifyStep] = useState(0);
+  const [clarifyAnswers, setClarifyAnswers] = useState({});
 
   const { speak, stop: stopTTS, isPlaying: ttsPlaying, isLoading: ttsLoading, isMuted, setMuted } = useTTS();
 
@@ -432,10 +459,23 @@ export default function VinysDiagnostic({ onComplete }) {
   ];
 
   function getIrritabilityFromAnswer(ans) {
-    if (ans === "Almost not sensitive — I can move quite freely") return 0;
-    if (ans === "Slightly sensitive — some movements are uncomfortable") return 1;
-    if (ans === "Sensitive — many movements cause pain") return 2;
-    return 3;
+    if (ans === "Almost not sensitive — I can move quite freely") return 1;
+    if (ans === "Slightly sensitive — some movements are uncomfortable") return 2;
+    if (ans === "Sensitive — many movements cause pain") return 3;
+    return 4;
+  }
+
+  function getAcuityFromAnswer(ans) {
+    if (ans === "A few seconds") return "high";
+    if (ans === "A few minutes") return "medium";
+    if (ans === "An hour or more") return "low";
+    return "unknown";
+  }
+
+  function getModeFromIrritability(irr) {
+    if (irr <= 2) return "normal";
+    if (irr === 3) return "easier";
+    return "flare";
   }
 
   function startPostures(chosenArea, irr) {
@@ -467,7 +507,6 @@ export default function VinysDiagnostic({ onComplete }) {
   // Re-trigger TTS when it finishes (loop audio while on video screen)
   useEffect(() => {
     if (phase === "postures" && showingVideo && !isMuted && !ttsPlaying && !ttsLoading && ttsTextRef.current) {
-      // Small delay before looping to avoid jarring restart
       const timer = setTimeout(() => {
         if (ttsTextRef.current) speak(ttsTextRef.current);
       }, 1500);
@@ -496,7 +535,7 @@ export default function VinysDiagnostic({ onComplete }) {
     </div>
   );
 
-  const totalPostures = activePostures.length > 0 ? activePostures.filter(p => !p.isSummary).length : getPosturesForArea("LB").length;
+  const totalPostures = activePostures.length > 0 ? activePostures.filter(p => !p.isSummary).length : getPosturesForArea("LB").filter(p => !p.isSummary).length;
 
   // ==========================================================================
   // PHASE: INTRO
@@ -539,7 +578,7 @@ export default function VinysDiagnostic({ onComplete }) {
     return (
       <Shell>
         <div className="mb-8">
-          <span className="inline-block px-3.5 py-1 rounded-full bg-primary/10 text-xs font-bold text-primary uppercase tracking-wider mb-4">
+          <span className="inline-block px-3.5 py-1 rounded-full bg-muted text-xs font-bold uppercase tracking-wider mb-4" style={{ color: "#888" }}>
             Movement Assessment
           </span>
           <h2 className="text-[26px] sm:text-[30px] font-bold leading-[1.15] text-foreground mb-3">
@@ -554,7 +593,7 @@ export default function VinysDiagnostic({ onComplete }) {
           {Object.entries(AREA_CONFIG).map(([id, cfg]) => (
             <button
               key={id}
-              onClick={() => { setArea(id); setPhase("intake"); }}
+              onClick={() => { setArea(id); setPhase("red_flags"); }}
               className="w-full p-5 rounded-2xl border border-border bg-card text-left flex items-center gap-4 hover:shadow-calm transition-all press-scale group"
             >
               <div className="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center flex-shrink-0">
@@ -573,6 +612,114 @@ export default function VinysDiagnostic({ onComplete }) {
   }
 
   // ==========================================================================
+  // PHASE: RED FLAGS SAFETY CHECK (FIX 1)
+  // ==========================================================================
+  if (phase === "red_flags") {
+    const hasSelection = noneChecked || redFlagsChecked.length > 0;
+    const hasRedFlag = redFlagsChecked.length > 0 && !noneChecked;
+
+    return (
+      <Shell>
+        <div className="mb-6">
+          <h2 className="text-[22px] font-bold text-foreground leading-snug mb-2">
+            Before we continue — a quick safety check
+          </h2>
+          <p className="text-[15px] text-muted-foreground leading-[1.65]">
+            Please let us know if you are currently experiencing any of the following
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          {DIAGNOSTIC_RED_FLAGS.map((flag) => {
+            const isChecked = redFlagsChecked.includes(flag);
+            return (
+              <button
+                key={flag}
+                onClick={() => {
+                  setNoneChecked(false);
+                  setRedFlagsChecked(prev =>
+                    prev.includes(flag) ? prev.filter(f => f !== flag) : [...prev, flag]
+                  );
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-[12px] border-2 transition-all text-left ${
+                  isChecked ? "border-destructive bg-destructive/5" : "border-border bg-card"
+                }`}
+              >
+                <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${
+                  isChecked ? "border-destructive bg-destructive" : "border-border bg-card"
+                }`}>
+                  {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
+                </div>
+                <span className="text-[14px] font-medium text-foreground">{flag}</span>
+              </button>
+            );
+          })}
+
+          {/* None of the above */}
+          <button
+            onClick={() => {
+              setNoneChecked(true);
+              setRedFlagsChecked([]);
+            }}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-[12px] border-2 transition-all text-left ${
+              noneChecked ? "border-secondary bg-secondary/10" : "border-border bg-card"
+            }`}
+          >
+            <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${
+              noneChecked ? "border-secondary bg-secondary" : "border-border bg-card"
+            }`}>
+              {noneChecked && <Check size={12} className="text-white" strokeWidth={3} />}
+            </div>
+            <span className="text-[14px] font-medium text-foreground">None of the above</span>
+          </button>
+        </div>
+
+        <div className="mt-6">
+          <PrimaryButton
+            label="Continue"
+            disabled={!hasSelection}
+            onClick={() => {
+              if (hasRedFlag) {
+                setPhase("red_flag_stop");
+              } else {
+                setPhase("intake");
+              }
+            }}
+          />
+        </div>
+      </Shell>
+    );
+  }
+
+  // ==========================================================================
+  // PHASE: RED FLAG STOP SCREEN
+  // ==========================================================================
+  if (phase === "red_flag_stop") {
+    return (
+      <Shell>
+        <div className="flex flex-col items-center text-center pt-12">
+          <div className="w-20 h-20 rounded-full bg-destructive/8 flex items-center justify-center mb-6">
+            <span className="text-4xl">⚠️</span>
+          </div>
+          <h2 className="text-[24px] font-bold text-foreground leading-snug mb-4">
+            Please see a healthcare provider before continuing
+          </h2>
+          <p className="text-[15px] text-muted-foreground leading-[1.7] max-w-[380px] mb-8">
+            One or more of your answers suggests a condition that should be evaluated by a doctor or physiotherapist before beginning a movement program. Vinys is not suitable as a first response to these symptoms.
+          </p>
+          <PrimaryButton
+            label="I understand"
+            onClick={() => {
+              // Navigate back to landing — call onComplete with null to signal abort
+              if (typeof window !== "undefined") window.location.href = "/";
+            }}
+          />
+        </div>
+      </Shell>
+    );
+  }
+
+  // ==========================================================================
   // PHASE: INTAKE
   // ==========================================================================
   if (phase === "intake") {
@@ -580,10 +727,10 @@ export default function VinysDiagnostic({ onComplete }) {
     return (
       <Shell>
         <div className="flex items-center justify-between mb-8">
-          <span className="inline-block px-3.5 py-1 rounded-full bg-primary/10 text-xs font-bold text-primary uppercase tracking-wider">
+          <span className="inline-block px-3.5 py-1 rounded-full bg-muted text-xs font-bold uppercase tracking-wider" style={{ color: "#888" }}>
             {AREA_CONFIG[area].label} · Setup
           </span>
-          <span className="text-[13px] text-muted-foreground font-semibold">{q.label}</span>
+          <span className="text-[13px] font-semibold" style={{ color: "#888" }}>{q.label}</span>
         </div>
 
         <h2 className="text-[22px] font-bold text-foreground leading-snug mb-7">{q.q}</h2>
@@ -600,7 +747,14 @@ export default function VinysDiagnostic({ onComplete }) {
             disabled={!selected}
             onClick={() => {
               const ans = selected;
-              if (intakeStep === 0) setIrritability(getIrritabilityFromAnswer(ans));
+              if (intakeStep === 0) {
+                const irr = getIrritabilityFromAnswer(ans);
+                setIrritability(irr);
+              }
+              if (intakeStep === 1) {
+                const ac = getAcuityFromAnswer(ans);
+                setAcuity(ac);
+              }
               if (intakeStep < INTAKE.length - 1) {
                 setIntakeStep((s) => s + 1);
                 setSelected(null);
@@ -672,9 +826,28 @@ export default function VinysDiagnostic({ onComplete }) {
           area: resolveArea,
           originalArea: crossoverTriggered ? area : null,
           crossoverTriggered,
+          irritability,
+          acuity,
+          mode: getModeFromIrritability(irritability),
+          redFlagsPassed: true,
         };
         setDiagnosticOutput(result);
-        setPhase("summary");
+        
+        // Determine if clarification is needed based on confidence
+        if (result.confidence === "High") {
+          setPhase("summary");
+        } else if (result.confidence === "Medium") {
+          setClarifyStep(0);
+          setClarifyAnswers({});
+          setSelected(null);
+          setPhase("clarify");
+        } else {
+          // Low confidence — 2 questions
+          setClarifyStep(0);
+          setClarifyAnswers({});
+          setSelected(null);
+          setPhase("clarify");
+        }
       }
     }
 
@@ -682,7 +855,7 @@ export default function VinysDiagnostic({ onComplete }) {
     if (posture.isSummary) {
       return (
         <Shell>
-          <span className="inline-block px-3.5 py-1 rounded-full bg-orange-hover/20 text-xs font-bold text-primary uppercase tracking-wider mb-6">
+          <span className="inline-block px-3.5 py-1 rounded-full bg-muted text-xs font-bold uppercase tracking-wider mb-6" style={{ color: "#888" }}>
             Final check-in
           </span>
           <h2 className="text-[22px] font-bold text-foreground leading-snug mb-7">{q.text}</h2>
@@ -705,7 +878,7 @@ export default function VinysDiagnostic({ onComplete }) {
         <Shell className="!pt-0">
           {/* Progress bar at top */}
           <div className="pt-4 pb-3">
-            <p className="text-xs text-muted-foreground mb-1.5">Posture {postureIdx + 1} of {progressTotal}</p>
+            <p className="text-xs mb-1.5" style={{ color: "#888" }}>Posture {postureIdx + 1} of {progressTotal}</p>
             <div className="w-full h-1 rounded-full bg-border overflow-hidden">
               <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${((postureIdx + 1) / progressTotal) * 100}%` }} />
             </div>
@@ -717,23 +890,34 @@ export default function VinysDiagnostic({ onComplete }) {
             </div>
           )}
 
-          {/* Video card — auto-starts, loops silently */}
+          {/* Video card — branded placeholder when using fallback */}
           <div className="rounded-2xl overflow-hidden relative aspect-video mb-4" style={{ background: '#2A2A2A' }}>
-            <video
-              src={posture.videoSrc || universalVideo}
-              autoPlay
-              loop
-              muted
-              playsInline
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
-            {/* Posture name overlay */}
-            <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/50 to-transparent pointer-events-none">
-              {cleanSubtitle && (
-                <span className="text-[11px] text-white/60 font-bold tracking-widest uppercase block">{cleanSubtitle}</span>
-              )}
-              <span className="text-[18px] font-bold text-white leading-tight">{posture.name}</span>
-            </div>
+            {posture.videoSrc ? (
+              <video
+                src={posture.videoSrc}
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            ) : (
+              /* Branded placeholder instead of black video */
+              <div className="w-full h-full flex flex-col items-center justify-center" style={{ background: "#028090" }}>
+                <Play className="w-10 h-10 text-white/40 mb-3" />
+                <span className="text-white font-semibold text-[16px] text-center px-4">{posture.name}</span>
+                {cleanSubtitle && <span className="text-white/60 text-[12px] mt-1">{cleanSubtitle}</span>}
+              </div>
+            )}
+            {/* Posture name overlay (only when real video) */}
+            {posture.videoSrc && (
+              <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/50 to-transparent pointer-events-none">
+                {cleanSubtitle && (
+                  <span className="text-[11px] text-white/60 font-bold tracking-widest uppercase block">{cleanSubtitle}</span>
+                )}
+                <span className="text-[18px] font-bold text-white leading-tight">{posture.name}</span>
+              </div>
+            )}
 
             {/* TTS overlay bar */}
             <div style={{ position: "absolute", bottom: 10, left: 10, right: 10, display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 10 }}>
@@ -755,15 +939,15 @@ export default function VinysDiagnostic({ onComplete }) {
             </div>
           </div>
 
-          {/* Instructions card (no duplicate TTS button) */}
+          {/* Instructions card */}
           {posture.how && (
             <div className="p-5 rounded-2xl bg-card border border-border shadow-calm mb-5">
-              <span className="text-[11px] font-bold text-primary uppercase tracking-widest block mb-3">How to do this exercise</span>
+              <span className="text-[11px] font-medium uppercase tracking-widest block mb-3" style={{ color: "#888" }}>How to do this</span>
               <p className="text-[15px] text-foreground leading-[1.7]">{posture.how}</p>
             </div>
           )}
 
-          <PrimaryButton label="Continue →" onClick={() => { ttsTextRef.current = ""; stopTTS(); setShowingVideo(false); }} />
+          <PrimaryButton label="I've tried this →" onClick={() => { ttsTextRef.current = ""; stopTTS(); setShowingVideo(false); }} />
           <div className="flex justify-center">
             <button onClick={() => { ttsTextRef.current = ""; stopTTS(); setShowingVideo(false); }} style={{ color: '#888', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', marginTop: 8 }}>
               Skip video →
@@ -777,7 +961,7 @@ export default function VinysDiagnostic({ onComplete }) {
     return (
       <Shell>
         {/* Posture progress */}
-        <p className="text-xs text-muted-foreground mb-1.5">Posture {postureIdx + 1} of {progressTotal}</p>
+        <p className="text-xs mb-1.5" style={{ color: "#888" }}>Posture {postureIdx + 1} of {progressTotal}</p>
         <div className="w-full h-1 rounded-full bg-border mb-5 overflow-hidden">
           <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${((postureIdx + 1) / progressTotal) * 100}%` }} />
         </div>
@@ -796,7 +980,8 @@ export default function VinysDiagnostic({ onComplete }) {
           </div>
           <button
             onClick={() => setShowingVideo(true)}
-            className="text-[12px] text-primary font-semibold px-2.5 py-1 rounded-lg bg-primary/5 hover:bg-primary/10 transition-colors"
+            className="text-[12px] font-semibold px-2.5 py-1 rounded-lg transition-colors"
+            style={{ color: "#888", background: "rgba(136,136,136,0.08)" }}
           >
             <ArrowLeft className="w-3.5 h-3.5 inline mr-1" />
             Back
@@ -806,7 +991,7 @@ export default function VinysDiagnostic({ onComplete }) {
         {/* Question card */}
         <div className="p-5 rounded-2xl bg-card border border-border shadow-calm mb-5">
           {posture.qs.length > 1 && (
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block mb-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider block mb-2" style={{ color: "#888" }}>
               Question {qIdx + 1} of {posture.qs.length}
             </span>
           )}
@@ -832,6 +1017,93 @@ export default function VinysDiagnostic({ onComplete }) {
             {AFFIRMATIONS[Math.min(postureIdx - 1, AFFIRMATIONS.length - 1)]}
           </p>
         )}
+      </Shell>
+    );
+  }
+
+  // ==========================================================================
+  // PHASE: CLARIFICATION QUESTIONS (FIX 8)
+  // ==========================================================================
+  if (phase === "clarify" && diagnosticOutput) {
+    const isLow = diagnosticOutput.confidence === "Low";
+    const totalClarifyQs = isLow ? 2 : 1;
+
+    const CLARIFY_QS = [
+      {
+        heading: "One quick follow-up",
+        text: "How strong was the discomfort during the movement test overall?",
+        opts: [
+          "No pain — I moved freely",
+          "Mild discomfort — manageable",
+          "Moderate pain — I had to be careful",
+          "Strong pain — I stopped or modified most movements",
+        ],
+      },
+      {
+        heading: "One more question",
+        text: "Did the movement test change your pain afterwards?",
+        opts: [
+          "Pain improved after moving",
+          "No change",
+          "Pain increased after moving",
+        ],
+      },
+    ];
+
+    const currentQ = CLARIFY_QS[clarifyStep];
+    if (!currentQ) { setPhase("summary"); return null; }
+
+    return (
+      <Shell>
+        <div className="mb-8">
+          <h2 className="text-[22px] font-bold text-foreground leading-snug mb-2">{currentQ.heading}</h2>
+          <p className="text-[16px] text-foreground leading-[1.65] font-medium">{currentQ.text}</p>
+        </div>
+
+        <div className="space-y-2.5">
+          {currentQ.opts.map((opt, i) => (
+            <OptionTile key={i} label={opt} selected={selected === opt} onClick={() => setSelected(opt)} />
+          ))}
+        </div>
+
+        <div className="mt-6">
+          <PrimaryButton
+            label={clarifyStep < totalClarifyQs - 1 ? "Continue" : "See your profile →"}
+            disabled={!selected}
+            onClick={() => {
+              const newAnswers = { ...clarifyAnswers, [`clarify_${clarifyStep}`]: selected };
+              setClarifyAnswers(newAnswers);
+
+              // Update profile based on clarification
+              if (clarifyStep === 0) {
+                // Pain severity → adjust irritability
+                const painMap = {
+                  "No pain — I moved freely": 1,
+                  "Mild discomfort — manageable": 2,
+                  "Moderate pain — I had to be careful": 3,
+                  "Strong pain — I stopped or modified most movements": 4,
+                };
+                const clarifiedIrr = painMap[selected] || irritability;
+                // Average with existing irritability
+                const newIrr = Math.round((irritability + clarifiedIrr) / 2);
+                setIrritability(newIrr);
+                setDiagnosticOutput(prev => ({
+                  ...prev,
+                  irritability: newIrr,
+                  mode: getModeFromIrritability(newIrr),
+                }));
+              }
+
+              if (clarifyStep < totalClarifyQs - 1) {
+                setClarifyStep(s => s + 1);
+                setSelected(null);
+              } else {
+                setSelected(null);
+                setPhase("summary");
+              }
+            }}
+          />
+        </div>
       </Shell>
     );
   }
@@ -874,7 +1146,7 @@ export default function VinysDiagnostic({ onComplete }) {
           </div>
 
           <span className={`inline-block px-3 py-1 rounded-full text-[12px] font-bold ${confBadgeClass} mb-6`}>
-            {confidence} confidence
+            {confidence === "High" ? "High confidence profile" : confidence === "Medium" ? "Good confidence — may refine over first sessions" : "Initial profile — will refine over your first sessions"}
           </span>
 
           <p className="text-[16px] text-foreground leading-[1.7] text-left max-w-[400px] mx-auto mb-2">
@@ -920,6 +1192,7 @@ export default function VinysDiagnostic({ onComplete }) {
               setCrossoverTriggered(false);
               setCrossoverTarget(null);
               setIrritability(0);
+              setAcuity("unknown");
               setIntakeStep(0);
               setPostureIdx(0);
               setQIdx(0);
@@ -928,6 +1201,10 @@ export default function VinysDiagnostic({ onComplete }) {
               setSelected(null);
               setDiagnosticOutput(null);
               setShowingVideo(true);
+              setRedFlagsChecked([]);
+              setNoneChecked(false);
+              setClarifyStep(0);
+              setClarifyAnswers({});
             }}
           />
         </div>
