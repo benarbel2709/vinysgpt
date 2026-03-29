@@ -27,7 +27,7 @@ export const CONDITION_CATEGORIES: ConditionCategory[] = [
     conditions: ["fibromyalgia", "chronic_fatigue_syndrome", "long_covid", "low_energy", "post_illness"],
   },
   {
-    name: "Posture & Functional Patterns",
+    name: "Posture & Functional Movement",
     conditions: ["postural_fatigue", "desk_tension", "breathing_disorders", "repetitive_strain", "neck_pain"],
   },
   {
