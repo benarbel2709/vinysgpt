@@ -894,11 +894,11 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
           <h2 className="text-[22px] font-bold text-foreground leading-snug mb-7">{q.text}</h2>
           <div className="space-y-2.5">
             {q.opts.map((opt, i) => (
-              <OptionTile key={i} label={opt.t} selected={selected === opt.t} onClick={() => setSelected(opt.t)} />
+              <OptionTile key={i} label={opt.t} selected={selected === opt.t} onClick={() => {
+                setSelected(opt.t);
+                setTimeout(() => handleAnswer(opt.t), 250);
+              }} />
             ))}
-          </div>
-          <div className="mt-6">
-            <PrimaryButton label="See your results →" disabled={!selected} onClick={() => handleAnswer(selected)} />
           </div>
         </Shell>
       );
@@ -1022,16 +1022,11 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
 
         <div className="space-y-2.5">
           {q.opts.map((opt, i) => (
-            <OptionTile key={i} label={opt.t} selected={selected === opt.t} onClick={() => setSelected(opt.t)} />
+            <OptionTile key={i} label={opt.t} selected={selected === opt.t} onClick={() => {
+              setSelected(opt.t);
+              setTimeout(() => { handleAnswer(opt.t); setSelected(null); }, 250);
+            }} />
           ))}
-        </div>
-
-        <div className="mt-6">
-          <PrimaryButton
-            label={isLastP && isLastQ ? "See my results →" : "Next"}
-            disabled={!selected}
-            onClick={() => { handleAnswer(selected); setSelected(null); }}
-          />
         </div>
 
         {postureIdx > 0 && (
