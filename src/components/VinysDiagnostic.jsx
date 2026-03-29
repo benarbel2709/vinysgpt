@@ -663,7 +663,7 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
         </div>
 
         <div className="space-y-2">
-          {DIAGNOSTIC_RED_FLAGS.map((flag) => {
+          {getRedFlagsForArea(area).map((flag) => {
             const isChecked = redFlagsChecked.includes(flag);
             return (
               <button
