@@ -133,7 +133,7 @@ export default function OnboardingWizard() {
   const canGoNext = (): boolean => {
     switch (step) {
       case 0:
-        return selected.length > 0;
+        return !!selectedArea;
       case 1:
         return !!diagnosticResult;
       case 2:
