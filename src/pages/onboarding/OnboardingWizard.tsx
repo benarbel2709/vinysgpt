@@ -3,7 +3,7 @@ import VinysDiagnostic from "@/components/VinysDiagnostic";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "@/context/AppContext";
 import type { ConditionKey, EnergyLevel, PracticeTime } from "@/constants/conditions";
-import { CONDITION_LABELS, RED_FLAGS, EQUIPMENT_OPTIONS } from "@/constants/conditions";
+import { CONDITION_LABELS, EQUIPMENT_OPTIONS } from "@/constants/conditions";
 import { CONDITION_CATEGORIES, CONDITION_DETAILS } from "@/constants/conditionCategories";
 import type { GenericAssessmentData, Assessment } from "@/types";
 import { generatePlan } from "@/lib/planGenerator";
@@ -22,32 +22,52 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
-const SESSIONS_OPTIONS = [1, 2, 3, 4, 5];
-const MINUTES_OPTIONS = [10, 15, 20, 30, 45];
+const SESSIONS_OPTIONS = [2, 3, 4, 5];
+const MINUTES_OPTIONS = [
+  { value: 10, label: "10 min" },
+  { value: 20, label: "20 min" },
+  { value: 30, label: "30 min" },
+];
 const TIME_OF_DAY_OPTIONS: { value: PracticeTime; label: string }[] = [
   { value: "morning", label: "Morning" },
   { value: "afternoon", label: "Afternoon" },
   { value: "evening", label: "Evening" },
 ];
 const CLOSING_OPTIONS = [
-  { value: "savasana" as const, label: "Savasana" },
-  { value: "body_rest" as const, label: "Body rest & integration" },
-  { value: "meditation" as const, label: "Meditation (Guided stillness)" },
+  { value: "savasana" as const, label: "Savasana", desc: "Traditional lying-down rest and integration (3 minutes)" },
+  { value: "body_rest" as const, label: "Body Rest & Integration", desc: "Gentle movement-based wind-down (3 minutes)" },
+  { value: "meditation" as const, label: "Guided Stillness", desc: "Brief breath-led meditation (3 minutes)" },
 ];
 
 const RESTRICTION_OPTIONS = [
-  "Recent surgery (within 12 months)",
+  "Currently pregnant",
+  "Recent surgery (within 6 months)",
   "Currently under physiotherapy or medical care",
-  "Advised to avoid floor-based exercises",
-  "Advised to avoid inversion poses",
-  "Advised to avoid twisting movements",
-  "Avoid high-impact movements",
-  "Avoid deep forward bends",
-  "Avoid prone (face-down) positions",
+  "Osteoporosis or bone density concerns",
+  "Balance issues or fall risk",
+  "None of the above",
 ];
 
-const STEPPER_STEPS = 7;
-const TOTAL_STEPS = 8; // internal: 0-6 = steps, 7 = confirmation
+const EQUIPMENT_CHOICES = [
+  { key: "mat", label: "Yoga mat", alwaysOn: true },
+  { key: "blocks", label: "Yoga blocks", alwaysOn: false },
+  { key: "strap", label: "Yoga strap", alwaysOn: false },
+  { key: "bolster", label: "Bolster or firm pillow", alwaysOn: false },
+  { key: "chair", label: "Chair", alwaysOn: false },
+  { key: "foam roller", label: "Foam roller", alwaysOn: false },
+];
+
+// Step mapping:
+// 0 = conditions
+// 1 = diagnostic (VinysDiagnostic handles its own flow including red flags, intake, postures, clarification, summary)
+// 2 = profile summary (from diagnostic result)
+// 3 = restrictions
+// 4 = equipment
+// 5 = schedule
+// 6 = closing preference
+// 7 = confirmation
+const STEPPER_STEPS = 8;
+const TOTAL_STEPS = 8;
 
 const tagBase =
   "px-3.5 py-1.5 rounded-[8px] border-2 text-[18px] font-semibold transition-all cursor-pointer leading-tight";
@@ -62,7 +82,7 @@ export default function OnboardingWizard() {
   const navigate = useNavigate();
   const profile = state.profile;
 
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [selected, setSelected] = useState<ConditionKey[]>([]);
   const [conditionDetails, setConditionDetails] = useState<Record<string, string[]>>({});
   const [diagnosticResult, setDiagnosticResult] = useState<any>(null);
@@ -71,10 +91,9 @@ export default function OnboardingWizard() {
   const [practiceTime, setPracticeTime] = useState<PracticeTime>(profile.practiceTime || "morning");
   const [minutesPerSession, setMinutesPerSession] = useState(profile.minutesPerSession || 20);
   const [sessionsPerWeek, setSessionsPerWeek] = useState(profile.sessionsPerWeek || 3);
-  const [equipment, setEquipment] = useState<string[]>([]);
+  const [equipment, setEquipment] = useState<string[]>(["mat"]);
   const [closingPref, setClosingPref] = useState<string>("");
   const [energyLevel, setEnergyLevel] = useState<EnergyLevel>("medium");
-  const [redFlags, setRedFlags] = useState<string[]>([]);
   const [timeSelected, setTimeSelected] = useState(false);
   const [durationSelected, setDurationSelected] = useState(false);
   const [sessionsSelected, setSessionsSelected] = useState(false);
@@ -91,25 +110,25 @@ export default function OnboardingWizard() {
     });
   }, []);
 
-  const toggleEquip = useCallback((o: string) => {
-    setEquipment((p) => (p.includes(o) ? p.filter((s) => s !== o) : [...p, o]));
+  const toggleEquip = useCallback((key: string) => {
+    if (key === "mat") return; // mat cannot be deselected
+    setEquipment((p) => (p.includes(key) ? p.filter((s) => s !== key) : [...p, key]));
   }, []);
 
   const toggleRestriction = useCallback((r: string) => {
-    setRestrictions((p) => (p.includes(r) ? p.filter((x) => x !== r) : [...p, r]));
+    if (r === "None of the above") {
+      setRestrictions(prev => prev.includes(r) ? [] : ["None of the above"]);
+    } else {
+      setRestrictions(prev => {
+        const without = prev.filter(x => x !== "None of the above");
+        return without.includes(r) ? without.filter(x => x !== r) : [...without, r];
+      });
+    }
   }, []);
 
   const label = (c: string) =>
     CONDITION_LABELS[c as ConditionKey] || c.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
-  const hasAnyDetail =
-    selected.length > 0 &&
-    selected.every((k) => {
-      const details = CONDITION_DETAILS[k];
-      if (!details || details.length === 0) return true;
-      return (conditionDetails[k] || []).length > 0;
-    });
 
-  // Step mapping: 0=conditions, 1=diagnostic, 2=profile summary, 3=restrictions, 4=schedule, 5=closing, 6=energy+safety, 7=confirmation
   const canGoNext = (): boolean => {
     switch (step) {
       case 0:
@@ -117,15 +136,15 @@ export default function OnboardingWizard() {
       case 1:
         return !!diagnosticResult;
       case 2:
-        return !!diagnosticResult; // profile summary — always can proceed
+        return !!diagnosticResult;
       case 3:
         return true; // restrictions are optional
       case 4:
-        return timeSelected && durationSelected && sessionsSelected;
+        return true; // equipment always has mat
       case 5:
-        return !!closingPref;
+        return true; // schedule has defaults
       case 6:
-        return true;
+        return !!closingPref;
       case 7:
         return true;
       default:
@@ -134,6 +153,9 @@ export default function OnboardingWizard() {
   };
 
   const handleBuild = () => {
+    // Ensure equipment is never empty
+    const finalEquipment = equipment.length > 0 ? equipment : ["mat"];
+
     const updatedProfile = {
       ...profile,
       conditions: selected,
@@ -143,6 +165,8 @@ export default function OnboardingWizard() {
       minutesPerSession,
       practiceTime,
       closingPreference: closingPref as "savasana" | "meditation" | "body_rest",
+      availableEquipment: finalEquipment,
+      restrictions: restrictions.filter(r => r !== "None of the above"),
     };
     updateState({ disclaimerAccepted: true, onboardingCompleted: true });
     updateProfile({
@@ -153,36 +177,43 @@ export default function OnboardingWizard() {
       minutesPerSession,
       practiceTime,
       closingPreference: closingPref as "savasana" | "meditation" | "body_rest",
-    });
+      availableEquipment: finalEquipment,
+      restrictions: restrictions.filter(r => r !== "None of the above"),
+    } as any);
 
     const assessmentId = `assessment_${Date.now()}`;
-    const allRestrictions = [...restrictions];
+    const allRestrictions = restrictions.filter(r => r !== "None of the above");
     if (restrictionOther.trim()) allRestrictions.push(restrictionOther.trim());
     const data: GenericAssessmentData = {
       mainIssue: selected.join(", "),
       pain: 5,
       limits: allRestrictions.join("; "),
-      equipment,
+      equipment: finalEquipment,
       redFlags: [],
     };
     const assessment: Assessment = { id: assessmentId, createdAt: new Date().toISOString(), type: "generic", data };
+
+    // Use diagnostic irritability to set plan intensity
+    const irr = diagnosticResult?.irritability ?? 0;
     const plan = generatePlan(updatedProfile, assessmentId, undefined, state.exerciseLibrary, {
-      pain: (diagnosticResult?.irritability ?? 0) >= 2 ? 7 : 5,
-      fatigue: (diagnosticResult?.irritability ?? 0) >= 2 ? 7 : 5,
+      pain: irr >= 3 ? 7 : 5,
+      fatigue: irr >= 3 ? 7 : 5,
       sleep: 5,
-      flareNow: (diagnosticResult?.irritability ?? 0) >= 3 ? "yes" : "no",
+      flareNow: irr >= 4 ? "yes" : "no",
     });
-    updateState({ assessments: [...state.assessments, assessment], currentPlan: plan });
-    trackEvent("plan_generated", { condition: selected[0], duration: plan.sessions[0]?.durationMinutes });
-    const first = plan.sessions[0];
-    navigate(first ? `/workout/${first.id}` : "/plan");
+
+    // Ensure NO sessions start as "done" — diagnostic must not count
+    const cleanPlan = {
+      ...plan,
+      sessions: plan.sessions.map(s => ({ ...s, status: "planned" as const })),
+    };
+
+    updateState({ assessments: [...state.assessments, assessment], currentPlan: cleanPlan });
+    trackEvent("plan_generated", { condition: selected[0], duration: cleanPlan.sessions[0]?.durationMinutes });
+    navigate("/plan");
   };
 
   const handleNext = () => {
-    if (step === 6 && redFlags.length > 0) {
-      navigate("/onboarding/medical-stop");
-      return;
-    }
     if (step < TOTAL_STEPS - 1) setStep(step + 1);
   };
 
@@ -191,25 +222,43 @@ export default function OnboardingWizard() {
       navigate("/");
       return;
     }
+    // Skip step 1 (diagnostic) when going back — go to conditions
+    if (step === 2) {
+      setStep(0);
+      return;
+    }
     setStep(step - 1);
   };
 
   const STEP_TITLES = [
     "Your conditions",
     "Body diagnostic",
-    "Your movement profile",
+    "Here's what we found",
     "Any movements to avoid?",
-    "Practice time & schedule",
-    "Session closing",
-    "How are you feeling?",
+    "What equipment do you have?",
+    "How would you like to practice?",
+    "How would you like to end each practice?",
     "You're all set.",
   ];
 
-  const energyOptions: { value: EnergyLevel; label: string }[] = [
-    { value: "low", label: "Gentle day" },
-    { value: "medium", label: "Feeling okay" },
-    { value: "high", label: "Full energy" },
-  ];
+  // Profile summary data
+  const PROFILE_LABELS: Record<string, { label: string; desc: string }> = {
+    FL: { label: "Flexion Sensitive", desc: "Your back responds best to extension-based movements. Forward bending tends to increase discomfort." },
+    EX: { label: "Extension Sensitive", desc: "Your back prefers flexion and neutral positions. Arching backward tends to increase discomfort." },
+    NE: { label: "Neutral Pattern", desc: "Your back tolerates most movements. The focus will be on building strength and mobility evenly." },
+    LI: { label: "Load-Sensitive", desc: "Your body benefits from gentle, progressive loading. Consistency is your best tool." },
+    ST: { label: "Stiffness-Dominant", desc: "Your movement is limited but not acutely painful. The focus will be on progressive mobility." },
+    AN: { label: "Anterior Overload", desc: "Front-of-joint overload pattern. Sessions focus on decompression." },
+    LA: { label: "Lateral Pattern", desc: "Side-bending or rotation is your primary sensitivity. Asymmetrical movements need care." },
+    PO: { label: "Posterior", desc: "Posterior chain involvement. Sessions address rotation and flexibility." },
+    PA: { label: "Patellofemoral", desc: "Kneecap pattern. Sessions focus on quad control and step-down exercises." },
+    ME: { label: "Medial Stress", desc: "Inner joint stress pattern. Sessions focus on alignment and hip strength." },
+    AC: { label: "Achilles / Posterior", desc: "Achilles pattern. Sessions use graded loading and eccentric work." },
+    PF: { label: "Plantar Fascia", desc: "Plantar fasciitis pattern. Sessions include calf release and foot strength." },
+    MO: { label: "Mobility-First", desc: "Restricted range without sharp pain. Focus on progressive mobility." },
+  };
+
+  const AREA_LABELS: Record<string, string> = { LB: "Lower Back", HIP: "Hip", KNEE: "Knee", ANKLE: "Ankle" };
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
@@ -218,7 +267,7 @@ export default function OnboardingWizard() {
         <div className="flex items-center h-[56px] px-6 lg:px-[100px]">
           <BrandLogo size="md" linkToHome={false} />
           <div className="flex-1 flex justify-center">
-            {step < 7 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
+            {step < 7 && step !== 1 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
           </div>
           <button
             onClick={() => navigate("/")}
@@ -254,7 +303,7 @@ export default function OnboardingWizard() {
           </p>
         )}
 
-        {/* ═══ STEP 1: Condition category grid ═══ */}
+        {/* ═══ STEP 0: Condition category grid ═══ */}
         {step === 0 && (
           <div className="w-full" style={{ marginTop: "20px", maxWidth: "1100px", margin: "20px auto 0" }}>
             <div className="flex flex-wrap justify-center" style={{ gap: "20px", marginBottom: "20px" }}>
@@ -273,13 +322,7 @@ export default function OnboardingWizard() {
                         key={key}
                         onClick={() => toggle(key)}
                         className={`rounded-[8px] border-2 text-[16px] font-semibold transition-all cursor-pointer ${selected.includes(key) ? tagSelected : tagUnselected}`}
-                        style={{
-                          paddingLeft: "10px",
-                          paddingRight: "10px",
-                          paddingTop: "5px",
-                          paddingBottom: "5px",
-                          lineHeight: "1.2",
-                        }}
+                        style={{ paddingLeft: "10px", paddingRight: "10px", paddingTop: "5px", paddingBottom: "5px", lineHeight: "1.2" }}
                       >
                         {label(key)}
                       </button>
@@ -290,30 +333,14 @@ export default function OnboardingWizard() {
             </div>
             <div className="flex flex-wrap justify-center" style={{ gap: "20px" }}>
               {CONDITION_CATEGORIES.slice(3, 5).map((cat) => (
-                <div
-                  key={cat.name}
-                  className="rounded-[12px] bg-surface-warm"
-                  style={{ padding: "20px", width: "340px", flexShrink: 0 }}
-                >
-                  <h3 className="font-bold text-primary text-center text-[18px]" style={{ marginBottom: "14px" }}>
-                    {cat.name}
-                  </h3>
+                <div key={cat.name} className="rounded-[12px] bg-surface-warm" style={{ padding: "20px", width: "340px", flexShrink: 0 }}>
+                  <h3 className="font-bold text-primary text-center text-[18px]" style={{ marginBottom: "14px" }}>{cat.name}</h3>
                   <div className="flex flex-wrap justify-center" style={{ gap: "10px" }}>
                     {cat.conditions.map((key) => (
-                      <button
-                        key={key}
-                        onClick={() => toggle(key)}
+                      <button key={key} onClick={() => toggle(key)}
                         className={`rounded-[8px] border-2 text-[16px] font-semibold transition-all cursor-pointer ${selected.includes(key) ? tagSelected : tagUnselected}`}
-                        style={{
-                          paddingLeft: "10px",
-                          paddingRight: "10px",
-                          paddingTop: "5px",
-                          paddingBottom: "5px",
-                          lineHeight: "1.2",
-                        }}
-                      >
-                        {label(key)}
-                      </button>
+                        style={{ paddingLeft: "10px", paddingRight: "10px", paddingTop: "5px", paddingBottom: "5px", lineHeight: "1.2" }}
+                      >{label(key)}</button>
                     ))}
                   </div>
                 </div>
@@ -321,30 +348,14 @@ export default function OnboardingWizard() {
             </div>
             <div className="flex flex-wrap justify-center" style={{ gap: "20px", marginTop: "20px" }}>
               {CONDITION_CATEGORIES.slice(5).map((cat) => (
-                <div
-                  key={cat.name}
-                  className="rounded-[12px] bg-surface-warm"
-                  style={{ padding: "20px", width: "340px", flexShrink: 0 }}
-                >
-                  <h3 className="font-bold text-primary text-center text-[18px]" style={{ marginBottom: "14px" }}>
-                    {cat.name}
-                  </h3>
+                <div key={cat.name} className="rounded-[12px] bg-surface-warm" style={{ padding: "20px", width: "340px", flexShrink: 0 }}>
+                  <h3 className="font-bold text-primary text-center text-[18px]" style={{ marginBottom: "14px" }}>{cat.name}</h3>
                   <div className="flex flex-wrap justify-center" style={{ gap: "10px" }}>
                     {cat.conditions.map((key) => (
-                      <button
-                        key={key}
-                        onClick={() => toggle(key)}
+                      <button key={key} onClick={() => toggle(key)}
                         className={`rounded-[8px] border-2 text-[16px] font-semibold transition-all cursor-pointer ${selected.includes(key) ? tagSelected : tagUnselected}`}
-                        style={{
-                          paddingLeft: "10px",
-                          paddingRight: "10px",
-                          paddingTop: "5px",
-                          paddingBottom: "5px",
-                          lineHeight: "1.2",
-                        }}
-                      >
-                        {label(key)}
-                      </button>
+                        style={{ paddingLeft: "10px", paddingRight: "10px", paddingTop: "5px", paddingBottom: "5px", lineHeight: "1.2" }}
+                      >{label(key)}</button>
                     ))}
                   </div>
                 </div>
@@ -353,31 +364,31 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 2: VinysDiagnostic ═══ */}
+        {/* ═══ STEP 1: VinysDiagnostic ═══ */}
         {step === 1 && (
           <div className="w-full" style={{ marginTop: "20px" }}>
             <VinysDiagnostic
               onComplete={(result: any) => {
-                // Map diagnostic area to ConditionKey so plan targets the right body area
                 const areaToCondKey: Record<string, string> = {
-                  LB: "back_pain",
-                  HIP: "hip_pain",
-                  KNEE: "knee_pain",
-                  ANKLE: "back_pain",
+                  LB: "back_pain", HIP: "hip_pain", KNEE: "knee_pain", ANKLE: "back_pain",
                 };
                 const derivedKey = areaToCondKey[result.area ?? "LB"] ?? "back_pain";
-                // Promote derived condition so generatePlan targets the diagnosed area
                 setSelected((prev) =>
                   prev.includes(derivedKey as any)
                     ? prev
                     : [derivedKey as any, ...prev.filter((c) => c !== derivedKey)],
                 );
                 setDiagnosticResult(result);
+                // Save irritability, acuity, mode to profile (FIX 2)
                 updateProfile({
                   diagnosticResult: result,
                   diagnosticArea: result.area,
                   diagnosticProfile: result.primary,
                   diagnosticIrritability: result.irritability ?? 0,
+                  irritability: result.irritability ?? 0,
+                  acuity: result.acuity ?? "unknown",
+                  mode: result.mode ?? "normal",
+                  redFlagsPassed: result.redFlagsPassed ?? true,
                 } as any);
                 setStep(2);
               }}
@@ -385,61 +396,53 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 3: Profile Summary ═══ */}
+        {/* ═══ STEP 2: Profile Summary (FIX 7) ═══ */}
         {step === 2 && diagnosticResult && (() => {
-          const IRRIT_LABELS: Record<number, string> = { 0: "Not sensitive", 1: "Mildly sensitive", 2: "Moderately sensitive", 3: "Highly sensitive" };
-          const AREA_LABELS: Record<string, string> = { LB: "Lower Back", HIP: "Hip", KNEE: "Knee", ANKLE: "Ankle" };
-          const PROFILE_LABELS: Record<string, string> = {
-            FL: "Flexion-Sensitive", EX: "Extension-Sensitive", NE: "Neural", LI: "Load-Sensitive", ST: "Stiffness-Dominant",
-            AN: "Anterior Overload", LA: "Lateral Overload", PO: "Posterior", PA: "Patellofemoral", ME: "Medial Stress",
-            AC: "Achilles / Posterior", PF: "Plantar Fascia", MO: "Mobility-First",
-          };
-          const FOCUS_DESC: Record<string, string> = {
-            FL: "Your sessions will focus on gentle backbends and avoiding sustained forward bending.",
-            EX: "Your sessions will focus on decompression and supported flexion positions.",
-            NE: "Your sessions will include gentle neural glides to reduce nerve irritation.",
-            LI: "Your sessions will start gently and build load progressively.",
-            ST: "Your sessions will focus on restoring range of motion through regular mobility work.",
-            AN: "Your sessions will avoid deep flexion under load and focus on decompression.",
-            LA: "Your sessions will focus on strengthening and graded lateral loading.",
-            PO: "Your sessions will address hip rotation and posterior chain flexibility.",
-            PA: "Your sessions will focus on quad control and step-down exercises.",
-            ME: "Your sessions will focus on alignment and reducing medial load.",
-            AC: "Your sessions will use graded loading and eccentric work for Achilles recovery.",
-            PF: "Your sessions will include calf release, foot strength, and graded loading.",
-            MO: "Your sessions will focus on progressive, never forced, range of motion work.",
-          };
           const areaLabel = AREA_LABELS[diagnosticResult.area] || diagnosticResult.area;
-          const profileLabel = PROFILE_LABELS[diagnosticResult.primary] || diagnosticResult.primary;
+          const profileInfo = PROFILE_LABELS[diagnosticResult.primary] || { label: diagnosticResult.primary, desc: "Your plan will be tailored to your specific pattern." };
           const irr = diagnosticResult.irritability ?? 0;
-          const irrLabel = IRRIT_LABELS[irr] || "Not sensitive";
-          const focusDesc = FOCUS_DESC[diagnosticResult.primary] || "Your plan will be tailored to your specific pattern.";
+
+          const sensitivityLabel = irr <= 2 ? "Low" : irr === 3 ? "Moderate" : "High";
+          const sensitivityColor = irr <= 2 ? "#22c55e" : irr === 3 ? "#f59e0b" : "#ef4444";
+
+          const confidence = diagnosticResult.confidence || "Medium";
+          const confNote = confidence === "High"
+            ? "High confidence profile"
+            : confidence === "Medium"
+            ? "Good confidence — may refine over first sessions"
+            : "Initial profile — will refine over your first sessions";
 
           return (
             <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "460px" }}>
-              <div className="rounded-2xl bg-surface-warm p-6 text-left space-y-4 mb-6">
+              <h1 className="font-display text-foreground font-bold text-2xl mb-2">Here's what we found</h1>
+              <p className="text-muted-foreground text-sm mb-6">Based on your movement responses, here's your starting profile</p>
+
+              <div className="rounded-2xl bg-surface-warm p-6 text-left space-y-4 mb-4">
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground text-sm">Area</span>
                   <span className="font-semibold text-foreground">{areaLabel}</span>
                 </div>
                 <hr className="border-border" />
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-sm">Primary profile</span>
-                  <span className="font-semibold text-secondary">{profileLabel}</span>
+                <div className="flex items-start justify-between gap-3">
+                  <span className="text-muted-foreground text-sm shrink-0">Movement Profile</span>
+                  <div className="text-right">
+                    <span className="font-semibold text-secondary block">{profileInfo.label}</span>
+                    <span className="text-xs text-muted-foreground">{profileInfo.desc}</span>
+                  </div>
                 </div>
                 <hr className="border-border" />
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground text-sm">Sensitivity</span>
-                  <span className="font-semibold text-foreground">{irrLabel}</span>
+                  <span className="font-semibold" style={{ color: sensitivityColor }}>{sensitivityLabel}</span>
                 </div>
-                <hr className="border-border" />
-                <p className="text-sm text-foreground leading-relaxed">{focusDesc}</p>
               </div>
+
+              <p className="text-xs text-muted-foreground mb-6">{confNote}</p>
             </div>
           );
         })()}
 
-        {/* ═══ STEP 4: Restrictions / Contraindications ═══ */}
+        {/* ═══ STEP 3: Restrictions (FIX 6 Step A) ═══ */}
         {step === 3 && (
           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
             <div className="flex flex-col" style={{ gap: "10px" }}>
@@ -451,106 +454,78 @@ export default function OnboardingWizard() {
                     onClick={() => toggleRestriction(r)}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-[8px] border-2 transition-all text-left ${isChecked ? "border-secondary bg-secondary/10" : "border-border bg-card"}`}
                   >
-                    <div
-                      className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${isChecked ? "border-secondary bg-secondary" : "border-border bg-card"}`}
-                    >
+                    <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${isChecked ? "border-secondary bg-secondary" : "border-border bg-card"}`}>
                       {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
                     </div>
                     <span className="text-sm font-medium text-foreground">{r}</span>
                   </button>
                 );
               })}
-              {/* Other — free text */}
-              <div className="w-full flex items-start gap-3 px-4 py-2.5 rounded-[8px] border-2 border-border bg-card text-left">
-                <span className="text-sm font-medium text-foreground shrink-0 mt-1">Other:</span>
-                <input
-                  type="text"
-                  value={restrictionOther}
-                  onChange={(e) => setRestrictionOther(e.target.value.slice(0, 100))}
-                  placeholder="e.g., avoid weight-bearing on left knee"
-                  className="flex-1 text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground"
-                  maxLength={100}
-                />
-              </div>
             </div>
             <p className="text-xs text-muted-foreground mt-4">
-              Not sure? Skip this step — you can always update it later in your account settings.
+              Not sure? Skip for now — you can update this in your profile later.
             </p>
           </div>
         )}
 
-        {/* ═══ STEP 5: Practice time & schedule ═══ */}
+        {/* ═══ STEP 4: Equipment (FIX 6 Step B) ═══ */}
         {step === 4 && (
           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
-            <div>
-              <h2 className="text-primary font-bold text-[21px]">Time of day</h2>
-              <div className="flex justify-center" style={{ gap: "10px", marginTop: "16px" }}>
-                {TIME_OF_DAY_OPTIONS.map((opt) => (
+            <div className="flex flex-col" style={{ gap: "10px" }}>
+              {EQUIPMENT_CHOICES.map((eq) => {
+                const isChecked = equipment.includes(eq.key);
+                return (
                   <button
-                    key={opt.value}
-                    onClick={() => {
-                      setPracticeTime(opt.value);
-                      setTimeSelected(true);
-                    }}
-                    className={tagSmall(practiceTime === opt.value && timeSelected)}
+                    key={eq.key}
+                    onClick={() => toggleEquip(eq.key)}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-[8px] border-2 transition-all text-left ${
+                      isChecked ? "border-secondary bg-secondary/10" : "border-border bg-card"
+                    } ${eq.alwaysOn ? "opacity-80" : ""}`}
                   >
-                    {opt.label}
+                    <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${
+                      isChecked ? "border-secondary bg-secondary" : "border-border bg-card"
+                    }`}>
+                      {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
+                    </div>
+                    <span className="text-sm font-medium text-foreground">{eq.label}</span>
+                    {eq.alwaysOn && <span className="text-xs text-muted-foreground ml-auto">(always included)</span>}
                   </button>
-                ))}
-              </div>
+                );
+              })}
             </div>
-            <div
-              style={{ margin: "24px 0", height: "1px", width: "100%", backgroundColor: "hsl(var(--border) / 0.4)" }}
-            />
+          </div>
+        )}
+
+        {/* ═══ STEP 5: Schedule (FIX 6 Step C) ═══ */}
+        {step === 5 && (
+          <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
             <div>
-              <h2 className="text-primary font-bold text-[21px]">Practice duration</h2>
-              <div className="flex justify-center" style={{ gap: "10px", marginTop: "16px" }}>
-                {MINUTES_OPTIONS.map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => {
-                      setMinutesPerSession(n);
-                      setDurationSelected(true);
-                    }}
-                    className={tagSmall(minutesPerSession === n && durationSelected)}
-                  >
-                    {n} min
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div
-              style={{ margin: "24px 0", height: "1px", width: "100%", backgroundColor: "hsl(var(--border) / 0.4)" }}
-            />
-            <div>
-              <h2 className="text-primary font-bold text-[21px]">Sessions per week</h2>
+              <h2 className="font-bold text-[21px]" style={{ color: "#888" }}>Sessions per week</h2>
               <div className="flex justify-center" style={{ gap: "10px", marginTop: "16px" }}>
                 {SESSIONS_OPTIONS.map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => {
-                      setSessionsPerWeek(n);
-                      setSessionsSelected(true);
-                    }}
-                    className={tagSmall(sessionsPerWeek === n && sessionsSelected)}
-                  >
+                  <button key={n} onClick={() => { setSessionsPerWeek(n); setSessionsSelected(true); }} className={tagSmall(sessionsPerWeek === n)}>
                     {n}
                   </button>
                 ))}
               </div>
             </div>
-            <div
-              style={{ margin: "24px 0", height: "1px", width: "100%", backgroundColor: "hsl(var(--border) / 0.4)" }}
-            />
+            <div style={{ margin: "24px 0", height: "1px", width: "100%", backgroundColor: "hsl(var(--border) / 0.4)" }} />
             <div>
-              <h2 className="text-primary font-bold text-[21px]">Available equipment</h2>
-              <div className="flex flex-wrap justify-center" style={{ gap: "10px", marginTop: "16px" }}>
-                {EQUIPMENT_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.label}
-                    onClick={() => toggleEquip(opt.label)}
-                    className={tagSmall(equipment.includes(opt.label))}
-                  >
+              <h2 className="font-bold text-[21px]" style={{ color: "#888" }}>Session length</h2>
+              <div className="flex justify-center" style={{ gap: "10px", marginTop: "16px" }}>
+                {MINUTES_OPTIONS.map((opt) => (
+                  <button key={opt.value} onClick={() => { setMinutesPerSession(opt.value); setDurationSelected(true); }} className={tagSmall(minutesPerSession === opt.value)}>
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{ margin: "24px 0", height: "1px", width: "100%", backgroundColor: "hsl(var(--border) / 0.4)" }} />
+            <div>
+              <h2 className="font-bold text-[21px]" style={{ color: "#888" }}>Preferred time</h2>
+              <div className="flex justify-center" style={{ gap: "10px", marginTop: "16px" }}>
+                {TIME_OF_DAY_OPTIONS.map((opt) => (
+                  <button key={opt.value} onClick={() => { setPracticeTime(opt.value); setTimeSelected(true); }} className={tagSmall(practiceTime === opt.value)}>
                     {opt.label}
                   </button>
                 ))}
@@ -559,83 +534,27 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 6: Session Closing ═══ */}
-        {step === 5 && (
+        {/* ═══ STEP 6: Session Closing (FIX 6 Step D) ═══ */}
+        {step === 6 && (
           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "440px" }}>
-            <p className="text-muted-foreground text-sm mb-4">How would you like to end your session?</p>
-            <div className="flex flex-col" style={{ gap: "10px" }}>
+            <div className="flex flex-col" style={{ gap: "12px" }}>
               {CLOSING_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
                   onClick={() => setClosingPref(opt.value)}
-                  className={`w-full text-center ${tag(closingPref === opt.value)} py-3`}
+                  className={`w-full text-left p-4 rounded-[12px] border-2 transition-all ${
+                    closingPref === opt.value ? tagSelected : tagUnselected
+                  }`}
                 >
-                  {opt.label}
+                  <span className="font-semibold text-[16px] block">{opt.label}</span>
+                  <span className="text-[13px] text-muted-foreground block mt-0.5">{opt.desc}</span>
                 </button>
               ))}
             </div>
           </div>
         )}
 
-        {/* ═══ STEP 7: How are you feeling + Safety check ═══ */}
-        {step === 6 && (
-          <div
-            className="w-full text-center"
-            style={{ marginTop: "40px", maxWidth: "640px", display: "flex", flexDirection: "column", gap: "20px" }}
-          >
-            <div className="flex flex-col md:flex-row md:justify-center" style={{ gap: "20px" }}>
-              {energyOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => setEnergyLevel(opt.value)}
-                  className={`w-full text-center ${tag(energyLevel === opt.value)} py-3`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Energy confirmation messages */}
-            {energyLevel === "high" && (
-              <p className="text-sm text-secondary bg-secondary/10 rounded-lg px-4 py-2 mx-auto max-w-md">
-                Great — we'll build a slightly more challenging session within your safe range today.
-              </p>
-            )}
-            {energyLevel === "low" && (
-              <p className="text-sm text-secondary bg-secondary/10 rounded-lg px-4 py-2 mx-auto max-w-md">
-                Got it — today's session will be softer and shorter to support your body.
-              </p>
-            )}
-
-            <div className="space-y-2">
-              <h2 className="text-primary font-bold text-[21px]">Safety check</h2>
-              <p className="text-xs text-muted-foreground">Are you experiencing any of the following right now?</p>
-              <div className="flex flex-col" style={{ gap: "10px" }}>
-                {RED_FLAGS.map((flag) => {
-                  const isChecked = redFlags.includes(flag);
-                  return (
-                    <button
-                      key={flag}
-                      onClick={() =>
-                        setRedFlags((p) => (p.includes(flag) ? p.filter((f) => f !== flag) : [...p, flag]))
-                      }
-                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-[8px] border-2 transition-all text-left ${isChecked ? "border-secondary bg-secondary/10" : "border-border bg-card"}`}
-                    >
-                      <div
-                        className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${isChecked ? "border-secondary bg-secondary" : "border-border bg-card"}`}
-                      >
-                        {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
-                      </div>
-                      <span className="text-sm font-medium text-foreground">{flag}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ═══ STEP 8: Confirmation / Summary ═══ */}
+        {/* ═══ STEP 7: Confirmation / Summary ═══ */}
         {step === 7 &&
           (() => {
             const doStartOver = () => {
@@ -647,42 +566,37 @@ export default function OnboardingWizard() {
               setTimeSelected(false);
               setDurationSelected(false);
               setSessionsSelected(false);
-              setEquipment([]);
+              setEquipment(["mat"]);
               setClosingPref("");
               setEnergyLevel("medium");
-              setRedFlags([]);
               setSessionsPerWeek(3);
               setMinutesPerSession(20);
               setPracticeTime("morning");
               setShowStartOverConfirm(false);
+              setDiagnosticResult(null);
             };
-            const editRow = (label: string, value: string, targetStep: number) => (
+            const editRow = (lbl: string, value: string, targetStep: number) => (
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">{label}</span>
+                <span className="text-muted-foreground">{lbl}</span>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-foreground">{value}</span>
-                  <button
-                    onClick={() => setStep(targetStep)}
-                    className="text-muted-foreground/60 hover:text-foreground transition-colors"
-                    aria-label={`Edit ${label}`}
-                  >
+                  <button onClick={() => setStep(targetStep)} className="text-muted-foreground/60 hover:text-foreground transition-colors" aria-label={`Edit ${lbl}`}>
                     <Pencil size={16} />
                   </button>
                 </div>
               </div>
             );
-            const allRestrictions = [...restrictions];
-            if (restrictionOther.trim()) allRestrictions.push(restrictionOther.trim());
+            const allRestrictions = restrictions.filter(r => r !== "None of the above");
             return (
               <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "420px" }}>
                 <div className="rounded-[12px] bg-surface-warm p-4 text-left space-y-2 text-sm mb-6">
                   {editRow("Conditions", selected.map((k) => label(k)).join(", "), 0)}
                   {allRestrictions.length > 0 && editRow("Restrictions", allRestrictions.join(", "), 3)}
-                  {editRow("Time of day", practiceTime.charAt(0).toUpperCase() + practiceTime.slice(1), 4)}
-                  {editRow("Duration", `${minutesPerSession} min`, 4)}
-                  {editRow("Sessions / week", String(sessionsPerWeek), 4)}
-                  {equipment.length > 0 && editRow("Equipment", equipment.join(", "), 4)}
-                  {editRow("Session closing", CLOSING_OPTIONS.find((o) => o.value === closingPref)?.label || "", 5)}
+                  {editRow("Equipment", equipment.join(", "), 4)}
+                  {editRow("Time of day", practiceTime.charAt(0).toUpperCase() + practiceTime.slice(1), 5)}
+                  {editRow("Duration", `${minutesPerSession} min`, 5)}
+                  {editRow("Sessions / week", String(sessionsPerWeek), 5)}
+                  {editRow("Session closing", CLOSING_OPTIONS.find((o) => o.value === closingPref)?.label || "", 6)}
                 </div>
 
                 <Button variant="hero" size="lg" className="w-full rounded-full" onClick={() => handleBuild()}>
@@ -695,24 +609,15 @@ export default function OnboardingWizard() {
                   Start over
                 </button>
 
-                {/* Start over confirmation */}
                 <Dialog open={showStartOverConfirm} onOpenChange={setShowStartOverConfirm}>
                   <DialogContent className="sm:max-w-sm">
                     <DialogHeader>
                       <DialogTitle>Start over?</DialogTitle>
-                      <DialogDescription>
-                        This will clear your current selections and take you back to the beginning.
-                      </DialogDescription>
+                      <DialogDescription>This will clear your current selections and take you back to the beginning.</DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="gap-2 sm:gap-0">
-                      <DialogClose asChild>
-                        <Button variant="outline" className="rounded-full">
-                          Cancel
-                        </Button>
-                      </DialogClose>
-                      <Button variant="hero" className="rounded-full" onClick={doStartOver}>
-                        Start over
-                      </Button>
+                      <DialogClose asChild><Button variant="outline" className="rounded-full">Cancel</Button></DialogClose>
+                      <Button variant="hero" className="rounded-full" onClick={doStartOver}>Start over</Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
@@ -722,7 +627,7 @@ export default function OnboardingWizard() {
       </div>
 
       {/* ── FIXED BOTTOM BUTTONS ── */}
-      {step < 7 && step !== 1 && (
+      {step !== 1 && step < 7 && (
         <div
           className="fixed bottom-0 inset-x-0 z-40 pointer-events-none bg-background"
           style={{ paddingBottom: "40px", paddingTop: "16px", boxShadow: "0 -2px 8px rgba(0,0,0,0.04)" }}
@@ -731,14 +636,25 @@ export default function OnboardingWizard() {
             <Button variant="outline" onClick={handleBack} className="text-base h-[35px] rounded-full px-5">
               {step === 0 ? "Home" : "Back"}
             </Button>
-            <Button
-              variant="hero"
-              onClick={handleNext}
-              disabled={!canGoNext()}
-              className="text-base h-[35px] rounded-full px-5"
-            >
-              Next →
-            </Button>
+            {step === 3 ? (
+              <div className="flex items-center gap-3">
+                <button onClick={handleNext} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Skip for now
+                </button>
+                <Button variant="hero" onClick={handleNext} className="text-base h-[35px] rounded-full px-5">
+                  Continue →
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="hero"
+                onClick={handleNext}
+                disabled={!canGoNext()}
+                className="text-base h-[35px] rounded-full px-5"
+              >
+                {step === 2 ? "Continue building your plan →" : "Next →"}
+              </Button>
+            )}
           </div>
         </div>
       )}
