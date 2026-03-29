@@ -225,7 +225,7 @@ export default function Plan() {
         {completedCount === 1 && !milestoneDismissed && (
           <div className="rounded-2xl p-5 flex items-center gap-3" style={{ background: "hsl(var(--surface-warm))", border: "1px solid hsl(var(--border))" }}>
             <Check size={20} className="text-secondary shrink-0" />
-            <p className="text-foreground font-medium text-sm flex-1">First session done. Your body will thank you for it.</p>
+            <p className="text-foreground font-medium text-sm flex-1">Your plan is ready. Start your first practice when you're ready.</p>
             <button onClick={() => { setMilestoneDismissed(true); localStorage.setItem("vinys_milestone_first_done", "1"); }} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
               <X size={16} />
             </button>
@@ -235,7 +235,7 @@ export default function Plan() {
         {/* 3) TOP STATS ROW */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <WeeklyTargetCard completedCount={user ? weekly.completed : completedCount} target={weekly.target} />
-          <div className="rounded-2xl bg-secondary text-secondary-foreground p-6 flex flex-col justify-between min-h-[120px]">
+          <div className="rounded-2xl text-white p-6 flex flex-col justify-between min-h-[120px]" style={{ background: "#028090" }}>
             <span className="text-sm font-medium opacity-90">Time practicing</span>
             <span className="text-[40px] sm:text-[44px] font-bold leading-[1.05] tracking-[-0.01em]">
               {(() => {
@@ -354,12 +354,19 @@ export default function Plan() {
                 onEdit={() => { setTempMinutes(state.profile.minutesPerSession); setTempLevel(state.profile.energyLevel); setTempSessions(state.profile.sessionsPerWeek); setEditingSetup(true); }}
               />
               <hr className="border-border" />
-              <SetupRow
-                icon={<Activity size={20} className="text-foreground/50" />}
-                label="Practice level"
-                value={state.profile.energyLevel === "high" ? "Vigorous" : state.profile.energyLevel === "medium" ? "Moderate" : "Gentle"}
-                onEdit={() => { setTempMinutes(state.profile.minutesPerSession); setTempLevel(state.profile.energyLevel); setTempSessions(state.profile.sessionsPerWeek); setEditingSetup(true); }}
-              />
+              <div className="flex items-center justify-between">
+                <div className="flex items-start gap-3.5">
+                  <span className="mt-0.5"><Activity size={20} className="text-foreground/50" /></span>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Practice level</p>
+                    <p className="text-lg font-bold text-secondary">{state.profile.energyLevel === "high" ? "Vigorous" : state.profile.energyLevel === "medium" ? "Moderate" : "Gentle"}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">Set automatically based on your movement assessment. You can update it here.</p>
+                  </div>
+                </div>
+                <button onClick={() => { setTempMinutes(state.profile.minutesPerSession); setTempLevel(state.profile.energyLevel); setTempSessions(state.profile.sessionsPerWeek); setEditingSetup(true); }} className="text-muted-foreground/60 hover:text-foreground transition-colors">
+                  <Pencil size={18} />
+                </button>
+              </div>
               <hr className="border-border" />
               <SetupRow
                 icon={<CalendarDays size={20} className="text-foreground/50" />}
@@ -686,7 +693,7 @@ function GreetingBlock({ greeting, user, showAccount, setShowAccount, firstName,
         <h1 className="font-display text-foreground font-semibold" style={{ fontSize: "clamp(26px, 4vw, 34px)", lineHeight: 1.2, letterSpacing: "-0.5px" }}>
           {greeting}
         </h1>
-        <p className="text-muted-foreground text-base">Here's your personalized practice</p>
+        <p className="text-muted-foreground text-base">Here's your plan</p>
       </div>
 
       <Dialog open={showAccount} onOpenChange={(v) => { setShowAccount(v); if (!v) { setShowUsernameEdit(false); setShowFirstNameEdit(false); } }}>
@@ -868,9 +875,9 @@ function RestartModal({ open, onClose, onConfirm }: { open: boolean; onClose: ()
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Restart program?</DialogTitle>
+          <DialogTitle>Restart your program?</DialogTitle>
           <DialogDescription>
-            This will reset your practice plan and weekly progress. You'll start the setup again from the beginning.
+            This will reset your practice history and generate a new plan. Your movement profile will be kept.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2 sm:gap-0">
@@ -878,7 +885,7 @@ function RestartModal({ open, onClose, onConfirm }: { open: boolean; onClose: ()
             <Button variant="outline" className="rounded-full">Cancel</Button>
           </DialogClose>
           <Button variant="destructive" className="rounded-full" onClick={onConfirm}>
-            Restart
+            Yes, restart
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -1139,7 +1146,7 @@ function QuickCheckinCard({ hasCompletedSessions }: { hasCompletedSessions: bool
           <div className="flex-1 flex flex-col items-center justify-center">
             <h3 className="text-lg font-bold text-foreground mb-1">Quick Check-In</h3>
             <p className="text-sm text-muted-foreground mb-6 text-center max-w-[220px]">
-              Set your check-in based on how you felt in your last session.
+              How did your last session feel? Log your check-in to shape the next one.
             </p>
             <Button variant="hero" size="sm" className="rounded-full px-6" onClick={openModal}>
               Set check-in
