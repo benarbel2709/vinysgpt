@@ -232,7 +232,7 @@ export default function OnboardingWizard() {
   };
 
   const STEP_TITLES = [
-    "Your conditions",
+    "Where does your body need support?",
     "Body diagnostic",
     "Here's what we found",
     "Any movements to avoid?",
@@ -240,6 +240,17 @@ export default function OnboardingWizard() {
     "How would you like to practice?",
     "How would you like to end each practice?",
     "You're all set.",
+  ];
+
+  const BODY_AREAS = [
+    { id: "LB", label: "Lower Back", desc: "Pain, stiffness, sciatica or disc symptoms", icon: "🔹", available: true },
+    { id: "HIP", label: "Hip", desc: "Hip joint, groin, outer hip or mobility issues", icon: "🔹", available: true },
+    { id: "KNEE", label: "Knee", desc: "Kneecap pain, instability, inner or outer knee", icon: "🔹", available: true },
+    { id: "ANKLE", label: "Ankle & Foot", desc: "Achilles, plantar fascia or ankle instability", icon: "🔹", available: true },
+    { id: "SHOULDER", label: "Shoulder", desc: "Rotator cuff, frozen shoulder, impingement", icon: "🔸", available: false },
+    { id: "NECK", label: "Neck", desc: "Cervical stiffness, tension headaches, radiating pain", icon: "🔸", available: false },
+    { id: "UPPER_BACK", label: "Upper Back", desc: "Thoracic stiffness, postural fatigue, rib pain", icon: "🔸", available: false },
+    { id: "WRIST", label: "Wrist & Hand", desc: "Carpal tunnel, repetitive strain, grip weakness", icon: "🔸", available: false },
   ];
 
   // Profile summary data
