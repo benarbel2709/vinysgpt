@@ -83,6 +83,7 @@ export default function OnboardingWizard() {
   const profile = state.profile;
 
   const [step, setStep] = useState(0);
+  const [selectedArea, setSelectedArea] = useState<string | null>(null);
   const [selected, setSelected] = useState<ConditionKey[]>([]);
   const [conditionDetails, setConditionDetails] = useState<Record<string, string[]>>({});
   const [diagnosticResult, setDiagnosticResult] = useState<any>(null);
