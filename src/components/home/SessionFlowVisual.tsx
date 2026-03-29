@@ -1,18 +1,41 @@
 import { motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 
-const FLOW_STEPS = [
-  "Your Inputs",
-  "Condition Profile",
-  "Movement Library",
-  "Safety Filtering",
-  "Session Generated",
-  "Your Feedback",
-  "Practice Adapts",
+const PHASE_1 = [
+  { num: 1, label: "Your Inputs" },
+  { num: 2, label: "Condition Profile" },
+  { num: 3, label: "Movement Library" },
+  { num: 4, label: "Safety Filtering" },
 ];
+
+const PHASE_2 = [
+  { num: 5, label: "Session Generated" },
+  { num: 6, label: "Your Feedback" },
+  { num: 7, label: "Practice Adapts" },
+];
+
+const ALL_STEPS = [...PHASE_1, ...PHASE_2];
+
+function StepCard({ num, label }: { num: number; label: string }) {
+  return (
+    <div
+      className="relative rounded-xl border border-border bg-card shadow-sm px-5 py-4 flex items-center gap-3"
+    >
+      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
+        {num}
+      </span>
+      <span className="text-sm font-semibold text-foreground">{label}</span>
+    </div>
+  );
+}
+
+function Arrow() {
+  return <span className="text-muted-foreground/40 text-lg flex-shrink-0">→</span>;
+}
 
 export default function SessionFlowVisual() {
   return (
-    <section className="w-full vinys-section" style={{ background: "hsl(var(--surface-soft))" }}>
+    <section className="w-full vinys-section" style={{ background: "hsl(var(--muted) / 0.3)" }}>
       <div className="vinys-container">
         <h2 className="font-display font-bold text-foreground text-center mb-3" style={{ fontSize: "clamp(24px, 2.8vw, 32px)" }}>
           How your session is built
@@ -21,48 +44,59 @@ export default function SessionFlowVisual() {
           Vinys takes your inputs, filters them through your condition profile and movement library, and generates a session matched to your body today.
         </p>
 
-        {/* Horizontal flow — desktop */}
-        <div className="hidden sm:flex items-center justify-center gap-0 flex-wrap">
-          {FLOW_STEPS.map((step, i) => (
-            <motion.div
-              key={step}
-              className="flex items-center"
-              initial={{ opacity: 0, y: 8 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-20px" }}
-              transition={{ duration: 0.25, delay: i * 0.05 }}
-            >
-              <div
-                className="px-4 py-2 rounded-lg text-xs font-semibold text-foreground text-center whitespace-nowrap"
-                style={{
-                  background: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
-                }}
-              >
-                {step}
+        {/* Desktop layout */}
+        <div className="hidden md:block max-w-[900px] mx-auto">
+          {/* Phase 1 */}
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">
+            Building your session
+          </p>
+          <motion.div
+            className="flex items-center justify-center gap-3"
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.35 }}
+          >
+            {PHASE_1.map((step, i) => (
+              <div key={step.num} className="flex items-center gap-3">
+                <StepCard num={step.num} label={step.label} />
+                {i < PHASE_1.length - 1 && <Arrow />}
               </div>
-              {i < FLOW_STEPS.length - 1 && (
-                <span className="text-muted-foreground/50 text-sm px-1.5">→</span>
-              )}
-            </motion.div>
-          ))}
+            ))}
+          </motion.div>
+
+          {/* Divider arrow */}
+          <div className="flex justify-center my-5">
+            <ChevronDown className="w-7 h-7 text-muted-foreground/40" />
+          </div>
+
+          {/* Phase 2 */}
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3 text-center">
+            Adapting over time
+          </p>
+          <motion.div
+            className="flex items-center justify-center gap-3"
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.35, delay: 0.1 }}
+          >
+            {PHASE_2.map((step, i) => (
+              <div key={step.num} className="flex items-center gap-3">
+                <StepCard num={step.num} label={step.label} />
+                {i < PHASE_2.length - 1 && <Arrow />}
+              </div>
+            ))}
+          </motion.div>
         </div>
 
-        {/* Vertical stacked flow — mobile */}
-        <div className="flex sm:hidden flex-col items-center gap-0">
-          {FLOW_STEPS.map((step, i) => (
-            <div key={step} className="flex flex-col items-center">
-              <div
-                className="px-5 py-2.5 rounded-lg text-xs font-semibold text-foreground text-center"
-                style={{
-                  background: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
-                }}
-              >
-                {step}
-              </div>
-              {i < FLOW_STEPS.length - 1 && (
-                <span className="text-muted-foreground/50 text-sm py-1">↓</span>
+        {/* Mobile layout */}
+        <div className="flex md:hidden flex-col items-center gap-0">
+          {ALL_STEPS.map((step, i) => (
+            <div key={step.num} className="flex flex-col items-center w-full max-w-[260px]">
+              <StepCard num={step.num} label={step.label} />
+              {i < ALL_STEPS.length - 1 && (
+                <span className="text-muted-foreground/40 text-sm py-1.5">↓</span>
               )}
             </div>
           ))}

@@ -21,7 +21,7 @@ const COLUMNS = [
   },
   {
     title: "Why it matters",
-    text: "A practice designed for real bodies and real conditions is more sustainable over time.",
+    text: "When your practice fits your body, you actually stick with it.",
   },
 ];
 
