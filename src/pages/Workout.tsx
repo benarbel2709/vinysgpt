@@ -316,7 +316,7 @@ export default function Workout() {
                   {String(displayMinutes).padStart(2, "0")}:{String(displaySeconds).padStart(2, "0")}
                 </span>
               </div>
-              <button onClick={exitWorkout} className="w-10 h-10 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors">
+              <button onClick={exitWorkout} className="w-10 h-10 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors" aria-label="Exit session">
                 <X size={20} />
               </button>
             </div>
@@ -351,29 +351,29 @@ export default function Workout() {
               </div>
               <div className="flex items-center gap-2">
                 {activeIdx > 0 && (
-                  <button onClick={goPrev}
+                  <button onClick={goPrev} aria-label="Previous exercise"
                     className="h-14 px-3 rounded-full bg-white/[0.10] backdrop-blur-md text-white/60 hover:text-white hover:bg-white/[0.18] transition-colors text-sm">
                     ←
                   </button>
                 )}
                 <div className="flex items-center gap-1.5 rounded-full bg-white/[0.18] backdrop-blur-md px-3 h-14">
-                  <button onClick={togglePlay} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors">
+                  <button onClick={togglePlay} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors" aria-label={isPlaying ? "Pause" : "Play"}>
                     {isPlaying ? <Pause size={18} /> : <Play size={18} />}
                   </button>
-                  <button onClick={() => setMuted(!isMuted)} disabled={isTTSLoading} title={isMuted ? "Sound muted" : "Sound on"}
+                  <button onClick={() => setMuted(!isMuted)} disabled={isTTSLoading} aria-label={isMuted ? "Sound off" : "Sound on"}
                     className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors">
                     {isTTSLoading ? <Loader2 size={18} className="animate-spin" /> : !isMuted ? <Volume2 size={18} /> : <VolumeX size={18} className="opacity-70" />}
                   </button>
-                  <button onClick={() => setAdjustOpen(true)} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors">
+                  <button onClick={() => setAdjustOpen(true)} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors" aria-label="Adjust session">
                     <Settings2 size={18} />
                   </button>
-                  <button onClick={openInfo} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors">
+                  <button onClick={openInfo} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors" aria-label="Exercise instructions">
                     <Info size={18} />
                   </button>
                 </div>
                 <button onClick={goNext}
                   className="flex-1 h-14 rounded-full bg-white/[0.18] backdrop-blur-md text-white font-medium hover:bg-white/[0.25] transition-colors whitespace-nowrap text-sm">
-                  {isLastExercise ? "Complete ✓" : "Next →"}
+                  {isLastExercise ? "Complete ✓" : "Next exercise →"}
                 </button>
               </div>
             </div>
@@ -381,23 +381,23 @@ export default function Workout() {
             <div className="hidden lg:flex items-end justify-between gap-4">
               <div className="flex items-center gap-2">
                 {activeIdx > 0 && (
-                  <button onClick={goPrev}
+                  <button onClick={goPrev} aria-label="Previous exercise"
                     className="rounded-full px-4 py-3 bg-white/[0.10] backdrop-blur-md text-white/60 font-medium hover:text-white hover:bg-white/[0.18] transition-colors text-sm">
                     ← Prev
                   </button>
                 )}
                 <div className="flex items-center gap-1.5 rounded-full bg-white/[0.18] backdrop-blur-md px-3 py-2">
-                  <button onClick={togglePlay} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors">
+                  <button onClick={togglePlay} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors" aria-label={isPlaying ? "Pause" : "Play"}>
                     {isPlaying ? <Pause size={18} /> : <Play size={18} />}
                   </button>
-                  <button onClick={() => setMuted(!isMuted)} disabled={isTTSLoading} title={isMuted ? "Sound muted" : "Sound on"}
+                  <button onClick={() => setMuted(!isMuted)} disabled={isTTSLoading} aria-label={isMuted ? "Sound off" : "Sound on"}
                     className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors">
                     {isTTSLoading ? <Loader2 size={18} className="animate-spin" /> : !isMuted ? <Volume2 size={18} /> : <VolumeX size={18} className="opacity-70" />}
                   </button>
-                  <button onClick={() => setAdjustOpen(true)} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors">
+                  <button onClick={() => setAdjustOpen(true)} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors" aria-label="Adjust session">
                     <Settings2 size={18} />
                   </button>
-                  <button onClick={openInfo} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors">
+                  <button onClick={openInfo} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors" aria-label="Exercise instructions">
                     <Info size={18} />
                   </button>
                 </div>

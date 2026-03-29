@@ -169,8 +169,19 @@ export default function Plan() {
 
   // ── Greeting ──
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-  const greetingDisplay = firstName ? `${greeting}, ${firstName}` : greeting;
+  const practiceTime = state.profile.practiceTime;
+  const timeGreeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  const greetingSuffix = practiceTime === "morning"
+    ? "your morning practice is ready."
+    : practiceTime === "afternoon"
+    ? "time for today's practice."
+    : practiceTime === "evening"
+    ? "your evening practice is waiting."
+    : null;
+  const greeting = firstName
+    ? `${timeGreeting}, ${firstName}`
+    : timeGreeting;
+  const greetingDisplay = greeting;
 
   // No plan state
   if (!plan) {
@@ -703,7 +714,7 @@ function GreetingBlock({ greeting, user, showAccount, setShowAccount, firstName,
         <h1 className="font-display text-foreground font-semibold" style={{ fontSize: "clamp(26px, 4vw, 34px)", lineHeight: 1.2, letterSpacing: "-0.5px" }}>
           {greeting}
         </h1>
-        <p className="text-muted-foreground text-base">Here's your plan</p>
+        <p className="text-muted-foreground text-base">{greetingSuffix || "Here's your plan"}</p>
       </div>
 
       <Dialog open={showAccount} onOpenChange={(v) => { setShowAccount(v); if (!v) { setShowUsernameEdit(false); setShowFirstNameEdit(false); } }}>
@@ -1141,16 +1152,19 @@ function QuickCheckinCard({ hasCompletedSessions }: { hasCompletedSessions: bool
       <div className="rounded-2xl bg-surface-warm p-6 flex flex-col overflow-hidden">
         {!hasCompletedSessions ? (
           <div className="flex-1 flex flex-col items-center justify-center">
-            <h3 className="text-lg font-bold text-foreground mb-1">Quick Check-In</h3>
-            <p className="text-sm text-muted-foreground mb-4 text-center max-w-[220px]">
-              Complete your first session to see your check-in data.
+            <h3 className="text-lg font-bold text-foreground mb-2">Quick Check-In</h3>
+            <p className="text-sm text-muted-foreground mb-5 text-center max-w-[280px] leading-relaxed">
+              After your first session, you'll see how your pain and energy levels respond over time. This is how Vinys learns to adapt.
             </p>
-            <div className="grid grid-cols-2 gap-3 w-full opacity-40 pointer-events-none">
-              <div className="text-center"><span className="text-sm text-muted-foreground">Pain before</span><p className="text-lg font-bold text-foreground">–</p></div>
-              <div className="text-center"><span className="text-sm text-muted-foreground">Pain after</span><p className="text-lg font-bold text-foreground">–</p></div>
-              <div className="text-center"><span className="text-sm text-muted-foreground">Fatigue before</span><p className="text-lg font-bold text-foreground">–</p></div>
-              <div className="text-center"><span className="text-sm text-muted-foreground">Fatigue after</span><p className="text-lg font-bold text-foreground">–</p></div>
-            </div>
+            <button
+              onClick={() => {
+                const el = document.querySelector('[data-session-card="first"]');
+                if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+              }}
+              className="text-sm text-primary font-semibold hover:text-primary/80 transition-colors"
+            >
+              Start Practice 01 →
+            </button>
           </div>
         ) : !checkin ? (
           <div className="flex-1 flex flex-col items-center justify-center">

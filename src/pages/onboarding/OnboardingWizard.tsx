@@ -10,7 +10,8 @@ import { trackEvent } from "@/lib/analytics";
 import BrandLogo from "@/components/BrandLogo";
 import FlowProgress from "@/components/FlowProgress";
 import { Button } from "@/components/ui/button";
-import { X, Check, Pencil } from "lucide-react";
+import { X, Check, Pencil, Clock, Lock } from "lucide-react";
+import { useState as useStateReact } from "react";
 import {
   Dialog,
   DialogContent,
@@ -271,6 +272,14 @@ export default function OnboardingWizard() {
 
   const AREA_LABELS: Record<string, string> = { LB: "Lower Back", HIP: "Hip", KNEE: "Knee", ANKLE: "Ankle" };
 
+  // Post-assessment step counter (steps 3-6 = "Step 1 of 4" through "Step 4 of 4")
+  const POST_ASSESSMENT_TOTAL = 4;
+  const getPostAssessmentStep = (s: number) => {
+    if (s >= 3 && s <= 6) return s - 2;
+    return null;
+  };
+  const postStep = getPostAssessmentStep(step);
+
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       {/* ── HEADER (logo + stepper + X in one row) ── */}
@@ -296,12 +305,19 @@ export default function OnboardingWizard() {
         style={{ maxWidth: "1100px", margin: "0 auto", width: "100%", padding: "0 24px 90px" }}
       >
         {step !== 1 && step !== 2 && (
-          <h1
-            className="font-display text-foreground font-bold text-2xl text-center shrink-0"
-            style={{ marginTop: "30px" }}
-          >
-            {STEP_TITLES[step]}
-          </h1>
+          <>
+            {postStep && (
+              <p className="text-xs text-muted-foreground/70 font-semibold uppercase tracking-wider text-center" style={{ marginTop: "24px" }}>
+                Step {postStep} of {POST_ASSESSMENT_TOTAL}
+              </p>
+            )}
+            <h1
+              className="font-display text-foreground font-bold text-2xl text-center shrink-0"
+              style={{ marginTop: postStep ? "6px" : "30px" }}
+            >
+              {STEP_TITLES[step]}
+            </h1>
+          </>
         )}
         {step === 3 && (
           <p className="text-muted-foreground text-center text-sm mt-1 shrink-0">
@@ -352,13 +368,7 @@ export default function OnboardingWizard() {
               <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 mb-3 text-center">Coming soon</p>
               <div className="grid grid-cols-2 gap-2.5">
                 {BODY_AREAS.filter(a => !a.available).map((area) => (
-                  <div
-                    key={area.id}
-                    className="p-4 rounded-xl border border-border/60 bg-muted/30 opacity-60"
-                  >
-                    <div className="text-[15px] font-semibold text-foreground/50 mb-0.5">{area.label}</div>
-                    <div className="text-[11px] text-muted-foreground/60 leading-snug">{area.desc}</div>
-                  </div>
+                  <ComingSoonCard key={area.id} area={area} />
                 ))}
               </div>
             </div>

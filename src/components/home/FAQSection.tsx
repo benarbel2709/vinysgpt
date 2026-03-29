@@ -9,15 +9,11 @@ import {
 const FAQ_ITEMS = [
   {
     q: "Is Vinys safe for people with medical conditions?",
-    a: "Vinys is designed to support people navigating physical conditions by adapting sessions to the information they provide. However, the platform provides educational movement guidance only and is not a substitute for medical advice. Always consult your healthcare provider before beginning a new movement program.",
+    a: "Vinys is designed specifically for people navigating physical and health conditions. Every session is filtered against your restrictions and adapted to your capacity. However, the platform provides educational movement guidance only and is not a substitute for medical advice. Always consult your healthcare provider before beginning a new movement program.",
   },
   {
     q: "Do I need any yoga experience?",
     a: "No. Vinys is built for people starting from scratch or returning after injury or illness. Every session is matched to your current body.",
-  },
-  {
-    q: "Is this safe if I have a medical condition?",
-    a: "Vinys is designed specifically for people with physical and health conditions. It filters every session against your restrictions. Always consult your healthcare provider before beginning any new movement practice.",
   },
   {
     q: "How is this different from a yoga video class?",
