@@ -553,7 +553,7 @@ export default function OnboardingWizard() {
               {CLOSING_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
-                  onClick={() => setClosingPref(opt.value)}
+                  onClick={() => { setClosingPref(opt.value); setTimeout(() => setStep(7), 250); }}
                   className={`w-full text-left p-4 rounded-[12px] border-2 transition-all ${
                     closingPref === opt.value ? tagSelected : tagUnselected
                   }`}
