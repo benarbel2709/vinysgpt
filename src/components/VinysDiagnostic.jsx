@@ -203,9 +203,9 @@ const LB_POSTURES = [
 const HIP_POSTURES = [
   { id: "hip_p1", name: "Bridge", subtitle: "Setu Bandha", grad: ["#DCC8B0", "#C0A484"], time: "~75 sec", conditional: false, double_score: false, videoId: null, how: "Lie on your back, knees bent, feet hip-width. Press feet into the floor and slowly lift your hips. Hold 3 breaths. Lower one vertebra at a time. Repeat 3×.", qs: [{ id: "hip_p1q1", text: "How did your hips and back of thigh feel during Bridge?", opts: [{ t: "Strong and stable", sig: {} }, { t: "Muscle effort only", sig: {} }, { t: "Tightness in buttock or back of thigh", sig: { PO: 1 } }, { t: "Pain in lower back or pelvis", sig: {}, xover: true }, { t: "Pain in hip", sig: { LA: 1, PO: 1, ST: 1 } }] }] },
   { id: "hip_p2", name: "Supta Padangusthasana", subtitle: "Reclined Hand-to-Foot", grad: ["#A8CCCA", "#6AA8A4"], time: "~60 sec", conditional: false, double_score: false, videoId: null, how: "Lie on your back. Lift one leg straight up, holding behind your thigh. Keep the other leg flat. Hold 4 breaths each side.", qs: [{ id: "hip_p2q1", text: "How did your leg feel during Supta Padangusthasana?", opts: [{ t: "Comfortable stretch", sig: {} }, { t: "Tightness limiting movement", sig: { MO: 1 } }, { t: "Pain in buttock or back of thigh", sig: { PO: 1 } }, { t: "Pulling sensation down the leg", sig: { NE: 1 } }, { t: "Pain in lower back", sig: {}, xover: true }] }] },
-  { id: "hip_p3", name: "Reclined Figure-4", subtitle: "Supta Kapotasana  ★ ×2", grad: ["#C4B8D4", "#9880B4"], time: "~60 sec", conditional: false, double_score: false, videoId: null, how: "Lie on your back, cross one ankle over the opposite knee. Gently draw both legs toward your chest. Hold 5 breaths each side.", qs: [{ id: "hip_p3q1", text: "How did your hip feel in Reclined Figure-4?", opts: [{ t: "Stretch in hip / buttock", sig: {} }, { t: "Tight deep hip", sig: { MO: 2 } }, { t: "Pain in hip joint", sig: { AN: 2 } }, { t: "Pain spreading toward leg", sig: { NE: 2 } }, { t: "Pain in lower back", sig: {}, xover: true }] }] },
+  { id: "hip_p3", name: "Reclined Figure-4", subtitle: "Supta Kapotasana  ★ ×2", grad: ["#C4B8D4", "#9880B4"], time: "~60 sec", conditional: false, double_score: true, videoId: null, how: "Lie on your back, cross one ankle over the opposite knee. Gently draw both legs toward your chest. Hold 5 breaths each side.", qs: [{ id: "hip_p3q1", text: "How did your hip feel in Reclined Figure-4?", opts: [{ t: "Stretch in hip / buttock", sig: {} }, { t: "Tight deep hip", sig: { MO: 2 } }, { t: "Pain in hip joint", sig: { AN: 2 } }, { t: "Pain spreading toward leg", sig: { NE: 2 } }, { t: "Pain in lower back", sig: {}, xover: true }] }] },
   { id: "hip_p4", name: "Half Locust", subtitle: "Ardha Salabhasana", grad: ["#B8CCDC", "#84A4C0"], time: "~60 sec", conditional: false, double_score: false, videoId: null, how: "Lie face-down, arms alongside your body. Lift one leg at a time off the floor, keeping it straight. Hold 3 breaths. Repeat each side.", qs: [{ id: "hip_p4q1", text: "How did your buttock and back of thigh feel during Half Locust?", opts: [{ t: "Smooth and controlled", sig: {} }, { t: "Muscle effort only", sig: {} }, { t: "Hard to lift or hold", sig: { ST: 1 } }, { t: "Pain in buttock or back of thigh", sig: { PO: 1 } }, { t: "Pain in lower back", sig: {}, xover: true }] }] },
-  { id: "hip_p5", name: "Chair Pose", subtitle: "Utkatasana  ★ ×2", grad: ["#D0BCA8", "#B09880"], time: "~45 sec", conditional: false, double_score: false, videoId: null, how: "Stand feet hip-width. Bend knees and lower hips as if sitting into a chair. Hold 4 breaths. Come up slowly.", qs: [{ id: "hip_p5q1", text: "How did your hips feel in Chair Pose?", opts: [{ t: "Strong and stable", sig: {} }, { t: "Tight hips", sig: { MO: 2 } }, { t: "Pain in front of hip or groin", sig: { AN: 2 } }, { t: "Pain in knees", sig: {} }, { t: "Pain in lower back", sig: {}, xover: true }] }] },
+  { id: "hip_p5", name: "Chair Pose", subtitle: "Utkatasana  ★ ×2", grad: ["#D0BCA8", "#B09880"], time: "~45 sec", conditional: false, double_score: true, videoId: null, how: "Stand feet hip-width. Bend knees and lower hips as if sitting into a chair. Hold 4 breaths. Come up slowly.", qs: [{ id: "hip_p5q1", text: "How did your hips feel in Chair Pose?", opts: [{ t: "Strong and stable", sig: {} }, { t: "Tight hips", sig: { MO: 2 } }, { t: "Pain in front of hip or groin", sig: { AN: 2 } }, { t: "Pain in knees", sig: {} }, { t: "Pain in lower back", sig: {}, xover: true }] }] },
   { id: "hip_p6", name: "Low Lunge", subtitle: "Anjaneyasana", grad: ["#B4D0B0", "#80B07C"], time: "~60 sec", conditional: false, double_score: false, videoId: null, how: "Step one foot forward into a lunge, back knee on the floor. Gently lower hips toward the floor. Hold 4 breaths each side.", qs: [{ id: "hip_p6q1", text: "How did your front hip feel in Low Lunge?", opts: [{ t: "Stretch front of hip", sig: {} }, { t: "Tight front of hip", sig: { MO: 1 } }, { t: "Deep groin pain", sig: { AN: 1 } }, { t: "Lower back pain", sig: {}, xover: true }, { t: "Sharp pain in front of hip", sig: { AN: 1 } }] }] },
   { id: "hip_p7", name: "Prasarita Padottanasana", subtitle: "Wide-Leg Forward Fold", grad: ["#B4D4C4", "#7CB898"], time: "~60 sec", conditional: false, double_score: false, videoId: null, how: "Stand with feet wide apart. Hinge forward from your hips, letting your upper body hang. Hold 4 breaths.", qs: [{ id: "hip_p7q1", text: "How did your hips feel in the wide-leg forward fold?", opts: [{ t: "Stretch in the inner thighs", sig: {} }, { t: "Tight movement", sig: { MO: 1 } }, { t: "One hip tighter than the other", sig: { MO: 1 } }, { t: "Pain in one hip joint", sig: { AN: 1 } }, { t: "Pain in lower back", sig: {}, xover: true }] }] },
   { id: "hip_p8", name: "Tree Pose", subtitle: "Vrksasana", grad: ["#C8B8DC", "#A090C0"], time: "~60 sec", conditional: false, double_score: false, videoId: null, how: "Stand on one leg. Place foot on inner calf or inner thigh (never on the knee). Hold 4 breaths each side.", qs: [{ id: "hip_p8q1", text: "How did your standing hip feel during Tree Pose?", opts: [{ t: "Stable", sig: {} }, { t: "Slight wobble", sig: { ST: 1 } }, { t: "One side weaker", sig: { ST: 1 } }, { t: "Pain on outside of hip", sig: { LA: 1 } }, { t: "Could not keep balance", sig: { ST: 1 } }] }] },
@@ -214,23 +214,23 @@ const HIP_POSTURES = [
 
 // --- KNEE POSTURES ------------------------------------------------------------
 const KNEE_POSTURES = [
-  { id: "knee_p1", name: "Supine Knee Hug", subtitle: "Single Leg", grad: ["#A8CCCA", "#6AA8A4"], time: "~45 sec", conditional: false, double_score: false, videoId: null, how: "Lie on your back. Draw one knee toward your chest. Keep the other leg flat on the floor. Hold 4 breaths. Switch sides.", qs: [{ id: "knee_p1q1", text: "How does your knee feel when drawn toward your chest?", opts: [{ t: "Comfortable stretch", sig: {} }, { t: "Tightness behind the knee", sig: { PO: 1, MO: 1 } }, { t: "Pain behind the knee", sig: { PO: 1 } }, { t: "Pain in front of the knee", sig: { PA: 1 } }, { t: "Pain in hip or lower back", sig: {}, xover: true }] }] },
+  { id: "knee_p1", name: "Supine Knee Hug", subtitle: "Single Leg", grad: ["#A8CCCA", "#6AA8A4"], time: "~45 sec", conditional: false, double_score: false, videoId: null, how: "Lie on your back. Draw one knee toward your chest. Keep the other leg flat on the floor. Hold 4 breaths. Switch sides.", qs: [{ id: "knee_p1q1", text: "How does your knee feel when drawn toward your chest?", opts: [{ t: "Comfortable stretch", sig: {} }, { t: "Tightness behind the knee", sig: { PO: 1, MO: 1 } }, { t: "Pain behind the knee", sig: { PO: 1 } }, { t: "Pain in front of the knee", sig: { PA: 1 } }, { t: "Pain in hip or lower back", sig: {}, xover: true }, { t: "No sensation", sig: {} }] }] },
   { id: "knee_p2", name: "Standing Knee Extension", subtitle: "Terminal Extension Screen", grad: ["#B4D0B0", "#80B07C"], time: "~45 sec", conditional: false, double_score: false, videoId: null, how: "Stand with soft knees. Slowly straighten one leg fully. Hold 3 seconds. Release. Repeat 3× each side.", qs: [{ id: "knee_p2q1", text: "How does the knee feel at full extension?", opts: [{ t: "Easy and comfortable", sig: {} }, { t: "Tightness behind the knee", sig: { PO: 1, MO: 1 } }, { t: "Pain behind the knee", sig: { PO: 1 } }, { t: "Pain in front of the knee", sig: { PA: 1 } }, { t: "Hyperextension sensation", sig: { PO: 1 } }, { t: "Could not fully straighten", sig: { MO: 1 } }] }] },
-  { id: "knee_p3", name: "Chair Pose", subtitle: "Utkatasana  ★ ×2", grad: ["#D0BCA8", "#B09880"], time: "~60 sec", conditional: false, double_score: false, videoId: null, how: "Round 1: feet together. Round 2: feet hip-width. Lower hips as far as comfortable — stop immediately if sharp pain. Hold 3 breaths each round.", qs: [{ id: "knee_p3q1", text: "How did your knees feel in the squat, and did they cave inward in round 2?", opts: [{ t: "Strong and stable", sig: {} }, { t: "Pain behind or around the kneecap", sig: { PA: 2 } }, { t: "Knees felt unstable or shaky", sig: { ST: 2 } }, { t: "Trembling in the front of the knee", sig: { ST: 2 } }, { t: "Knees caved inward (round 2)", sig: { ST: 2 } }, { t: "Knees stayed aligned (round 2)", sig: {} }, { t: "Pain in hip or groin", sig: {}, xover: true }] }] },
+  { id: "knee_p3", name: "Chair Pose", subtitle: "Utkatasana  ★ ×2", grad: ["#D0BCA8", "#B09880"], time: "~60 sec", conditional: false, double_score: true, videoId: null, how: "Round 1: feet together. Round 2: feet hip-width. Lower hips as far as comfortable — stop immediately if sharp pain. Hold 3 breaths each round.", qs: [{ id: "knee_p3q1", text: "How did your knees feel in the squat, and did they cave inward in round 2?", opts: [{ t: "Strong and stable", sig: {} }, { t: "Pain behind or around the kneecap", sig: { PA: 2 } }, { t: "Knees felt unstable or shaky", sig: { ST: 2 } }, { t: "Trembling in the front of the knee", sig: { ST: 2 } }, { t: "Knees caved inward (round 2)", sig: { ST: 2 } }, { t: "Knees stayed aligned (round 2)", sig: {} }, { t: "Pain in hip or groin", sig: {}, xover: true }] }] },
   { id: "knee_p4", name: "Low Lunge", subtitle: "Anjaneyasana", grad: ["#C4B8D4", "#9880B4"], time: "~75 sec", conditional: false, double_score: false, videoId: null, how: "Step one foot forward into a deep lunge, back knee on the floor. Front knee at 90°. Hold 4 breaths each side.", qs: [{ id: "knee_p4q1", text: "How did your front knee feel in the deep bend?", opts: [{ t: "Comfortable", sig: {} }, { t: "Pain on the inner side of the knee", sig: { ME: 1 } }, { t: "Pain on the outer side of the knee", sig: { LA: 1 } }, { t: "Pain in front of the knee", sig: { PA: 1 } }, { t: "Tightness limiting the bend", sig: { MO: 1 } }, { t: "Pain in hip or groin", sig: {}, xover: true }] }, { id: "knee_p4q2", text: "How did your back knee feel on the ground?", opts: [{ t: "No issue", sig: {} }, { t: "Pressure on kneecap", sig: { PA: 1 } }, { t: "Pain behind the knee", sig: { PO: 1 } }, { t: "Trembling or instability", sig: { ST: 1 } }, { t: "General discomfort", sig: {} }] }] },
   { id: "knee_p5", name: "Supported Virasana", subtitle: "Graduated — stop if sharp pain", grad: ["#B8CCDC", "#84A4C0"], time: "~60 sec", conditional: false, double_score: false, videoId: null, how: "Stand in 6-point stance (hands, knees, shins). Slowly sit hips back toward heels only as far as comfortable — stop immediately if sharp pain or pressure in the knee.", qs: [{ id: "knee_p5q1", text: "How far could you lower your hips comfortably?", opts: [{ t: "Hips to heels — no pain", sig: {} }, { t: "Hips to heels — with pain or pressure in the knee", sig: { ME: 1, LA: 1 } }, { t: "Halfway — stopped due to knee pain", sig: { ME: 1, LA: 1, MO: 1 } }, { t: "Limited by ankle position, not knee", sig: { MO: 1 } }, { t: "Significant knee pain prevented movement", sig: { ME: 1, LA: 1, ST: 1 } }] }] },
   { id: "knee_p6", name: "Standing Forward Fold", subtitle: "", grad: ["#B4D4C4", "#7CB898"], time: "~45 sec", conditional: false, double_score: false, videoId: null, how: "Stand feet hip-width. Slowly fold forward, knees slightly bent if needed. Let arms hang. Hold 4 breaths. Roll back up slowly.", qs: [{ id: "knee_p6q1", text: "What did you notice behind your knees or around the kneecap?", opts: [{ t: "Pleasant stretch — no pain", sig: {} }, { t: "Tightness behind the knee — limiting movement", sig: { MO: 1 } }, { t: "Pain behind the knee", sig: { PO: 1 } }, { t: "Pain behind or around the kneecap", sig: { PA: 1 } }, { t: "No sensation", sig: {} }] }] },
-  { id: "knee_p7", name: "High Lunge", subtitle: "Loaded Single-Leg  ★ ×2", grad: ["#C8B8DC", "#A090C0"], time: "~60 sec", conditional: false, double_score: false, videoId: null, how: "Step one foot forward. Front knee bends to 90°, back leg straight. Hold 4 breaths under load. Both sides.", qs: [{ id: "knee_p7q1", text: "How did your front knee feel under load?", opts: [{ t: "Strong and stable", sig: {} }, { t: "Pain behind or around the kneecap", sig: { PA: 2 } }, { t: "Knee felt unstable or gave way", sig: { ST: 2 } }, { t: "Trembling or instability", sig: { ST: 2 } }, { t: "Pain in hip or groin", sig: {}, xover: true }] }] },
+  { id: "knee_p7", name: "High Lunge", subtitle: "Loaded Single-Leg  ★ ×2", grad: ["#C8B8DC", "#A090C0"], time: "~60 sec", conditional: false, double_score: true, videoId: null, how: "Step one foot forward. Front knee bends to 90°, back leg straight. Hold 4 breaths under load. Both sides.", qs: [{ id: "knee_p7q1", text: "How did your front knee feel under load?", opts: [{ t: "Strong and stable", sig: {} }, { t: "Pain behind or around the kneecap", sig: { PA: 2 } }, { t: "Knee felt unstable or gave way", sig: { ST: 2 } }, { t: "Trembling or instability", sig: { ST: 2 } }, { t: "Pain in hip or groin", sig: {}, xover: true }] }] },
   { id: "knee_p8", name: "Tree Pose", subtitle: "Vrksasana", grad: ["#A8CCCA", "#6AA8A4"], time: "~60 sec", conditional: false, double_score: false, videoId: null, how: "Stand on one leg. Place other foot on inner calf or ankle. Hold 4 breaths each side.", qs: [{ id: "knee_p8q1", text: "How did your standing knee feel during balance?", opts: [{ t: "Stable", sig: {} }, { t: "Wobble or instability", sig: { ST: 1 } }, { t: "Pain on inner knee", sig: { ME: 1 } }, { t: "Pain on outer knee", sig: { LA: 1 } }] }] },
   { id: "knee_p9", name: "Single Leg Mini Squat", subtitle: "Dynamic Stability", grad: ["#B4D0C0", "#7CB898"], time: "~45 sec", conditional: false, double_score: false, videoId: null, how: "Stand on one leg. Slowly bend knee to a comfortable depth — hands on wall if needed. 5 controlled reps each side.", qs: [{ id: "knee_p9q1", text: "How did the knee behave during the movement?", opts: [{ t: "Deep and controlled — knee stayed aligned", sig: {} }, { t: "Moderate bend — knee stayed aligned", sig: {} }, { t: "Knee caved inward", sig: { ST: 1 } }, { t: "Trembling or weakness limited the movement", sig: { ST: 1 } }, { t: "Pain prevented the movement", sig: { ME: 1, LA: 1, ST: 1 } }] }] },
   { id: "knee_p10", name: "Warrior III", subtitle: "Virabhadrasana III", grad: ["#A8CCCA", "#6AA8A4"], time: "~60 sec", conditional: false, double_score: false, videoId: null, how: "Stand on one leg. Hinge forward and extend back leg behind you — hands on wall if needed. Hold 3 breaths. Both sides.", qs: [{ id: "knee_p10q1", text: "How did your standing knee respond to the forward lean?", opts: [{ t: "Smooth and controlled", sig: {} }, { t: "Hard to control", sig: { ST: 1 } }, { t: "Pain on outer knee", sig: { LA: 1 } }, { t: "Could not maintain balance", sig: { ST: 1 } }] }] },
-  { id: "knee_summary", name: "Session Check-in", subtitle: "", grad: ["#E4DDD6", "#C4B8B0"], time: "", conditional: false, double_score: false, videoId: null, isSummary: true, how: "", qs: [{ id: "knee_summary_q", text: "Compared to before the session, how does your knee feel now?", opts: [{ t: "Better — less pain or more comfortable", sig: {} }, { t: "No change", sig: {} }, { t: "Slightly worse — amore discomfort", sig: {} }, { t: "Significantly worse — pain increased", sig: {} }, { t: "I had no pain to begin with", sig: {} }] }] },
+  { id: "knee_summary", name: "Session Check-in", subtitle: "", grad: ["#E4DDD6", "#C4B8B0"], time: "", conditional: false, double_score: false, videoId: null, isSummary: true, how: "", qs: [{ id: "knee_summary_q", text: "Compared to before the session, how does your knee feel now?", opts: [{ t: "Better — less pain or more comfortable", sig: {} }, { t: "No change", sig: {} }, { t: "Slightly worse — more discomfort", sig: {} }, { t: "Significantly worse — pain increased", sig: {} }, { t: "I had no pain to begin with", sig: {} }] }] },
 ];
 
 // --- ANKLE POSTURES -----------------------------------------------------------
 const ANKLE_POSTURES = [
   { id: "ankle_p1", name: "Downward Dog", subtitle: "Adho Mukha Svanasana", grad: ["#A8CCCA", "#6AA8A4"], time: "~60 sec", conditional: false, double_score: false, videoId: null, how: "From hands and knees, tuck toes and lift hips to form an inverted V. Press heels gently toward the floor. Hold 5 breaths.", qs: [{ id: "ankle_p1q1", text: "When pressing your heels toward the floor, what did you feel?", opts: [{ t: "Heels reached the floor comfortably", sig: {} }, { t: "Tightness in calves — heels stayed up", sig: { AC: 1, MO: 1 } }, { t: "Pain in Achilles or back of ankle", sig: { AC: 1 } }, { t: "Pain under the heel or sole of foot", sig: { PF: 1 } }, { t: "No sensation", sig: {} }] }] },
-  { id: "ankle_p2", name: "Chair Pose", subtitle: "Utkatasana  ★ ×2", grad: ["#D0BCA8", "#B09880"], time: "~45 sec", conditional: false, double_score: false, videoId: null, how: "Stand feet hip-width. Bend knees and lower hips. Focus attention on the front of your ankles. Hold 4 breaths. Stop if sharp pain.", qs: [{ id: "ankle_p2q1", text: "How did the front of your ankles feel in the squat?", opts: [{ t: "No issue", sig: {} }, { t: "Pinching or blocking at front of ankle", sig: { AN: 2 } }, { t: "Tightness or stiffness in the front of the ankle", sig: { MO: 2 } }, { t: "Tightness limiting depth", sig: { MO: 2 } }, { t: "Pain in knees instead", sig: {}, xover: true }] }] },
+  { id: "ankle_p2", name: "Chair Pose", subtitle: "Utkatasana  ★ ×2", grad: ["#D0BCA8", "#B09880"], time: "~45 sec", conditional: false, double_score: true, videoId: null, how: "Stand feet hip-width. Bend knees and lower hips. Focus attention on the front of your ankles. Hold 4 breaths. Stop if sharp pain.", qs: [{ id: "ankle_p2q1", text: "How did the front of your ankles feel in the squat?", opts: [{ t: "No issue", sig: {} }, { t: "Pinching or blocking at front of ankle", sig: { AN: 2 } }, { t: "Tightness or stiffness in the front of the ankle", sig: { MO: 2 } }, { t: "Tightness limiting depth", sig: { MO: 2 } }, { t: "Pain in knees instead", sig: {}, xover: true }] }] },
   { id: "ankle_p3", name: "Low Lunge", subtitle: "Anjaneyasana", grad: ["#B4D0B0", "#80B07C"], time: "~60 sec", conditional: false, double_score: false, videoId: null, how: "Step one foot forward into a lunge. Shift your front knee forward past your toes — feel the deep stretch in the front of the ankle. Hold 4 breaths each side.", qs: [{ id: "ankle_p3q1", text: "When your front knee moved past your toes, what did you feel in that ankle?", opts: [{ t: "Comfortable — no restriction", sig: {} }, { t: "Pinching at front of ankle", sig: { AN: 1 } }, { t: "Tightness limiting depth", sig: { MO: 1 } }, { t: "Pain in sole of foot", sig: { PF: 1 } }, { t: "Pain in back of ankle or Achilles", sig: { AC: 1 } }] }] },
   { id: "ankle_p4", name: "Single-Leg Heel Raise", subtitle: "Calf Strength Test", grad: ["#C4B8D4", "#9880B4"], time: "~60 sec", conditional: false, double_score: false, videoId: null, how: "Stand near a wall. Rise onto one foot's toes as high as possible. Lower slowly. Try up to 10 repetitions. If single leg is too difficult, perform on both feet.", qs: [{ id: "ankle_p4q1", text: "Standing on one leg, what happened when you rose onto your toes?", opts: [{ t: "Easy and controlled", sig: {} }, { t: "Pain in Achilles or back of ankle", sig: { AC: 1 } }, { t: "Pain under the heel", sig: { PF: 1 } }, { t: "Could not lift fully — weakness", sig: { AC: 1, ST: 1 } }, { t: "Ankle felt unstable", sig: { LA: 1, ST: 1 } }] }, { id: "ankle_p4q2", text: "How many raises could you complete before stopping?", opts: [{ t: "10 or more — single leg", sig: {} }, { t: "5–9 — single leg", sig: {} }, { t: "1–4 — single leg", sig: { AC: 1, ST: 1 } }, { t: "Performed on both legs (single leg too difficult)", sig: { AC: 1, ST: 1 } }, { t: "Could not complete any", sig: { AC: 1, ST: 1 } }] }] },
   { id: "ankle_p5", name: "Tree Pose", subtitle: "Vrksasana", grad: ["#B8CCDC", "#84A4C0"], time: "~60 sec", conditional: false, double_score: false, videoId: null, how: "Stand on one leg. Place other foot on inner calf or ankle. Hold 4 breaths. Switch sides. Focus on the ankle of the standing leg.", qs: [{ id: "ankle_p5q1", text: "How did your standing ankle feel during balance?", opts: [{ t: "Stable", sig: {} }, { t: "Ankle rolling outward or feeling like it might give way", sig: { LA: 1, ST: 1 } }, { t: "Wobble — hard to stabilize", sig: { ST: 1 } }, { t: "Felt stable but required effort", sig: { ST: 1 } }, { t: "Pain on outer ankle", sig: { LA: 1 } }, { t: "Pain in knee", sig: {}, xover: true }] }] },
@@ -244,11 +244,14 @@ const ANKLE_POSTURES = [
 const LB_MINI_IDS = ["knee-hug", "sphinx", "hip-hinge", "bridge", "supine-twist"];
 const HIP_MINI_IDS = ["hip_p1", "hip_p3", "hip_p5", "hip_p6", "hip_p8"];
 const KNEE_MINI_IDS = ["knee_p3", "knee_p4", "knee_p5", "knee_p8", "knee_p7"];
+const ANKLE_MINI_IDS = ["ankle_p2", "ankle_p3", "ankle_p4", "ankle_p5", "ankle_p6"];
 
 function getCrossoverPostures(fromArea) {
-  if (fromArea === "HIP") return LB_POSTURES.filter((p) => LB_MINI_IDS.includes(p.id));
-  if (fromArea === "KNEE") return HIP_POSTURES.filter((p) => HIP_MINI_IDS.includes(p.id));
-  if (fromArea === "ANKLE") return KNEE_POSTURES.filter((p) => KNEE_MINI_IDS.includes(p.id));
+  // Phase 2 uses the SAME body area's postures, not the adjacent area
+  if (fromArea === "LB") return LB_POSTURES.filter((p) => LB_MINI_IDS.includes(p.id));
+  if (fromArea === "HIP") return HIP_POSTURES.filter((p) => HIP_MINI_IDS.includes(p.id));
+  if (fromArea === "KNEE") return KNEE_POSTURES.filter((p) => KNEE_MINI_IDS.includes(p.id));
+  if (fromArea === "ANKLE") return ANKLE_POSTURES.filter((p) => ANKLE_MINI_IDS.includes(p.id));
   return [];
 }
 
@@ -387,18 +390,48 @@ function getPosturesForArea(area) {
   return [];
 }
 
-// --- RED FLAGS for pre-diagnostic safety check --------------------------------
-const DIAGNOSTIC_RED_FLAGS = [
-  "Loss of bladder or bowel control",
-  "Progressive weakness in your leg(s)",
-  "Numbness in the groin or inner thighs",
-  "Severe pain following a fall or accident",
-  "Fever combined with back pain",
-  "Unexplained weight loss",
-  "History of cancer with new onset back pain",
-  "Pain that consistently wakes you at night",
-  "Rapidly worsening symptoms",
-];
+// --- RED FLAGS for pre-diagnostic safety check (body-area-specific) -----------
+const RED_FLAGS_BY_AREA = {
+  LB: [
+    "Loss of bladder or bowel control",
+    "Progressive weakness in your leg(s)",
+    "Numbness in the groin or inner thighs",
+    "Fever combined with back pain",
+    "Unexplained weight loss",
+    "History of cancer with new onset back pain",
+    "Pain that consistently wakes you at night",
+    "Rapidly worsening symptoms",
+    "Severe pain following a fall or accident",
+  ],
+  KNEE: [
+    "Sudden severe swelling of the knee (not caused by activity)",
+    "Inability to bear weight on the leg",
+    "Knee feels locked or unable to straighten fully",
+    "Joint gives way suddenly and completely",
+    "Fever with joint swelling and warmth",
+    "Severe pain or visible deformity following a fall or accident",
+    "Rapidly worsening symptoms without a clear cause",
+  ],
+  HIP: [
+    "Inability to bear weight on the leg following a fall",
+    "Severe groin or hip pain following trauma (possible fracture)",
+    "Sudden and complete loss of hip movement",
+    "Fever with hip pain and swelling",
+    "Rapidly worsening leg weakness or numbness",
+  ],
+  ANKLE: [
+    "Inability to bear weight (possible fracture)",
+    "Severe swelling or bruising appearing immediately after an injury",
+    "Visible deformity of the ankle or foot",
+    "Complete loss of ankle movement after injury",
+    "Numbness or tingling in the foot following trauma",
+    "Severe pain following a fall or accident",
+  ],
+};
+
+function getRedFlagsForArea(areaKey) {
+  return RED_FLAGS_BY_AREA[areaKey] || RED_FLAGS_BY_AREA.LB;
+}
 
 // --- AFFIRMATIONS -------------------------------------------------------------
 const AFFIRMATIONS = [
@@ -630,7 +663,7 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
         </div>
 
         <div className="space-y-2">
-          {DIAGNOSTIC_RED_FLAGS.map((flag) => {
+          {getRedFlagsForArea(area).map((flag) => {
             const isChecked = redFlagsChecked.includes(flag);
             return (
               <button
@@ -789,7 +822,7 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
         if (target) {
           setCrossoverTriggered(true);
           setOriginalArea(area);
-          setCrossoverTarget(target);
+          setCrossoverTarget(area); // Phase 2 stays in the same body area
           const miniPostures = getCrossoverPostures(area);
           setActivePostures(miniPostures);
           setPostureIdx(0);
