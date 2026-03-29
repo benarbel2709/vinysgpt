@@ -3,8 +3,7 @@ import VinysDiagnostic from "@/components/VinysDiagnostic";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "@/context/AppContext";
 import type { ConditionKey, EnergyLevel, PracticeTime } from "@/constants/conditions";
-import { CONDITION_LABELS, EQUIPMENT_OPTIONS } from "@/constants/conditions";
-import { CONDITION_CATEGORIES, CONDITION_DETAILS } from "@/constants/conditionCategories";
+import { CONDITION_LABELS } from "@/constants/conditions";
 import type { GenericAssessmentData, Assessment } from "@/types";
 import { generatePlan } from "@/lib/planGenerator";
 import { trackEvent } from "@/lib/analytics";
@@ -83,6 +82,7 @@ export default function OnboardingWizard() {
   const profile = state.profile;
 
   const [step, setStep] = useState(0);
+  const [selectedArea, setSelectedArea] = useState<string | null>(null);
   const [selected, setSelected] = useState<ConditionKey[]>([]);
   const [conditionDetails, setConditionDetails] = useState<Record<string, string[]>>({});
   const [diagnosticResult, setDiagnosticResult] = useState<any>(null);
@@ -132,7 +132,7 @@ export default function OnboardingWizard() {
   const canGoNext = (): boolean => {
     switch (step) {
       case 0:
-        return selected.length > 0;
+        return !!selectedArea;
       case 1:
         return !!diagnosticResult;
       case 2:
@@ -231,7 +231,7 @@ export default function OnboardingWizard() {
   };
 
   const STEP_TITLES = [
-    "Your conditions",
+    "Where does your body need support?",
     "Body diagnostic",
     "Here's what we found",
     "Any movements to avoid?",
@@ -239,6 +239,17 @@ export default function OnboardingWizard() {
     "How would you like to practice?",
     "How would you like to end each practice?",
     "You're all set.",
+  ];
+
+  const BODY_AREAS = [
+    { id: "LB", label: "Lower Back", desc: "Pain, stiffness, sciatica or disc symptoms", icon: "🔹", available: true },
+    { id: "HIP", label: "Hip", desc: "Hip joint, groin, outer hip or mobility issues", icon: "🔹", available: true },
+    { id: "KNEE", label: "Knee", desc: "Kneecap pain, instability, inner or outer knee", icon: "🔹", available: true },
+    { id: "ANKLE", label: "Ankle & Foot", desc: "Achilles, plantar fascia or ankle instability", icon: "🔹", available: true },
+    { id: "SHOULDER", label: "Shoulder", desc: "Rotator cuff, frozen shoulder, impingement", icon: "🔸", available: false },
+    { id: "NECK", label: "Neck", desc: "Cervical stiffness, tension headaches, radiating pain", icon: "🔸", available: false },
+    { id: "UPPER_BACK", label: "Upper Back", desc: "Thoracic stiffness, postural fatigue, rib pain", icon: "🔸", available: false },
+    { id: "WRIST", label: "Wrist & Hand", desc: "Carpal tunnel, repetitive strain, grip weakness", icon: "🔸", available: false },
   ];
 
   // Profile summary data
@@ -303,63 +314,53 @@ export default function OnboardingWizard() {
           </p>
         )}
 
-        {/* ═══ STEP 0: Condition category grid ═══ */}
+        {/* ═══ STEP 0: Body area picker ═══ */}
         {step === 0 && (
-          <div className="w-full" style={{ marginTop: "20px", maxWidth: "1100px", margin: "20px auto 0" }}>
-            <div className="flex flex-wrap justify-center" style={{ gap: "20px", marginBottom: "20px" }}>
-              {CONDITION_CATEGORIES.slice(0, 3).map((cat) => (
-                <div
-                  key={cat.name}
-                  className="rounded-[12px] bg-surface-warm"
-                  style={{ padding: "20px", width: "340px", flexShrink: 0 }}
+          <div className="w-full" style={{ marginTop: "16px", maxWidth: "520px", margin: "16px auto 0" }}>
+            <p className="text-muted-foreground text-center text-[15px] mb-6 leading-relaxed">
+              Select the area that's been bothering you most. We'll run a short movement assessment to find the right approach.
+            </p>
+
+            <div className="space-y-3">
+              {BODY_AREAS.filter(a => a.available).map((area) => (
+                <button
+                  key={area.id}
+                  onClick={() => {
+                    setSelectedArea(area.id);
+                    setStep(1);
+                  }}
+                  className={`w-full p-5 rounded-2xl border-2 text-left flex items-center gap-4 transition-all group ${
+                    "border-border bg-card hover:border-primary/40 hover:shadow-calm press-scale"
+                  }`}
                 >
-                  <h3 className="font-bold text-primary text-center text-[18px]" style={{ marginBottom: "14px" }}>
-                    {cat.name}
-                  </h3>
-                  <div className="flex flex-wrap justify-center" style={{ gap: "10px" }}>
-                    {cat.conditions.map((key) => (
-                      <button
-                        key={key}
-                        onClick={() => toggle(key)}
-                        className={`rounded-[8px] border-2 text-[16px] font-semibold transition-all cursor-pointer ${selected.includes(key) ? tagSelected : tagUnselected}`}
-                        style={{ paddingLeft: "10px", paddingRight: "10px", paddingTop: "5px", paddingBottom: "5px", lineHeight: "1.2" }}
-                      >
-                        {label(key)}
-                      </button>
-                    ))}
+                  <div className="w-12 h-12 rounded-xl bg-primary/8 flex items-center justify-center flex-shrink-0">
+                    <span className="text-primary text-lg font-bold">{area.label.charAt(0)}</span>
                   </div>
-                </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[17px] font-bold text-foreground mb-0.5">{area.label}</div>
+                    <div className="text-[13px] text-muted-foreground leading-snug">{area.desc}</div>
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-primary/8 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/15 transition-colors">
+                    <span className="text-primary text-sm">→</span>
+                  </div>
+                </button>
               ))}
             </div>
-            <div className="flex flex-wrap justify-center" style={{ gap: "20px" }}>
-              {CONDITION_CATEGORIES.slice(3, 5).map((cat) => (
-                <div key={cat.name} className="rounded-[12px] bg-surface-warm" style={{ padding: "20px", width: "340px", flexShrink: 0 }}>
-                  <h3 className="font-bold text-primary text-center text-[18px]" style={{ marginBottom: "14px" }}>{cat.name}</h3>
-                  <div className="flex flex-wrap justify-center" style={{ gap: "10px" }}>
-                    {cat.conditions.map((key) => (
-                      <button key={key} onClick={() => toggle(key)}
-                        className={`rounded-[8px] border-2 text-[16px] font-semibold transition-all cursor-pointer ${selected.includes(key) ? tagSelected : tagUnselected}`}
-                        style={{ paddingLeft: "10px", paddingRight: "10px", paddingTop: "5px", paddingBottom: "5px", lineHeight: "1.2" }}
-                      >{label(key)}</button>
-                    ))}
+
+            {/* Coming soon section */}
+            <div className="mt-8">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 mb-3 text-center">Coming soon</p>
+              <div className="grid grid-cols-2 gap-2.5">
+                {BODY_AREAS.filter(a => !a.available).map((area) => (
+                  <div
+                    key={area.id}
+                    className="p-4 rounded-xl border border-border/60 bg-muted/30 opacity-60"
+                  >
+                    <div className="text-[15px] font-semibold text-foreground/50 mb-0.5">{area.label}</div>
+                    <div className="text-[11px] text-muted-foreground/60 leading-snug">{area.desc}</div>
                   </div>
-                </div>
-              ))}
-            </div>
-            <div className="flex flex-wrap justify-center" style={{ gap: "20px", marginTop: "20px" }}>
-              {CONDITION_CATEGORIES.slice(5).map((cat) => (
-                <div key={cat.name} className="rounded-[12px] bg-surface-warm" style={{ padding: "20px", width: "340px", flexShrink: 0 }}>
-                  <h3 className="font-bold text-primary text-center text-[18px]" style={{ marginBottom: "14px" }}>{cat.name}</h3>
-                  <div className="flex flex-wrap justify-center" style={{ gap: "10px" }}>
-                    {cat.conditions.map((key) => (
-                      <button key={key} onClick={() => toggle(key)}
-                        className={`rounded-[8px] border-2 text-[16px] font-semibold transition-all cursor-pointer ${selected.includes(key) ? tagSelected : tagUnselected}`}
-                        style={{ paddingLeft: "10px", paddingRight: "10px", paddingTop: "5px", paddingBottom: "5px", lineHeight: "1.2" }}
-                      >{label(key)}</button>
-                    ))}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -368,6 +369,7 @@ export default function OnboardingWizard() {
         {step === 1 && (
           <div className="w-full" style={{ marginTop: "20px" }}>
             <VinysDiagnostic
+              initialArea={selectedArea}
               onComplete={(result: any) => {
                 const areaToCondKey: Record<string, string> = {
                   LB: "back_pain", HIP: "hip_pain", KNEE: "knee_pain", ANKLE: "back_pain",
@@ -627,7 +629,7 @@ export default function OnboardingWizard() {
       </div>
 
       {/* ── FIXED BOTTOM BUTTONS ── */}
-      {step !== 1 && step < 7 && (
+      {step !== 1 && step !== 0 && step < 7 && (
         <div
           className="fixed bottom-0 inset-x-0 z-40 pointer-events-none bg-background"
           style={{ paddingBottom: "40px", paddingTop: "16px", boxShadow: "0 -2px 8px rgba(0,0,0,0.04)" }}
