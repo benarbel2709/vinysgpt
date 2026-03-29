@@ -577,6 +577,7 @@ export default function Plan() {
 /* ── Sub-components ── */
 
 function NavBar({ onStart, onAccountClick, onLibraryClick }: { onStart: () => void; onAccountClick: () => void; onLibraryClick: () => void }) {
+  const nav = useNavigate();
   return (
     <header
       className="sticky top-0 z-50 w-full border-b border-black/5"
@@ -598,6 +599,14 @@ function NavBar({ onStart, onAccountClick, onLibraryClick }: { onStart: () => vo
             style={{ background: "rgba(255,255,255,0.5)", border: "1px solid rgba(0,0,0,0.08)" }}
           >
             <LayoutGrid size={20} />
+          </button>
+          <button
+            onClick={() => nav("/settings")}
+            aria-label="Settings"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-foreground/60 hover:text-foreground transition-colors"
+            style={{ background: "rgba(255,255,255,0.5)", border: "1px solid rgba(0,0,0,0.08)" }}
+          >
+            <Settings size={20} />
           </button>
           <button
             onClick={onAccountClick}
