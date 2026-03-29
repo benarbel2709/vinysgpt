@@ -617,7 +617,7 @@ function NavBar({ onStart, onAccountClick, onLibraryClick }: { onStart: () => vo
   );
 }
 
-function GreetingBlock({ greeting, user, showAccount, setShowAccount, firstName, setFirstName }: { greeting: string; user: any; showAccount: boolean; setShowAccount: (v: boolean) => void; firstName: string; setFirstName: (v: string) => void }) {
+function GreetingBlock({ greeting, greetingSuffix, user, showAccount, setShowAccount, firstName, setFirstName }: { greeting: string; greetingSuffix: string | null; user: any; showAccount: boolean; setShowAccount: (v: boolean) => void; firstName: string; setFirstName: (v: string) => void }) {
   const [showUsernameEdit, setShowUsernameEdit] = useState(false);
   const [showFirstNameEdit, setShowFirstNameEdit] = useState(false);
   const [newUsername, setNewUsername] = useState("");
