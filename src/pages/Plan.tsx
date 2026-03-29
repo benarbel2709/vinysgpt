@@ -51,7 +51,8 @@ export default function Plan() {
 
   useEffect(() => { window.scrollTo({ top: 0, left: 0, behavior: "instant" }); }, []);
 
-  const completedCount = plan?.sessions.filter((s) => s.status === "done").length || 0;
+  const localCompleted = plan?.sessions.filter((s) => s.status === "done").length || 0;
+  const completedCount = user ? weekly.completed : localCompleted;
   const totalSessions = plan?.sessions.length || 0;
   const progressPct = totalSessions > 0 ? (completedCount / totalSessions) * 100 : 0;
 
@@ -234,7 +235,7 @@ export default function Plan() {
 
         {/* 3) TOP STATS ROW */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <WeeklyTargetCard completedCount={user ? weekly.completed : completedCount} target={weekly.target} />
+          <WeeklyTargetCard completedCount={completedCount} target={weekly.target} />
           <div className="rounded-2xl text-white p-6 flex flex-col justify-between min-h-[120px]" style={{ background: "#028090" }}>
             <span className="text-sm font-medium opacity-90">Time practicing</span>
             <span className="text-[40px] sm:text-[44px] font-bold leading-[1.05] tracking-[-0.01em]">
@@ -354,18 +355,27 @@ export default function Plan() {
                 onEdit={() => { setTempMinutes(state.profile.minutesPerSession); setTempLevel(state.profile.energyLevel); setTempSessions(state.profile.sessionsPerWeek); setEditingSetup(true); }}
               />
               <hr className="border-border" />
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between group relative">
                 <div className="flex items-start gap-3.5">
                   <span className="mt-0.5"><Activity size={20} className="text-foreground/50" /></span>
                   <div>
                     <p className="text-sm text-muted-foreground">Practice level</p>
                     <p className="text-lg font-bold text-secondary">{state.profile.energyLevel === "high" ? "Vigorous" : state.profile.energyLevel === "medium" ? "Moderate" : "Gentle"}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">Set automatically based on your movement assessment. You can update it here.</p>
                   </div>
                 </div>
-                <button onClick={() => { setTempMinutes(state.profile.minutesPerSession); setTempLevel(state.profile.energyLevel); setTempSessions(state.profile.sessionsPerWeek); setEditingSetup(true); }} className="text-muted-foreground/60 hover:text-foreground transition-colors">
-                  <Pencil size={18} />
-                </button>
+                <div className="flex items-center gap-1.5">
+                  <div className="relative">
+                    <button className="text-muted-foreground/40 hover:text-muted-foreground transition-colors peer" aria-label="What is practice level?">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                    </button>
+                    <div className="absolute bottom-full right-0 mb-2 w-64 p-3 rounded-xl bg-foreground text-background text-xs leading-relaxed shadow-lg opacity-0 pointer-events-none peer-hover:opacity-100 peer-focus:opacity-100 peer-hover:pointer-events-auto transition-opacity z-50">
+                      Your practice level is set based on your movement assessment and sensitivity score. It adjusts automatically over time.
+                    </div>
+                  </div>
+                  <button onClick={() => { setTempMinutes(state.profile.minutesPerSession); setTempLevel(state.profile.energyLevel); setTempSessions(state.profile.sessionsPerWeek); setEditingSetup(true); }} className="text-muted-foreground/60 hover:text-foreground transition-colors">
+                    <Pencil size={18} />
+                  </button>
+                </div>
               </div>
               <hr className="border-border" />
               <SetupRow
@@ -877,7 +887,7 @@ function RestartModal({ open, onClose, onConfirm }: { open: boolean; onClose: ()
         <DialogHeader>
           <DialogTitle>Restart your program?</DialogTitle>
           <DialogDescription>
-            This will reset your practice history and generate a new plan. Your movement profile will be kept.
+            This will clear your current plan and profile. Are you sure?
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2 sm:gap-0">
@@ -1002,7 +1012,7 @@ function WeeklyTargetCard({ completedCount, target }: { completedCount: number; 
   const pct = target > 0 ? Math.min((done / target) * 100, 100) : 0;
 
   return (
-    <div className="rounded-2xl bg-primary text-primary-foreground p-6 flex flex-col justify-between min-h-[120px]">
+    <div className="rounded-2xl text-white p-6 flex flex-col justify-between min-h-[120px]" style={{ background: "#4A7B6F" }}>
       <span className="text-sm font-medium opacity-90">Weekly target</span>
       {isComplete ? (
         <div className="mt-auto">

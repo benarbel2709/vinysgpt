@@ -84,6 +84,13 @@ export interface Profile {
   movementProfile?: string;
   sensitivity?: string;
   confidence?: string;
+  area?: string | null;
+  primary_profile?: string | null;
+  secondary_profile?: string | null;
+  diagnosticResult?: any;
+  diagnosticArea?: string;
+  diagnosticProfile?: string;
+  diagnosticIrritability?: number;
 }
 
 export interface CurrentPlan {
