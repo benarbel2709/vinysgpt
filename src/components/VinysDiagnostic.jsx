@@ -411,9 +411,9 @@ const AFFIRMATIONS = [
 ];
 
 // --- MAIN COMPONENT -----------------------------------------------------------
-export default function VinysDiagnostic({ onComplete }) {
-  const [phase, setPhase] = useState("intro");
-  const [area, setArea] = useState(null);
+export default function VinysDiagnostic({ onComplete, initialArea = null }) {
+  const [phase, setPhase] = useState(initialArea ? "red_flags" : "intro");
+  const [area, setArea] = useState(initialArea);
   const [originalArea, setOriginalArea] = useState(null);
   const [crossoverTriggered, setCrossoverTriggered] = useState(false);
   const [crossoverTarget, setCrossoverTarget] = useState(null);
