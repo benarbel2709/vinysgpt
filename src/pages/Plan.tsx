@@ -189,7 +189,7 @@ export default function Plan() {
       <Layout hideHeader hideFooter>
         <NavBar onStart={handleStartNextPractice} onAccountClick={() => setShowAccount(true)} onLibraryClick={() => { setLibraryInitialId(null); setShowLibrary(true); }} />
         <div className="px-6 py-10 max-w-5xl mx-auto space-y-6">
-          <GreetingBlock greeting={greetingDisplay} user={user} showAccount={showAccount} setShowAccount={setShowAccount} firstName={firstName} setFirstName={setFirstName} />
+          <GreetingBlock greeting={greetingDisplay} greetingSuffix={greetingSuffix} user={user} showAccount={showAccount} setShowAccount={setShowAccount} firstName={firstName} setFirstName={setFirstName} />
           <p className="text-muted-foreground">No practice plan yet</p>
           <Button variant="hero" size="lg" onClick={() => navigate("/onboarding")} className="w-full">
             Start a new plan
@@ -213,7 +213,7 @@ export default function Plan() {
 
       <div className="px-6 py-8 max-w-5xl mx-auto space-y-8">
         {/* 2) GREETING */}
-        <GreetingBlock greeting={greetingDisplay} user={user} showAccount={showAccount} setShowAccount={setShowAccount} firstName={firstName} setFirstName={setFirstName} />
+        <GreetingBlock greeting={greetingDisplay} greetingSuffix={greetingSuffix} user={user} showAccount={showAccount} setShowAccount={setShowAccount} firstName={firstName} setFirstName={setFirstName} />
 
         {/* First-session welcome banner (before any sessions done) */}
         {completedCount === 0 && (
