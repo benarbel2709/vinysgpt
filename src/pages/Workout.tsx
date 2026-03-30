@@ -317,6 +317,13 @@ export default function Workout() {
               ref={videoRef}
               src={universalVideo}
               autoPlay loop muted playsInline
+              preload="auto"
+              onError={(e) => {
+                const t = e.target as HTMLVideoElement;
+                if (!t.src.includes('universal-fallback')) {
+                  t.src = universalVideo;
+                }
+              }}
               className="absolute inset-0 w-full h-full object-cover object-center"
             />
 
