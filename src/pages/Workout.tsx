@@ -277,8 +277,8 @@ export default function Workout() {
     <>
       {/* ===== FULLSCREEN PLAYER ===== */}
       <div className="fixed inset-0 w-screen h-screen overflow-hidden bg-black z-50">
-        {/* Video background */}
-        <div className="absolute inset-0">
+        {/* Video background — constrained 16:9 on portrait mobile, full-bleed on landscape/desktop */}
+        <div className="absolute inset-x-0 top-0 lg:inset-0" style={{ aspectRatio: "16 / 9" }}>
           <video
             ref={videoRef}
             src={universalVideo}
@@ -286,7 +286,7 @@ export default function Workout() {
             loop
             muted
             playsInline
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-center"
           />
           <div className="absolute inset-0" style={{ background: "linear-gradient(160deg, rgba(26,26,46,0.15) 0%, rgba(22,33,62,0.1) 40%, rgba(15,52,96,0.08) 100%)" }} />
         </div>
