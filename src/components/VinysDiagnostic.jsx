@@ -929,7 +929,14 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
               loop
               muted
               playsInline
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              preload="auto"
+              onError={(e) => {
+                const t = e.target;
+                if (!t.src.includes('universal-fallback')) {
+                  t.src = universalVideo;
+                }
+              }}
+              style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center" }}
             />
             {/* Posture name overlay */}
             <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/50 to-transparent pointer-events-none">
