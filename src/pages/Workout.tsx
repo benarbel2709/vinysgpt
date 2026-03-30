@@ -9,11 +9,11 @@ import { HELPED_MOST_LABELS } from "@/constants/conditions";
 import type { HelpedMost } from "@/constants/conditions";
 import type { Checkin as CheckinType } from "@/types";
 import { useTTS } from "@/hooks/useTTS";
-import BrandLogo from "@/components/BrandLogo";
-import { X, Play, Pause, Volume2, VolumeX, Loader2, Info, Settings2, CheckCircle2 } from "lucide-react";
+import { X, Play, Pause, Volume2, VolumeX, Loader2, ChevronLeft, ChevronDown, CheckCircle2, Settings2, RotateCcw, Smartphone } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { trackEvent } from "@/lib/analytics";
 import universalVideo from "@/assets/exercises/universal-fallback.mp4";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 
 /* ─── Slider field ─── */
 function SliderField({ label, value, onChange, minLabel, maxLabel }: {
@@ -40,6 +40,35 @@ function SliderField({ label, value, onChange, minLabel, maxLabel }: {
 
 const HELPED_OPTIONS: HelpedMost[] = ["breath", "movement", "release"];
 
+/* ─── Rotate prompt (portrait mobile only, once per session) ─── */
+function RotatePrompt({ onDismiss }: { onDismiss: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[70] bg-background flex items-center justify-center p-6">
+      <div className="text-center">
+        <div className="mx-auto mb-6 w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center">
+          <Smartphone size={32} className="text-accent rotate-90" />
+        </div>
+        <h2 className="text-xl font-semibold text-foreground">Rotate your phone</h2>
+        <p className="text-sm text-muted-foreground max-w-[260px] mx-auto mt-2 leading-relaxed">
+          Turn your phone sideways for the best practice experience — so you can see every movement clearly.
+        </p>
+        <button
+          onClick={onDismiss}
+          className="mt-8 w-full max-w-[220px] rounded-full py-3 px-6 bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
+        >
+          I'm ready →
+        </button>
+        <button
+          onClick={onDismiss}
+          className="mt-3 text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors"
+        >
+          Continue in portrait
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function Workout() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const { state, updateState } = useApp();
@@ -53,17 +82,17 @@ export default function Workout() {
   const [activeIdx, setActiveIdx] = useState(0);
   const [showPreview, setShowPreview] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isInfoOpen, setIsInfoOpen] = useState(false);
-  const [adjustOpen, setAdjustOpen] = useState(false);
   const [timerDone, setTimerDone] = useState(false);
   const [currentMode, setCurrentMode] = useState(session?.mode || "normal");
   const [currentExerciseIds, setCurrentExerciseIds] = useState(session?.exerciseIds || []);
   const [showClosing, setShowClosing] = useState(false);
-  const [closingRemaining, setClosingRemaining] = useState(180); // 3 minutes
+  const [closingRemaining, setClosingRemaining] = useState(180);
+  const [adjustOpen, setAdjustOpen] = useState(false);
+  const [showRotatePrompt, setShowRotatePrompt] = useState(false);
 
   const { speak, stop: stopTTS, isPlaying: isTTSPlaying, isLoading: isTTSLoading, isMuted, setMuted } = useTTS();
 
-  // End-of-practice state: null | "choice" | "checkin" | "summary"
+  // End-of-practice state
   const [endStep, setEndStep] = useState<null | "choice" | "checkin" | "summary">(null);
   const isEnded = endStep !== null;
 
@@ -76,6 +105,20 @@ export default function Workout() {
   const [helpedMost, setHelpedMost] = useState<HelpedMost>("breath");
   const [showMore, setShowMore] = useState(false);
 
+  // Collapsible state for below-video panel
+  const [instructionsOpen, setInstructionsOpen] = useState(false);
+  const [whyOpen, setWhyOpen] = useState(false);
+
+  // Show rotate prompt on portrait mobile (once per session)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const isMobile = window.innerWidth < 768;
+    const isPortrait = window.innerHeight > window.innerWidth;
+    if (isMobile && isPortrait) {
+      setShowRotatePrompt(true);
+    }
+  }, []);
+
   const exercises = currentExerciseIds
     .map((id) => state.exerciseLibrary.find((ex) => ex.id === id))
     .filter(Boolean) as typeof state.exerciseLibrary;
@@ -85,15 +128,15 @@ export default function Workout() {
 
   const [remaining, setRemaining] = useState(perExerciseMinutes * 60);
 
-  useEffect(() => { setRemaining(perExerciseMinutes * 60); setTimerDone(false); }, [activeIdx, perExerciseMinutes]);
+  useEffect(() => { setRemaining(perExerciseMinutes * 60); setTimerDone(false); setInstructionsOpen(false); setWhyOpen(false); }, [activeIdx, perExerciseMinutes]);
 
   useEffect(() => {
-    if (!isPlaying || isInfoOpen || remaining <= 0) return;
+    if (!isPlaying || remaining <= 0) return;
     const timer = setInterval(() => {
       setRemaining((r) => { if (r <= 1) { setTimerDone(true); return 0; } return r - 1; });
     }, 1000);
     return () => clearInterval(timer);
-  }, [isPlaying, isInfoOpen, remaining]);
+  }, [isPlaying, remaining]);
 
   // Closing step timer
   useEffect(() => {
@@ -104,14 +147,14 @@ export default function Workout() {
     return () => clearInterval(timer);
   }, [showClosing, closingRemaining]);
 
-  // Sync video play state (no activeIdx dep — same video for all exercises)
+  // Sync video play state
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
     if (isPlaying && !isEnded && !showPreview) { v.play().catch(() => {}); } else { v.pause(); }
   }, [isPlaying, isEnded, showPreview]);
 
-  // ── TTS: speak current exercise (single source of truth) ──
+  // TTS
   const speakExercise = useCallback((exercise: typeof state.exerciseLibrary[0]) => {
     const m = MASTER_LOOKUP[exercise.id];
     const instructions = m?.instructions || exercise.steps_he;
@@ -121,27 +164,18 @@ export default function Workout() {
 
   useEffect(() => {
     const ex = exercises[activeIdx];
-    if (isMuted || !ex || isEnded) {
-      stopTTS();
-      return;
-    }
+    if (isMuted || !ex || isEnded) { stopTTS(); return; }
     speakExercise(ex);
     return () => { stopTTS(); };
   }, [activeIdx, isMuted, isEnded]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Safety: stop audio on tab hidden ──
   useEffect(() => {
-    const handleVisibility = () => {
-      if (document.hidden) stopTTS();
-    };
+    const handleVisibility = () => { if (document.hidden) stopTTS(); };
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [stopTTS]);
 
-  // ── Safety: stop audio on unmount ──
-  useEffect(() => {
-    return () => { stopTTS(); };
-  }, [stopTTS]);
+  useEffect(() => { return () => { stopTTS(); }; }, [stopTTS]);
 
   const switchMode = useCallback((mode: "easier" | "flare") => {
     stopTTS();
@@ -198,7 +232,6 @@ export default function Workout() {
 
   const goNext = () => {
     if (isLastExercise) {
-      // Show closing step before finishing
       stopTTS();
       setShowClosing(true);
       setClosingRemaining(180);
@@ -211,15 +244,6 @@ export default function Workout() {
     setIsPlaying(true);
   };
 
-  const goPrev = () => {
-    if (activeIdx > 0) {
-      setActiveIdx(prev => prev - 1);
-      setIsPlaying(true);
-    }
-  };
-
-  const openInfo = () => { setIsInfoOpen(true); setIsPlaying(false); };
-  const closeInfo = () => { setIsInfoOpen(false); setIsPlaying(true); };
   const togglePlay = () => setIsPlaying(p => !p);
 
   const handleCheckinSave = async () => {
@@ -236,12 +260,9 @@ export default function Workout() {
 
     if (user) {
       await supabase.from("user_checkins").insert({
-        user_id: user.id,
-        source: "end_of_practice",
-        pain_before: painBefore,
-        pain_after: painAfter,
-        fatigue_before: fatigueBefore,
-        fatigue_after: fatigueAfter,
+        user_id: user.id, source: "end_of_practice",
+        pain_before: painBefore, pain_after: painAfter,
+        fatigue_before: fatigueBefore, fatigue_after: fatigueAfter,
       });
     }
 
@@ -263,6 +284,11 @@ export default function Workout() {
     );
   }
 
+  // Show rotate prompt
+  if (showRotatePrompt) {
+    return <RotatePrompt onDismiss={() => setShowRotatePrompt(false)} />;
+  }
+
   const displayMinutes = Math.floor(remaining / 60);
   const displaySeconds = remaining % 60;
   const activeExercise = exercises[activeIdx];
@@ -272,148 +298,126 @@ export default function Workout() {
   const exerciseCue = master?.breathing || master?.cue || "";
   const instructions = master?.instructions || activeExercise?.steps_he || [];
   const safetyNote = master?.safety || activeExercise?.safety_he || "";
+  const whyText = master?.why || "";
+  const equipmentList = activeExercise?.equipment?.filter(e => e.toLowerCase() !== "mat" && e.toLowerCase() !== "מזרן") || [];
+  const repsText = master?.reps || "";
+  const rangeText = master?.range || "";
 
   return (
     <>
-      {/* ===== FULLSCREEN PLAYER ===== */}
-      <div className="fixed inset-0 w-screen h-screen overflow-hidden bg-black z-50">
-        {/* Video background — constrained 16:9 on portrait mobile, full-bleed on landscape/desktop */}
-        <div className="absolute inset-x-0 top-0 lg:inset-0" style={{ aspectRatio: "16 / 9" }}>
-          <video
-            ref={videoRef}
-            src={universalVideo}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover object-center"
-          />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(160deg, rgba(26,26,46,0.15) 0%, rgba(22,33,62,0.1) 40%, rgba(15,52,96,0.08) 100%)" }} />
+      {/* ===== MAIN PLAYER LAYOUT ===== */}
+      <div className="fixed inset-0 bg-black z-50 flex flex-col">
+
+        {/* === VIDEO + OVERLAYS (top section) === */}
+        <div className="relative w-full flex-shrink-0 lg:flex lg:flex-1 lg:min-h-0">
+
+          {/* Video container — 16:9 on mobile, fills left 60% on desktop */}
+          <div className="relative w-full lg:w-[60%]" style={{ aspectRatio: "16 / 9" }}>
+            <video
+              ref={videoRef}
+              src={universalVideo}
+              autoPlay loop muted playsInline
+              className="absolute inset-0 w-full h-full object-cover object-center"
+            />
+
+            {/* Top overlay gradient + controls */}
+            {!isEnded && !showClosing && (
+              <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-3 py-2 md:px-5 md:py-3"
+                style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 100%)", height: 80 }}>
+                {/* Back button */}
+                <button onClick={exitWorkout} className="flex items-center gap-0.5 text-white text-sm hover:text-white/80 transition-colors" aria-label="Back to plan">
+                  <ChevronLeft size={18} />
+                  <span className="hidden sm:inline">Back</span>
+                </button>
+                {/* Progress dots */}
+                <div className="flex gap-1.5 items-center">
+                  {exercises.map((_, i) => (
+                    <div key={i} className={`h-2 rounded-full transition-all duration-300 ${
+                      i === activeIdx ? "w-6 bg-white" : i < activeIdx ? "w-2 bg-white/60" : "w-2 bg-white/25"
+                    }`}>
+                      {i < activeIdx && (
+                        <div className="w-full h-full rounded-full flex items-center justify-center">
+                          <CheckCircle2 size={8} className="text-white/60" />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {/* Timer + TTS */}
+                <div className="flex items-center gap-2">
+                  <div className={`rounded-full px-3 py-1 bg-white/20 backdrop-blur-md ${timerDone ? "animate-pulse ring-1 ring-white/40" : ""}`}>
+                    <span className="text-white font-mono text-sm">
+                      {String(displayMinutes).padStart(2, "0")}:{String(displaySeconds).padStart(2, "0")}
+                    </span>
+                  </div>
+                  <button onClick={() => setMuted(!isMuted)} disabled={isTTSLoading}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                    aria-label={isMuted ? "Unmute" : "Mute"}>
+                    {isTTSLoading ? <Loader2 size={16} className="animate-spin" /> : isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Bottom overlay gradient — exercise name + breathing */}
+            {!isEnded && !showClosing && (
+              <div className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-3"
+                style={{ background: "linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%)", height: 100 }}>
+                <div className="absolute bottom-0 left-0 right-0 px-4 pb-3">
+                  <p className="text-white font-semibold text-lg leading-tight">{exerciseTitle}</p>
+                  {exerciseCue && (
+                    <p className="text-white/80 text-sm mt-1" style={{ animation: "pulse 4s ease-in-out infinite" }}>
+                      {exerciseCue}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Desktop: right panel */}
+          <div className="hidden lg:flex lg:flex-col lg:w-[40%] lg:overflow-y-auto lg:bg-black/90 lg:border-l lg:border-white/10">
+            <BelowVideoPanel
+              goNext={goNext} isLastExercise={isLastExercise} safetyNote={safetyNote}
+              instructions={instructions} whyText={whyText} equipmentList={equipmentList}
+              repsText={repsText} rangeText={rangeText}
+              instructionsOpen={instructionsOpen} setInstructionsOpen={setInstructionsOpen}
+              whyOpen={whyOpen} setWhyOpen={setWhyOpen}
+            />
+          </div>
         </div>
 
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+        {/* === BELOW-VIDEO PANEL (mobile only — scrollable) === */}
+        <div className="flex-1 overflow-y-auto lg:hidden bg-black/95">
+          <BelowVideoPanel
+            goNext={goNext} isLastExercise={isLastExercise} safetyNote={safetyNote}
+            instructions={instructions} whyText={whyText} equipmentList={equipmentList}
+            repsText={repsText} rangeText={rangeText}
+            instructionsOpen={instructionsOpen} setInstructionsOpen={setInstructionsOpen}
+            whyOpen={whyOpen} setWhyOpen={setWhyOpen}
+          />
+        </div>
 
-        {/* ===== TOP OVERLAY (hidden when ended) ===== */}
+        {/* === FIXED BOTTOM BAR === */}
         {!isEnded && !showClosing && (
-          <div className="absolute top-0 left-0 right-0 z-20 p-4 md:p-6 flex items-center justify-between">
-            <span className="hidden lg:block">
-              <BrandLogo size="sm" variant="white" linkToHome={false} />
-            </span>
-            <img src="/brand/vinys-icon-white.png" alt="Vinys" className="lg:hidden w-7 h-7 object-contain" />
-            <div className="flex gap-1.5">
-              {exercises.map((_, i) => (
-                <div key={i} className={`h-2 rounded-full transition-all duration-300 ${
-                  i === activeIdx ? "w-8 bg-white" : i < activeIdx ? "w-2.5 bg-white/50" : "w-2.5 bg-white/25"
-                }`} />
-              ))}
-              {/* Closing step dot */}
-              <div className={`h-2 rounded-full transition-all duration-300 w-2.5 bg-white/25`} />
-            </div>
-            <div className="flex items-center gap-2">
-              <div className={`rounded-full px-4 py-2 bg-white/20 backdrop-blur-md ${timerDone ? "animate-pulse ring-2 ring-white/40" : ""}`}>
-                <span className="text-white font-mono font-medium text-sm">
-                  {String(displayMinutes).padStart(2, "0")}:{String(displaySeconds).padStart(2, "0")}
-                </span>
-              </div>
-              <button onClick={exitWorkout} className="w-10 h-10 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors" aria-label="Exit session">
-                <X size={20} />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ===== BOTTOM OVERLAY (hidden when ended or closing) ===== */}
-        {!isEnded && !showClosing && (
-          <div className="absolute bottom-0 left-0 right-0 z-20 p-4 md:p-6">
-        {/* Up next hint */}
-            {(() => {
-              const nextEx = exercises[activeIdx + 1];
-              const nextMaster = nextEx ? MASTER_LOOKUP[nextEx.id] : null;
-              const nextTitle = nextMaster?.title || nextEx?.name_he || "";
-              return (
-                <div className="text-center mb-3">
-                  <p className="text-white/40 text-xs font-medium">
-                    {isLastExercise ? "Final exercise" : `Up next: ${nextTitle}`}
-                  </p>
-                </div>
-              );
-            })()}
-
-            {/* Mobile: vertical stack (title above buttons) */}
-            <div className="flex flex-col lg:hidden gap-4">
-              <div className="text-center min-w-0">
-                <p className="text-white font-semibold text-lg truncate">{exerciseTitle}</p>
-                {exerciseCue && <p className="text-white/70 text-sm mt-0.5 truncate">{exerciseCue}</p>}
-                {instructions.length > 0 && (
-                  <p className="text-white/50 text-xs mt-1 truncate">{instructions[0]}{activeExercise?.equipment?.length ? ` · ${activeExercise.equipment.join(", ")}` : " · No equipment needed"}</p>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                {activeIdx > 0 && (
-                  <button onClick={goPrev} aria-label="Previous exercise"
-                    className="h-14 px-3 rounded-full bg-white/[0.10] backdrop-blur-md text-white/60 hover:text-white hover:bg-white/[0.18] transition-colors text-sm">
-                    ←
-                  </button>
-                )}
-                <div className="flex items-center gap-1.5 rounded-full bg-white/[0.18] backdrop-blur-md px-3 h-14">
-                  <button onClick={togglePlay} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors" aria-label={isPlaying ? "Pause" : "Play"}>
-                    {isPlaying ? <Pause size={18} /> : <Play size={18} />}
-                  </button>
-                  <button onClick={() => setMuted(!isMuted)} disabled={isTTSLoading} aria-label={isMuted ? "Sound off" : "Sound on"}
-                    className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors">
-                    {isTTSLoading ? <Loader2 size={18} className="animate-spin" /> : !isMuted ? <Volume2 size={18} /> : <VolumeX size={18} className="opacity-70" />}
-                  </button>
-                  <button onClick={() => setAdjustOpen(true)} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors" aria-label="Adjust session">
-                    <Settings2 size={18} />
-                  </button>
-                  <button onClick={openInfo} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors" aria-label="Exercise instructions">
-                    <Info size={18} />
-                  </button>
-                </div>
-                <button onClick={goNext}
-                  className="flex-1 h-14 rounded-full bg-white/[0.18] backdrop-blur-md text-white font-medium hover:bg-white/[0.25] transition-colors whitespace-nowrap text-sm">
-                  {isLastExercise ? "Complete ✓" : "Next exercise →"}
-                </button>
-              </div>
-            </div>
-            {/* Desktop: horizontal layout */}
-            <div className="hidden lg:flex items-end justify-between gap-4">
-              <div className="flex items-center gap-2">
-                {activeIdx > 0 && (
-                  <button onClick={goPrev} aria-label="Previous exercise"
-                    className="rounded-full px-4 py-3 bg-white/[0.10] backdrop-blur-md text-white/60 font-medium hover:text-white hover:bg-white/[0.18] transition-colors text-sm">
-                    ← Prev
-                  </button>
-                )}
-                <div className="flex items-center gap-1.5 rounded-full bg-white/[0.18] backdrop-blur-md px-3 py-2">
-                  <button onClick={togglePlay} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors" aria-label={isPlaying ? "Pause" : "Play"}>
-                    {isPlaying ? <Pause size={18} /> : <Play size={18} />}
-                  </button>
-                  <button onClick={() => setMuted(!isMuted)} disabled={isTTSLoading} aria-label={isMuted ? "Sound off" : "Sound on"}
-                    className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors">
-                    {isTTSLoading ? <Loader2 size={18} className="animate-spin" /> : !isMuted ? <Volume2 size={18} /> : <VolumeX size={18} className="opacity-70" />}
-                  </button>
-                  <button onClick={() => setAdjustOpen(true)} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors" aria-label="Adjust session">
-                    <Settings2 size={18} />
-                  </button>
-                  <button onClick={openInfo} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/15 text-white transition-colors" aria-label="Exercise instructions">
-                    <Info size={18} />
-                  </button>
-                </div>
-              </div>
-              <div className="flex-1 text-center min-w-0 max-w-md mx-auto">
-                <p className="text-white font-semibold text-xl truncate">{exerciseTitle}</p>
-                {exerciseCue && <p className="text-white/70 text-sm mt-0.5 truncate">{exerciseCue}</p>}
-                {instructions.length > 0 && (
-                  <p className="text-white/50 text-xs mt-1 truncate">{instructions[0]}{activeExercise?.equipment?.length ? ` · ${activeExercise.equipment.join(", ")}` : " · No equipment needed"}</p>
-                )}
-              </div>
-              <button onClick={goNext}
-                className="rounded-full px-6 py-3 bg-white/[0.18] backdrop-blur-md text-white font-medium hover:bg-white/[0.25] transition-colors whitespace-nowrap text-base">
-                {isLastExercise ? "Complete ✓" : "Next exercise →"}
-              </button>
-            </div>
+          <div className="flex-shrink-0 z-30 border-t border-white/10 bg-black/90 backdrop-blur-md px-4 py-3 flex items-center justify-center gap-2">
+            <button onClick={() => switchMode("easier")}
+              className={`rounded-full px-4 py-2 text-xs font-medium transition-colors ${currentMode === "easier" ? "bg-white/25 text-white" : "bg-white/10 text-white/60 hover:bg-white/15 hover:text-white"}`}>
+              Easier
+            </button>
+            <button onClick={() => switchMode("flare")}
+              className={`rounded-full px-4 py-2 text-xs font-medium transition-colors ${currentMode === "flare" ? "bg-white/25 text-white" : "bg-white/10 text-white/60 hover:bg-white/15 hover:text-white"}`}>
+              Flare mode
+            </button>
+            <button onClick={togglePlay}
+              className="rounded-full px-4 py-2 text-xs font-medium bg-white/10 text-white/60 hover:bg-white/15 hover:text-white transition-colors flex items-center gap-1.5">
+              {isPlaying ? <Pause size={14} /> : <Play size={14} />}
+              {isPlaying ? "Pause" : "Resume"}
+            </button>
+            <button onClick={() => setAdjustOpen(true)}
+              className="rounded-full px-4 py-2 text-xs font-medium bg-white/10 text-white/60 hover:bg-white/15 hover:text-white transition-colors">
+              Finish
+            </button>
           </div>
         )}
       </div>
@@ -424,33 +428,23 @@ export default function Workout() {
           <div className="absolute inset-0 backdrop-blur-xl bg-black/60" />
           <div className="absolute inset-0 flex items-center justify-center p-6">
             <div className="text-center max-w-md w-full">
-              {/* Progress dots with closing active */}
               <div className="flex gap-1.5 justify-center mb-8">
                 {exercises.map((_, i) => (
                   <div key={i} className="h-2 w-2.5 rounded-full bg-white/50" />
                 ))}
                 <div className="h-2 w-8 rounded-full bg-white" />
               </div>
-
               <p className="text-white/50 text-sm font-medium uppercase tracking-wider mb-2">Session Closing</p>
-              <h1 className="text-white text-3xl md:text-4xl font-semibold mb-3">
-                {CLOSING_NAMES[closingPref]}
-              </h1>
-              <p className="text-white/60 text-sm max-w-sm mx-auto mb-8 leading-relaxed">
-                {CLOSING_INSTRUCTIONS[closingPref]}
-              </p>
-
+              <h1 className="text-white text-3xl md:text-4xl font-semibold mb-3">{CLOSING_NAMES[closingPref]}</h1>
+              <p className="text-white/60 text-sm max-w-sm mx-auto mb-8 leading-relaxed">{CLOSING_INSTRUCTIONS[closingPref]}</p>
               <div className={`inline-flex rounded-full px-6 py-3 bg-white/20 backdrop-blur-md mb-8 ${closingRemaining === 0 ? "animate-pulse ring-2 ring-white/40" : ""}`}>
                 <span className="text-white font-mono font-semibold text-2xl">
                   {String(Math.floor(closingRemaining / 60)).padStart(2, "0")}:{String(closingRemaining % 60).padStart(2, "0")}
                 </span>
               </div>
-
               <div className="space-y-3">
-                <button
-                  onClick={() => { stopTTS(); setShowClosing(false); finishWorkout(); }}
-                  className="w-full max-w-xs mx-auto rounded-full py-3.5 px-6 bg-white text-black font-medium hover:bg-white/90 transition-colors text-base block"
-                >
+                <button onClick={() => { stopTTS(); setShowClosing(false); finishWorkout(); }}
+                  className="w-full max-w-xs mx-auto rounded-full py-3.5 px-6 bg-white text-black font-medium hover:bg-white/90 transition-colors text-base block">
                   Complete ✓
                 </button>
               </div>
@@ -469,9 +463,7 @@ export default function Workout() {
               <h1 className="text-white text-3xl md:text-4xl font-semibold mb-2">
                 Practice {session ? String((plan?.sessions.indexOf(session) ?? 0) + 1).padStart(2, "0") : "01"}
               </h1>
-              <p className="text-white/60 text-sm mb-6">
-                {exercises.length} exercises · {session?.durationMinutes || 20} min
-              </p>
+              <p className="text-white/60 text-sm mb-6">{exercises.length} exercises · {session?.durationMinutes || 20} min</p>
               <div className="rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md p-4 mb-8 max-h-[40vh] overflow-y-auto text-left">
                 {exercises.map((ex, i) => {
                   const m = MASTER_LOOKUP[ex.id];
@@ -483,10 +475,8 @@ export default function Workout() {
                   );
                 })}
               </div>
-              <button
-                onClick={() => { setShowPreview(false); setIsPlaying(true); }}
-                className="w-full max-w-xs rounded-full py-3.5 px-6 bg-white text-black font-medium hover:bg-white/90 transition-colors text-base"
-              >
+              <button onClick={() => { setShowPreview(false); setIsPlaying(true); }}
+                className="w-full max-w-xs rounded-full py-3.5 px-6 bg-white text-black font-medium hover:bg-white/90 transition-colors text-base">
                 Begin practice →
               </button>
             </div>
@@ -500,25 +490,11 @@ export default function Workout() {
           <div className="absolute inset-0 backdrop-blur-xl bg-black/25" />
           <div className="absolute inset-0 flex items-center justify-center p-6">
             <div className="text-center max-w-md w-full">
-              <h1 className="text-white text-4xl md:text-5xl font-semibold leading-tight">
-                Practice<br />complete!
-              </h1>
-              <p className="text-white/70 text-sm mt-4">
-                Tell us how you felt — it helps us adapt your next practice session.
-              </p>
+              <h1 className="text-white text-4xl md:text-5xl font-semibold leading-tight">Practice<br />complete!</h1>
+              <p className="text-white/70 text-sm mt-4">Tell us how you felt — it helps us adapt your next practice session.</p>
               <div className="mt-8 space-y-3">
-                <button
-                  onClick={() => setEndStep("checkin")}
-                  className="w-full rounded-full py-3.5 px-6 bg-white text-black font-medium hover:bg-white/90 transition-colors text-base"
-                >
-                  Quick check-in
-                </button>
-                <button
-                  onClick={() => setEndStep("summary")}
-                  className="w-full rounded-full py-3.5 px-6 bg-white/20 text-white font-medium border border-white/20 backdrop-blur-md hover:bg-white/25 transition-colors text-base"
-                >
-                  Finish practice
-                </button>
+                <button onClick={() => setEndStep("checkin")} className="w-full rounded-full py-3.5 px-6 bg-white text-black font-medium hover:bg-white/90 transition-colors text-base">Quick check-in</button>
+                <button onClick={() => setEndStep("summary")} className="w-full rounded-full py-3.5 px-6 bg-white/20 text-white font-medium border border-white/20 backdrop-blur-md hover:bg-white/25 transition-colors text-base">Finish practice</button>
               </div>
             </div>
           </div>
@@ -548,10 +524,7 @@ export default function Workout() {
                   <SliderField label="Fatigue after" value={fatigueAfter} onChange={setFatigueAfter} minLabel="None" maxLabel="Severe" />
                 </div>
                 {!showMore && (
-                  <button onClick={() => setShowMore(true)}
-                    className="mt-4 text-sm text-white/60 hover:text-white/80 underline underline-offset-2 transition-colors">
-                    More options
-                  </button>
+                  <button onClick={() => setShowMore(true)} className="mt-4 text-sm text-white/60 hover:text-white/80 underline underline-offset-2 transition-colors">More options</button>
                 )}
                 {showMore && (
                   <div className="mt-4 space-y-4">
@@ -568,9 +541,7 @@ export default function Workout() {
                         {HELPED_OPTIONS.map((opt) => (
                           <button key={opt} onClick={() => setHelpedMost(opt)}
                             className={`flex-1 text-xs py-2 rounded-full border font-medium transition-all ${
-                              helpedMost === opt
-                                ? "border-white bg-white/20 text-white"
-                                : "border-white/20 bg-white/5 text-white/60 hover:border-white/40"
+                              helpedMost === opt ? "border-white bg-white/20 text-white" : "border-white/20 bg-white/5 text-white/60 hover:border-white/40"
                             }`}>
                             {HELPED_MOST_LABELS[opt]}
                           </button>
@@ -581,10 +552,7 @@ export default function Workout() {
                 )}
               </div>
               <div className="px-6 py-4 border-t border-white/10">
-                <button onClick={handleCheckinSave}
-                  className="w-full rounded-full py-3 bg-white text-black font-medium hover:bg-white/90 transition-colors">
-                  Save & continue
-                </button>
+                <button onClick={handleCheckinSave} className="w-full rounded-full py-3 bg-white text-black font-medium hover:bg-white/90 transition-colors">Save & continue</button>
               </div>
             </div>
           </div>
@@ -600,85 +568,37 @@ export default function Workout() {
               <div className="mx-auto w-16 h-16 rounded-full border border-white/30 bg-white/5 backdrop-blur-sm flex items-center justify-center mb-8">
                 <CheckCircle2 size={28} className="text-white opacity-90" />
               </div>
-              <h1 className="text-white text-3xl md:text-4xl font-semibold leading-tight">
-                Practice complete.
-              </h1>
-              <p className="text-white/60 text-sm mt-3 max-w-sm mx-auto">
-                Consistency builds change. Your next session will continue from here.
-              </p>
+              <h1 className="text-white text-3xl md:text-4xl font-semibold leading-tight">Practice complete.</h1>
+              <p className="text-white/60 text-sm mt-3 max-w-sm mx-auto">Consistency builds change. Your next session will continue from here.</p>
               <div className="mt-8 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md overflow-hidden">
                 <div className="grid grid-cols-3 divide-x divide-white/10">
                   <div className="py-5 px-3">
-                    <p className="text-white text-2xl font-bold">
-                      {plan ? plan.sessions.filter(s => s.status === "done").length : "–"}
-                    </p>
+                    <p className="text-white text-2xl font-bold">{plan ? plan.sessions.filter(s => s.status === "done").length : "–"}</p>
                     <p className="text-white/50 text-xs mt-1">Session</p>
                   </div>
                   <div className="py-5 px-3">
-                    <p className="text-white text-2xl font-bold">
-                      {session?.durationMinutes || "–"}
-                    </p>
+                    <p className="text-white text-2xl font-bold">{session?.durationMinutes || "–"}</p>
                     <p className="text-white/50 text-xs mt-1">Duration (min)</p>
                   </div>
                   <div className="py-5 px-3">
-                    <p className="text-white text-2xl font-bold">
-                      {state.checkins.length}
-                    </p>
+                    <p className="text-white text-2xl font-bold">{state.checkins.length}</p>
                     <p className="text-white/50 text-xs mt-1">Total check-ins</p>
                   </div>
                 </div>
               </div>
               <div className="mt-8 space-y-3">
-                <button
-                  onClick={exitWorkout}
-                  className="w-full rounded-full py-3.5 px-6 bg-white text-black font-medium hover:bg-white/90 transition-colors text-base"
-                >
-                  Return to my plan →
-                </button>
-                <button
-                  onClick={async () => {
-                    const shareText = `I just completed a Vinys adaptive yoga session. ${session?.durationMinutes || 20} min · ${state.profile.conditions?.map(c => c.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())).join(", ") || "Therapeutic"} program · vinys.app`;
-                    const shareData = { title: "I just completed a Vinys session", text: shareText, url: "https://vinys.app" };
-                    try {
-                      if (navigator.share) { await navigator.share(shareData); }
-                      else { await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`); toast({ title: "Copied!", description: "Link copied to clipboard" }); }
-                    } catch { /* user cancelled */ }
-                  }}
-                  className="text-white/40 text-sm hover:text-white/60 transition-colors flex items-center gap-1.5 mx-auto"
-                >
+                <button onClick={exitWorkout} className="w-full rounded-full py-3.5 px-6 bg-white text-black font-medium hover:bg-white/90 transition-colors text-base">Return to my plan →</button>
+                <button onClick={async () => {
+                  const shareText = `I just completed a Vinys adaptive yoga session. ${session?.durationMinutes || 20} min · ${state.profile.conditions?.map(c => c.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())).join(", ") || "Therapeutic"} program · vinys.app`;
+                  const shareData = { title: "I just completed a Vinys session", text: shareText, url: "https://vinys.app" };
+                  try {
+                    if (navigator.share) { await navigator.share(shareData); }
+                    else { await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`); toast({ title: "Copied!", description: "Link copied to clipboard" }); }
+                  } catch { /* user cancelled */ }
+                }} className="text-white/40 text-sm hover:text-white/60 transition-colors flex items-center gap-1.5 mx-auto">
                   Share your progress →
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ===== INFO OVERLAY ===== */}
-      {isInfoOpen && (
-        <div className="fixed inset-0 z-[60] bg-black/55 flex items-start justify-center overflow-auto" onClick={closeInfo}>
-          <div className="max-w-2xl w-[min(92vw,720px)] mx-auto mt-[10vh] mb-10 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/15 p-6 text-white"
-            onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-bold">Instructions</h3>
-              <button onClick={closeInfo} className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/15 transition-colors">
-                <X size={18} />
-              </button>
-            </div>
-            <div className="max-h-[65vh] overflow-auto space-y-4 pr-1">
-              <ol className="space-y-4">
-                {instructions.map((step, i) => (
-                  <li key={i} className="flex gap-3">
-                    <span className="flex-shrink-0 w-7 h-7 rounded-full bg-white/15 flex items-center justify-center text-sm font-bold">{i + 1}</span>
-                    <span className="text-white/90 text-base leading-relaxed">{step}</span>
-                  </li>
-                ))}
-              </ol>
-              {safetyNote && (
-                <div className="mt-4 border-l-2 border-white/20 pl-3 py-2">
-                  <p className="text-white/50 text-sm">{safetyNote}</p>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -715,5 +635,82 @@ export default function Workout() {
         </div>
       )}
     </>
+  );
+}
+
+/* ─── Below-Video Panel (shared mobile + desktop) ─── */
+function BelowVideoPanel({
+  goNext, isLastExercise, safetyNote, instructions, whyText, equipmentList,
+  repsText, rangeText, instructionsOpen, setInstructionsOpen, whyOpen, setWhyOpen,
+}: {
+  goNext: () => void; isLastExercise: boolean; safetyNote: string;
+  instructions: string[]; whyText: string; equipmentList: string[];
+  repsText: string; rangeText: string;
+  instructionsOpen: boolean; setInstructionsOpen: (v: boolean) => void;
+  whyOpen: boolean; setWhyOpen: (v: boolean) => void;
+}) {
+  return (
+    <div className="px-4 pt-4 pb-24 lg:pb-4 space-y-3">
+      {/* Next / Finish button */}
+      <button onClick={goNext}
+        className="w-full rounded-full py-3.5 bg-white text-black font-medium hover:bg-white/90 transition-colors text-base">
+        {isLastExercise ? "Finish session →" : "Next exercise →"}
+      </button>
+
+      {/* Safety note */}
+      {safetyNote && (
+        <div className="border-l-2 border-amber-400 bg-amber-950/30 px-3 py-2 rounded-r-lg">
+          <p className="text-xs text-amber-200/90">{safetyNote}</p>
+        </div>
+      )}
+
+      {/* Instructions collapsible */}
+      {instructions.length > 0 && (
+        <Collapsible open={instructionsOpen} onOpenChange={setInstructionsOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full py-3 text-white/80 hover:text-white transition-colors text-sm font-medium">
+            <span>Instructions</span>
+            <ChevronDown size={16} className={`transition-transform duration-200 ${instructionsOpen ? "rotate-180" : ""}`} />
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <ol className="space-y-2.5 pb-2">
+              {instructions.map((step, i) => (
+                <li key={i} className="flex gap-2.5">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/60">{i + 1}</span>
+                  <span className="text-white/70 text-sm leading-relaxed">{step}</span>
+                </li>
+              ))}
+              {(repsText || rangeText) && (
+                <li className="flex gap-2 flex-wrap mt-2">
+                  {repsText && <span className="text-xs bg-white/10 text-white/60 rounded-full px-3 py-1">{repsText}</span>}
+                  {rangeText && <span className="text-xs bg-white/10 text-white/60 rounded-full px-3 py-1">{rangeText}</span>}
+                </li>
+              )}
+            </ol>
+          </CollapsibleContent>
+        </Collapsible>
+      )}
+
+      {/* Why this exercise collapsible */}
+      {whyText && (
+        <Collapsible open={whyOpen} onOpenChange={setWhyOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full py-3 text-white/80 hover:text-white transition-colors text-sm font-medium border-t border-white/10">
+            <span>Why this exercise</span>
+            <ChevronDown size={16} className={`transition-transform duration-200 ${whyOpen ? "rotate-180" : ""}`} />
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <p className="text-white/60 text-sm leading-relaxed pb-2">{whyText}</p>
+          </CollapsibleContent>
+        </Collapsible>
+      )}
+
+      {/* Equipment chips */}
+      {equipmentList.length > 0 && (
+        <div className="flex gap-2 flex-wrap pt-1">
+          {equipmentList.map((item) => (
+            <span key={item} className="text-xs bg-white/10 text-white/60 rounded-full px-3 py-1.5">{item}</span>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
