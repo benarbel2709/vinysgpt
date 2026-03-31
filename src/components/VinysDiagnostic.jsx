@@ -18,16 +18,7 @@ const AREA_CONFIG = {
   SHLDR: { label: "Shoulder",     icon: "⟂", color: "#7B4A4A", crossoverTo: "NECK"},
 };
 
-const AREA_DESC = {
-  LB: "Pain, stiffness, sciatica or disc symptoms",
-  HIP: "Hip joint, groin, outer hip or mobility",
-  KNEE: "Kneecap, instability, inner or outer knee",
-  ANKLE: "Achilles, plantar fascia or ankle instability",
-  NECK: "Neck tension, stiffness, or nerve symptoms",
-  UBACK: "Upper and mid-back pain, stiffness, or posture",
-  WRIST: "Wrist, hand, or forearm pain and mobility",
-  SHLDR: "Shoulder pain, restriction, or instability",
-};
+// AREA_DESC moved into area_select phase as AREA_DESCRIPTORS
 
 // --- PROFILE DEFINITIONS (plain English names + descriptions) -----------------
 const PROFILE_DISPLAY = {
@@ -403,6 +394,244 @@ function calculateScores(sessionAnswers, postures) {
 function resolveProfile(area, rawScores, sessionAnswers, irritabilityLevel) {
   const s = { ...emptyScores(area), ...rawScores };
   if (area === "LB" && irritabilityLevel >= 3) s.LI = (s.LI || 0) + 1;
+
+  // --- Decision tree for NECK ---
+  if (area === "NECK") {
+    let dizziness_flag = false;
+    // Check dizziness in any posture
+    const allPostures = getPosturesForArea("NECK");
+    for (const p of allPostures) {
+      for (const q of p.qs) {
+        const ans = sessionAnswers[q.id];
+        if (!ans) continue;
+        const opt = q.opts.find(o => o.t === ans);
+        if (opt && opt.dizziness) dizziness_flag = true;
+      }
+    }
+
+    // NE check
+    const neSignals = Object.values(s).length; // count from scores
+    if (s.NE >= 4) return _finalize(s, "NE", area, sessionAnswers);
+
+    // FL: neck_p3, neck_p8, neck_p10
+    const flSigs = [
+      sessionAnswers["neck_p3q1"] === "Pain at the back of the neck",
+      sessionAnswers["neck_p8q1"] === "Pain at the back of the neck" || sessionAnswers["neck_p8q1"] === "Neck pain worsened in this position",
+      sessionAnswers["neck_p10q1"] === "Pain at the back of the neck",
+    ].filter(Boolean).length;
+    if (flSigs >= 2) return _finalize(s, "FL", area, sessionAnswers, dizziness_flag);
+
+    // EX
+    const exSigs = [
+      sessionAnswers["neck_p4q1"] === "Pain at the back of the neck or base of skull" || sessionAnswers["neck_p4q1"] === "Pulling sensation into the shoulder or arm",
+      sessionAnswers["neck_p7q1"] === "Pain or pressure at the back of the neck",
+      sessionAnswers["neck_p9q1"] === "Pain or pressure at the back of the neck" || sessionAnswers["neck_p9q1"] === "Strong discomfort or dizziness — had to come out",
+    ].filter(Boolean).length;
+    if (exSigs >= 2) return _finalize(s, "EX", area, sessionAnswers, dizziness_flag);
+
+    // LA
+    const laSigs = [
+      sessionAnswers["neck_p1q1"] === "One side is more restricted than the other" || sessionAnswers["neck_p1q1"] === "One side causes pain or discomfort",
+      sessionAnswers["neck_p5q1"] === "Restricted on one side — couldn't reach fully" || sessionAnswers["neck_p5q1"] === "Pain or discomfort on one side",
+      sessionAnswers["neck_p6q1"] === "Restricted on one side — couldn't rotate fully" || sessionAnswers["neck_p6q1"] === "Pain or discomfort on one side",
+    ].filter(Boolean).length;
+    if (laSigs >= 2) return _finalize(s, "LA", area, sessionAnswers, dizziness_flag);
+
+    // ST
+    const stSigs = [
+      sessionAnswers["neck_p7q1"] === "Neck fatigue or effort to hold head up",
+      sessionAnswers["neck_p9q1"] === "Neck weakness — difficulty sustaining position",
+      sessionAnswers["neck_p10q1"] === "Neck weakness — hard to sustain position",
+      sessionAnswers["neck_p2q1"] === "Movement felt difficult to control",
+    ].filter(Boolean).length;
+    if (stSigs >= 2) return _finalize(s, "ST", area, sessionAnswers, dizziness_flag);
+
+    // MO — no sharp pain
+    const hasSharpPain = s.FL >= 2 || s.EX >= 2 || s.NE >= 2;
+    const moSigs = [
+      sessionAnswers["neck_p1q1"] === "Slightly restricted but no pain" || sessionAnswers["neck_p1q1"] === "Both sides cause pain or discomfort",
+      sessionAnswers["neck_p5q1"] === "Restricted and tight on both sides",
+      sessionAnswers["neck_p6q1"] === "Restricted on one side — couldn't rotate fully" || sessionAnswers["neck_p6q1"] === "Pain at the back of the neck on both sides",
+      sessionAnswers["neck_p3q1"] === "Tightness at the back of the neck",
+    ].filter(Boolean).length;
+    if (moSigs >= 2 && !hasSharpPain) return _finalize(s, "MO", area, sessionAnswers, dizziness_flag);
+
+    // Fallback
+    const fallbackProfile = s.ST >= s.MO ? (s.ST > s.MO ? "ST" : "MO") : "MO";
+    return _finalize(s, fallbackProfile, area, sessionAnswers, dizziness_flag);
+  }
+
+  // --- Decision tree for UBACK ---
+  if (area === "UBACK") {
+    if (s.NE >= 4) return _finalize(s, "NE", area, sessionAnswers);
+
+    const exSigs = [
+      sessionAnswers["ub_p1q1"] === "Easier to round (cat) than to arch (cow)" || sessionAnswers["ub_p1q1"] === "Movement was painful in one direction",
+      sessionAnswers["ub_p3q1"] === "Tight — chest resisted opening" || sessionAnswers["ub_p3q1"] === "Pain or pressure in the upper/mid back" || sessionAnswers["ub_p3q1"] === "Strong discomfort — had to come out",
+      sessionAnswers["ub_p5q1"] === "Tight — difficult to lower chest" || sessionAnswers["ub_p5q1"] === "Pain in mid/upper back",
+      sessionAnswers["ub_p7q1"] === "Pain or pressure in the mid/upper back",
+    ].filter(Boolean).length;
+    if (exSigs >= 2) return _finalize(s, "EX", area, sessionAnswers);
+
+    const roSigs = [
+      sessionAnswers["ub_p2q1"] === "One side more restricted than the other" || sessionAnswers["ub_p2q1"] === "One side caused pain or discomfort",
+      sessionAnswers["ub_p4q1"] === "One side more restricted than the other" || sessionAnswers["ub_p4q1"] === "One side caused pain in upper/mid back",
+      sessionAnswers["ub_p6q1"] === "One side significantly more restricted" || sessionAnswers["ub_p6q1"] === "Pain in upper back on one side",
+      sessionAnswers["ub_p9q1"] === "One shoulder significantly higher or tighter",
+    ].filter(Boolean).length;
+    if (roSigs >= 2) return _finalize(s, "RO", area, sessionAnswers);
+
+    const coSigs = [
+      sessionAnswers["ub_p1q1"] === "Movement was painful in one direction",
+      sessionAnswers["ub_p6q1"] === "Pain in upper back on both sides",
+      sessionAnswers["ub_p8q1"] === "Pain in upper/mid back",
+      sessionAnswers["ub_p9q1"] === "Pain or pressure between shoulder blades",
+    ].filter(Boolean).length;
+    if (coSigs >= 2) return _finalize(s, "CO", area, sessionAnswers);
+
+    const stSigs = [
+      sessionAnswers["ub_p7q1"] === "Muscle effort — managed to lift" || sessionAnswers["ub_p7q1"] === "Fatigued quickly — couldn't hold position",
+      sessionAnswers["ub_p9q1"] === "Weakness or fatigue holding the position",
+    ].filter(Boolean).length;
+    if (stSigs >= 2) return _finalize(s, "ST", area, sessionAnswers);
+
+    const hasSharpPain = s.EX >= 2 || s.NE >= 2 || s.CO >= 2;
+    const moSigs = [
+      sessionAnswers["ub_p1q1"] === "Both directions feel stiff or restricted",
+      sessionAnswers["ub_p4q1"] === "Both sides restricted equally",
+      sessionAnswers["ub_p3q1"] === "Tight — chest resisted opening",
+      sessionAnswers["ub_p6q1"] === "One side significantly more restricted",
+    ].filter(Boolean).length;
+    if (moSigs >= 2 && !hasSharpPain) return _finalize(s, "MO", area, sessionAnswers);
+
+    const fb = s.ST >= s.MO ? (s.ST > s.MO ? "ST" : "MO") : "MO";
+    return _finalize(s, fb, area, sessionAnswers);
+  }
+
+  // --- Decision tree for WRIST ---
+  if (area === "WRIST") {
+    // NN neural check
+    const nnSigs = [
+      sessionAnswers["wr_p2q1"]?.includes("Tingling") || sessionAnswers["wr_p2q1"]?.includes("numbness"),
+      sessionAnswers["wr_p5q1"]?.includes("Tingling") || sessionAnswers["wr_p5q1"]?.includes("numbness"),
+      sessionAnswers["wr_p6q1"]?.includes("Tingling") || sessionAnswers["wr_p6q1"]?.includes("numbness"),
+      sessionAnswers["wr_p8q1"]?.includes("Tingling") || sessionAnswers["wr_p8q1"]?.includes("numbness") || sessionAnswers["wr_p8q1"]?.includes("symptoms persist"),
+      sessionAnswers["wr_p9q1"]?.includes("Tingling") || sessionAnswers["wr_p9q1"]?.includes("numbness"),
+    ].filter(Boolean).length;
+    if (nnSigs >= 2) return _finalize(s, "NN", area, sessionAnswers);
+
+    const exSigs = [
+      sessionAnswers["wr_p2q1"] === "Pain at the back of the wrist",
+      sessionAnswers["wr_p3q1"] === "Pain at the back of the wrist",
+      sessionAnswers["wr_p4q1"] === "Mild discomfort — manageable" || sessionAnswers["wr_p4q1"] === "Pain at the back of the wrist" || sessionAnswers["wr_p4q1"] === "Sharp pain — had to come out of position",
+      sessionAnswers["wr_p7q1"] === "More comfortable on fists — wrists feel relieved",
+    ].filter(Boolean).length;
+    if (exSigs >= 2) return _finalize(s, "EX", area, sessionAnswers);
+
+    const flSigs = [
+      sessionAnswers["wr_p5q1"] === "Pain at the front of the wrist (palm side)" || sessionAnswers["wr_p5q1"] === "Could not fully flex — limited range",
+      sessionAnswers["wr_p7q1"] === "Still painful even on fists",
+    ].filter(Boolean).length;
+    if (flSigs >= 2) return _finalize(s, "FL", area, sessionAnswers);
+
+    const laSigs = [
+      sessionAnswers["wr_p1q1"] === "Clicking or catching on one side" || sessionAnswers["wr_p1q1"] === "Pain on the outer side of the wrist (thumb or pinky side)" || sessionAnswers["wr_p1q1"] === "Pain at the end of the circular range",
+      sessionAnswers["wr_p6q1"] === "Pain on the thumb side of the wrist" || sessionAnswers["wr_p6q1"] === "Pain on the pinky side of the wrist",
+    ].filter(Boolean).length;
+    if (laSigs >= 2) return _finalize(s, "LA", area, sessionAnswers);
+
+    const stSigs = [
+      sessionAnswers["wr_p3q1"] === "Wrist instability or wobbling" || sessionAnswers["wr_p3q1"] === "Could not hold — wrist weakness or pain",
+      sessionAnswers["wr_p4q1"] === "Wrist instability or shaking",
+      sessionAnswers["wr_p7q1"] === "Instability or weakness even on fists" || sessionAnswers["wr_p7q1"] === "Could not maintain the position",
+    ].filter(Boolean).length;
+    if (stSigs >= 2) return _finalize(s, "ST", area, sessionAnswers);
+
+    const hasSharpPain = s.EX >= 2 || s.NN >= 2 || s.FL >= 2;
+    const moSigs = [
+      sessionAnswers["wr_p1q1"] === "One wrist slightly more restricted" || sessionAnswers["wr_p1q1"] === "Both wrists restricted",
+      sessionAnswers["wr_p2q1"] === "Mild tightness — manageable" || sessionAnswers["wr_p2q1"] === "Could not fully flatten palms — limited extension",
+      sessionAnswers["wr_p5q1"] === "Mild tightness at the front of the wrist" || sessionAnswers["wr_p5q1"] === "Could not fully flex — limited range",
+    ].filter(Boolean).length;
+    if (moSigs >= 2 && !hasSharpPain) return _finalize(s, "MO", area, sessionAnswers);
+
+    // Fallback: 3+ profiles → ST (conservative)
+    const highProfiles = Object.values(s).filter(v => v >= 3).length;
+    if (highProfiles >= 3) return _finalize(s, "ST", area, sessionAnswers);
+    const fb = s.ST >= s.MO ? (s.ST > s.MO ? "ST" : "MO") : "MO";
+    return _finalize(s, fb, area, sessionAnswers);
+  }
+
+  // --- Decision tree for SHLDR ---
+  if (area === "SHLDR") {
+    let frozen_flag = false;
+
+    // FR — threshold: 3+ signals
+    const frSigs = [
+      sessionAnswers["sh_p1q1"] === "Both arms restricted — couldn't reach fully",
+      sessionAnswers["sh_p2q1"] === "Significantly restricted — couldn't complete",
+      sessionAnswers["sh_p5q1"]?.includes("Could not reach behind the head"),
+      sessionAnswers["sh_p5q2"]?.includes("Could not reach behind the back"),
+      sessionAnswers["sh_p6q1"]?.includes("Could not achieve"),
+    ].filter(Boolean).length;
+    if (frSigs >= 1) frozen_flag = true;
+    if (frSigs >= 3) return _finalize(s, "FR", area, sessionAnswers, false, frozen_flag);
+
+    // IM
+    const imSigs = [
+      sessionAnswers["sh_p1q1"] === "Pain in front of shoulder during the lift" || sessionAnswers["sh_p1q1"] === "Pain at the top — couldn't fully reach",
+      sessionAnswers["sh_p3q1"] === "Pain at the front of the shoulder" || sessionAnswers["sh_p3q1"] === "Sharp or catching sensation",
+      sessionAnswers["sh_p4q1"] === "Pain at the front of shoulder on the way up",
+      sessionAnswers["sh_p5q1"]?.includes("Pain at front of shoulder"),
+      sessionAnswers["sh_p7q1"]?.includes("Front of shoulder pain"),
+      sessionAnswers["sh_p8q1"]?.includes("Front of shoulder pain"),
+    ].filter(Boolean).length;
+    if (imSigs >= 2) return _finalize(s, "IM", area, sessionAnswers, false, frozen_flag);
+
+    // RC
+    const rcSigs = [
+      sessionAnswers["sh_p2q1"] === "Catching or clicking in one shoulder",
+      sessionAnswers["sh_p5q1"]?.includes("Sharp or catching"),
+      sessionAnswers["sh_p5q2"]?.includes("Sharp or catching") || sessionAnswers["sh_p5q2"]?.includes("Pain behind the shoulder"),
+      sessionAnswers["sh_p9q1"]?.includes("Pain behind one shoulder"),
+    ].filter(Boolean).length;
+    if (rcSigs >= 2) return _finalize(s, "RC", area, sessionAnswers, false, frozen_flag);
+
+    // PO
+    const poSigs = [
+      sessionAnswers["sh_p6q1"]?.includes("Pain behind"),
+      sessionAnswers["sh_p5q2"]?.includes("Pain behind the shoulder") || sessionAnswers["sh_p5q2"]?.includes("Could not reach behind the back"),
+      sessionAnswers["sh_p9q1"]?.includes("Tightness behind one shoulder") || sessionAnswers["sh_p9q1"]?.includes("Pain behind one shoulder") || sessionAnswers["sh_p9q1"]?.includes("One side significantly more restricted"),
+    ].filter(Boolean).length;
+    if (poSigs >= 2) return _finalize(s, "PO", area, sessionAnswers, false, frozen_flag);
+
+    // ST
+    const stSigs = [
+      sessionAnswers["sh_p4q1"] === "One arm lifts off the wall earlier" || sessionAnswers["sh_p4q1"] === "Both arms lift off — couldn't maintain contact" || sessionAnswers["sh_p4q1"] === "Shoulder instability or giving way",
+      sessionAnswers["sh_p7q1"]?.includes("instability") || sessionAnswers["sh_p7q1"]?.includes("Could not hold") || sessionAnswers["sh_p7q1"]?.includes("fatigued"),
+      sessionAnswers["sh_p8q1"]?.includes("winging") || sessionAnswers["sh_p8q1"]?.includes("One shoulder more stable") || sessionAnswers["sh_p8q1"]?.includes("Trembling"),
+    ].filter(Boolean).length;
+    if (stSigs >= 2) return _finalize(s, "ST", area, sessionAnswers, false, frozen_flag);
+
+    // MO
+    const hasSharpPain = s.IM >= 2 || s.RC >= 2 || s.FR >= 2;
+    const moSigs = [
+      sessionAnswers["sh_p1q1"] === "Both arms restricted — couldn't reach fully",
+      sessionAnswers["sh_p2q1"] === "Restricted in a portion of the arc",
+      sessionAnswers["sh_p5q1"]?.includes("Tightness but manageable"),
+      sessionAnswers["sh_p5q2"]?.includes("Tightness but manageable"),
+      sessionAnswers["sh_p3q1"] === "Tightness across front of shoulder",
+    ].filter(Boolean).length;
+    if (moSigs >= 2 && !hasSharpPain) return _finalize(s, "MO", area, sessionAnswers, false, frozen_flag);
+
+    // Fallback: 3+ profiles → ST
+    const highProfiles = Object.values(s).filter(v => v >= 3).length;
+    if (highProfiles >= 3) return _finalize(s, "ST", area, sessionAnswers, false, frozen_flag);
+    const fb = s.ST >= s.MO ? (s.ST > s.MO ? "ST" : "MO") : "MO";
+    return _finalize(s, fb, area, sessionAnswers, false, frozen_flag);
+  }
+
+  // --- Existing LB / HIP / KNEE / ANKLE logic ---
   const ranked = Object.entries(s).sort(([, a], [, b]) => b - a);
   const [top, topScore] = ranked[0];
   const [, secondScore] = ranked[1] ?? [null, 0];
@@ -438,7 +667,6 @@ function resolveProfile(area, rawScores, sessionAnswers, irritabilityLevel) {
   const summaryAns = sessionAnswers["knee_summary_q"] || sessionAnswers["ankle_summary_q"] || sessionAnswers["neck_summary_q"] || sessionAnswers["ub_summary_q"] || sessionAnswers["wr_summary_q"] || sessionAnswers["sh_summary_q"];
   let reassess = isTie || allZero;
   
-  // Confidence scoring: count total signal points
   const totalSignal = Object.values(s).reduce((sum, v) => sum + v, 0);
   let confidence;
   if (totalSignal >= 5 && !isTie) confidence = "High";
@@ -448,6 +676,36 @@ function resolveProfile(area, rawScores, sessionAnswers, irritabilityLevel) {
   if (summaryAns === "Significantly worse — pain increased") { reassess = true; confidence = "Low"; }
   if (summaryAns === "Better — less pain or more comfortable" && confidence === "Medium") confidence = "High";
   return { primary, secondary, confidence, reassess, scores: s };
+}
+
+// Helper to finalize profile resolution with consistent confidence scoring
+function _finalize(scores, primary, area, sessionAnswers, dizziness_flag = false, frozen_flag = false) {
+  const ranked = Object.entries(scores).sort(([, a], [, b]) => b - a);
+  const [topKey, topScore] = ranked[0];
+  const [, secondScore] = ranked[1] ?? [null, 0];
+  const isTie = secondScore === topScore && topScore > 0;
+  const margin = topScore - secondScore;
+  
+  let secondary = null;
+  for (const [p, sc] of ranked) {
+    if (p === primary) continue;
+    if (sc >= 3) { secondary = p; break; }
+  }
+
+  // Confidence: tree + score agree with margin ≥ 2 → High
+  const treeMatchesScore = primary === topKey;
+  let confidence;
+  if (treeMatchesScore && margin >= 2) confidence = "High";
+  else if (treeMatchesScore || topScore >= 3) confidence = "Medium";
+  else confidence = "Low";
+
+  const summaryKey = area === "NECK" ? "neck_summary_q" : area === "UBACK" ? "ub_summary_q" : area === "WRIST" ? "wr_summary_q" : "sh_summary_q";
+  const summaryAns = sessionAnswers[summaryKey];
+  let reassess = isTie || topScore === 0;
+  if (summaryAns === "Significantly worse — pain increased") { reassess = true; confidence = "Low"; }
+  if (summaryAns === "Better — less pain or more comfortable" && confidence === "Medium") confidence = "High";
+
+  return { primary, secondary, confidence, reassess, scores, dizziness_flag, frozen_flag };
 }
 
 function checkCrossover(area, sessionAnswers) {
@@ -807,39 +1065,86 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
   // PHASE: AREA SELECTION
   // ==========================================================================
   if (phase === "area_select") {
-    return (
-      <Shell>
-        <div className="mb-8">
-          <span className="inline-block px-3.5 py-1 rounded-full bg-muted text-xs font-bold uppercase tracking-wider mb-4" style={{ color: "#888" }}>
-            Movement Assessment
-          </span>
-          <h2 className="text-[26px] sm:text-[30px] font-bold leading-[1.15] text-foreground mb-3">
-            Where would you like to start?
-          </h2>
-          <p className="text-[15px] text-muted-foreground leading-[1.65]">
-            Select the area you'd like to assess. We'll guide you through a short movement screen to understand your pattern.
-          </p>
-        </div>
+    const AREA_ICONS = {
+      NECK:  <path d="M8 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm0 5c-2 0-3 1-3 2v5h6V9c0-1-1-2-3-2z" fill="currentColor"/>,
+      SHLDR: <path d="M4 7h8M4 7c-2 1-3 3-3 5h14c0-2-1-4-3-5M8 7V3" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
+      UBACK: <path d="M8 1v14M5 5l3-3 3 3M5 11l3 3 3-3M4 8h8" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
+      WRIST: <path d="M3 10h10v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3zm1-4c0-2.2 1.8-4 4-4s4 1.8 4 4v4H4V6z" fill="currentColor"/>,
+      LB:    <path d="M8 1C5 1 3 3 3 6v3c0 3 2 5 5 5s5-2 5-5V6c0-3-2-5-5-5zm0 7v4" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
+      HIP:   <><path d="M2 10c0-4 3-7 6-7s6 3 6 7" stroke="currentColor" fill="none" strokeWidth="1.5"/><circle cx="5" cy="10" r="1.5" fill="currentColor"/><circle cx="11" cy="10" r="1.5" fill="currentColor"/></>,
+      KNEE:  <path d="M6 2v5l-3 3h10l-3-3V2h-4zm2 9v5" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
+      ANKLE: <path d="M4 4c0-1 1-2 4-2s4 1 4 2v5c0 2-1 3-4 3s-4-1-4-3V4zm0 5l-2 6h12l-2-6" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
+    };
+    const AREA_DESCRIPTORS = {
+      NECK:  "Pain, stiffness, or headaches",
+      SHLDR: "Pain or restricted movement",
+      UBACK: "Mid-back tightness or aching",
+      WRIST: "Pain, tingling, or grip issues",
+      LB:    "Lumbar pain or stiffness",
+      HIP:   "Pain or restricted range",
+      KNEE:  "Knee pain or instability",
+      ANKLE: "Ankle pain or balance issues",
+    };
+    const upperBody = ["NECK", "SHLDR", "UBACK", "WRIST"];
+    const lowerBody = ["LB", "HIP", "KNEE", "ANKLE"];
 
-        <div className="space-y-3">
-          {Object.entries(AREA_CONFIG).map(([id, cfg]) => (
-            <button
-              key={id}
-              onClick={() => { setArea(id); setPhase("red_flags"); }}
-              className="w-full p-5 rounded-2xl border border-border bg-card text-left flex items-center gap-4 hover:shadow-calm transition-all press-scale group"
-            >
-              <div className="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center flex-shrink-0">
-                <span className="text-xl">{cfg.icon}</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-[17px] font-bold text-foreground mb-0.5">{cfg.label}</div>
-                <div className="text-[13px] text-muted-foreground leading-snug">{AREA_DESC[id]}</div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground/40 group-hover:text-primary transition-colors flex-shrink-0" />
-            </button>
-          ))}
+    const AreaCard = ({ id }) => {
+      const cfg = AREA_CONFIG[id];
+      const accent = cfg.color;
+      return (
+        <button
+          onClick={() => { setArea(id); setPhase("red_flags"); }}
+          style={{
+            padding: "14px 14px 12px",
+            borderRadius: 16,
+            border: `1.5px solid #E4DDD6`,
+            background: "#FFFFFF",
+            textAlign: "left",
+            cursor: "pointer",
+            position: "relative",
+            overflow: "hidden",
+            transition: "all 0.15s ease",
+            WebkitTapHighlightColor: "transparent",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 6,
+            minHeight: 90,
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = accent; e.currentTarget.style.background = `${accent}15`; e.currentTarget.style.transform = "scale(1.02)"; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = "#E4DDD6"; e.currentTarget.style.background = "#FFFFFF"; e.currentTarget.style.transform = "scale(1)"; }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: `${accent}1A`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: accent }}>
+                {AREA_ICONS[id]}
+              </svg>
+            </div>
+            <span style={{ fontSize: 15, fontWeight: 700, color: "#1C2B26", lineHeight: 1.2 }}>{cfg.label}</span>
+          </div>
+          <span style={{ fontSize: 12, color: "#7A8E89", lineHeight: 1.35 }}>{AREA_DESCRIPTORS[id]}</span>
+        </button>
+      );
+    };
+
+    return (
+      <div style={{ minHeight: "100vh", background: "#F6F3EE" }}>
+        <div style={{ position: "sticky", top: 0, background: "#F6F3EE", zIndex: 10, padding: "20px 20px 12px" }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#4A7B6F", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 6 }}>VINYS</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "#1C2B26", lineHeight: 1.25, marginBottom: 4 }}>Where would you like to focus today?</div>
+          <div style={{ fontSize: 13, color: "#7A8E89", lineHeight: 1.5 }}>Select the area you want to assess. We'll guide you through a movement session to understand your pattern.</div>
         </div>
-      </Shell>
+        <div style={{ padding: "8px 16px 32px" }}>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#7A8E89", textTransform: "uppercase", marginBottom: 10, marginTop: 8 }}>Upper Body</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+            {upperBody.map(id => <AreaCard key={id} id={id} />)}
+          </div>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#7A8E89", textTransform: "uppercase", marginBottom: 10 }}>Lower Body</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            {lowerBody.map(id => <AreaCard key={id} id={id} />)}
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -1330,7 +1635,7 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
   if (phase === "summary" && diagnosticOutput) {
     const { primary, secondary, confidence, reassess, area: resultArea, originalArea: origArea, crossoverTriggered: crossed } = diagnosticOutput;
     const prof = PROFILE_DATA[resultArea]?.[primary];
-    const displayInfo = PROFILE_DISPLAY[primary] || { name: primary, description: "" };
+    const displayInfo = prof ? { name: prof.name, description: prof.sub } : (PROFILE_DISPLAY[primary] || { name: primary, description: "" });
     if (!prof) return <div className="p-6 text-muted-foreground">No profile resolved.</div>;
 
     const confBadgeClass =
