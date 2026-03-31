@@ -518,4 +518,7 @@ export const CONDITION_TIPS: Record<ConditionKey, string> = {
   breathing_disorders: "Restoring healthy breath mechanics — diaphragmatic training and nervous system calming.",
   core_instability: "Building deep core support — progressive stabilization from breath to functional patterns.",
   repetitive_strain: "Releasing accumulated tension — gentle mobility and counter-movement patterns.",
+  ankle_pain: "Strengthening ankle stability, improving balance and addressing foot mechanics.",
+  upper_back_pain: "Thoracic mobility, scapular strength and postural relief.",
+  wrist_pain: "Wrist and hand care — mobility, strength and nerve health.",
 };
