@@ -429,7 +429,7 @@ function resolveProfile(area, rawScores, sessionAnswers, irritabilityLevel) {
     const neSigs = neuralQ.filter(([id, vals]) => vals.includes(sessionAnswers[id])).length;
     if (neSigs >= 1 && primary !== "NE" && secondary !== "NE" && (s.NE || 0) > 0) secondary = "NE";
   }
-  const summaryAns = sessionAnswers["knee_summary_q"] || sessionAnswers["ankle_summary_q"];
+  const summaryAns = sessionAnswers["knee_summary_q"] || sessionAnswers["ankle_summary_q"] || sessionAnswers["neck_summary_q"] || sessionAnswers["ub_summary_q"] || sessionAnswers["wr_summary_q"] || sessionAnswers["sh_summary_q"];
   let reassess = isTie || allZero;
   
   // Confidence scoring: count total signal points
