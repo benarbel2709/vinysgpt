@@ -370,6 +370,10 @@ function emptyScores(area) {
   if (area === "HIP") return { AN: 0, LA: 0, PO: 0, NE: 0, ST: 0, MO: 0 };
   if (area === "KNEE") return { PA: 0, ME: 0, LA: 0, PO: 0, ST: 0, MO: 0 };
   if (area === "ANKLE") return { AN: 0, AC: 0, PF: 0, LA: 0, ST: 0, MO: 0 };
+  if (area === "NECK") return { FL: 0, EX: 0, NE: 0, LA: 0, ST: 0, MO: 0 };
+  if (area === "UBACK") return { EX: 0, RO: 0, CO: 0, NE: 0, ST: 0, MO: 0 };
+  if (area === "WRIST") return { EX: 0, FL: 0, LA: 0, NN: 0, ST: 0, MO: 0 };
+  if (area === "SHLDR") return { IM: 0, RC: 0, FR: 0, PO: 0, ST: 0, MO: 0 };
   return {};
 }
 
