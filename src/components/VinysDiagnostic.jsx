@@ -983,6 +983,9 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
 
   // Auto-speak posture instructions when video screen loads, and loop TTS
   const ttsTextRef = useRef("");
+  const showingVideoRef = useRef(showingVideo);
+  useEffect(() => { showingVideoRef.current = showingVideo; }, [showingVideo]);
+
   useEffect(() => {
     if (phase === "postures" && showingVideo && activePostures[postureIdx]?.how && !isMuted) {
       const p = activePostures[postureIdx];
@@ -990,15 +993,17 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
       speak(ttsTextRef.current);
     } else {
       ttsTextRef.current = "";
+      stopTTS();
     }
-    return () => stopTTS();
+    return () => { ttsTextRef.current = ""; stopTTS(); };
   }, [phase, showingVideo, postureIdx, isMuted]);
 
   // Re-trigger TTS when it finishes (loop audio while on video screen)
   useEffect(() => {
     if (phase === "postures" && showingVideo && !isMuted && !ttsPlaying && !ttsLoading && ttsTextRef.current) {
       const timer = setTimeout(() => {
-        if (ttsTextRef.current) speak(ttsTextRef.current);
+        // Double-check we're still on video screen when timer fires
+        if (ttsTextRef.current && showingVideoRef.current) speak(ttsTextRef.current);
       }, 1500);
       return () => clearTimeout(timer);
     }
@@ -1006,11 +1011,17 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
 
   // Auto-speak question text when question screen loads
   useEffect(() => {
-    if (phase === "postures" && !showingVideo && activePostures[postureIdx]?.qs?.[qIdx]?.text) {
-      speak(activePostures[postureIdx].qs[qIdx].text);
+    if (phase === "postures" && !showingVideo && activePostures[postureIdx]?.qs?.[qIdx]?.text && !isMuted) {
+      // Small delay to ensure video TTS has fully stopped
+      const timer = setTimeout(() => {
+        if (!showingVideoRef.current) {
+          speak(activePostures[postureIdx].qs[qIdx].text);
+        }
+      }, 200);
+      return () => { clearTimeout(timer); stopTTS(); };
     }
     return () => stopTTS();
-  }, [phase, showingVideo, postureIdx, qIdx]);
+  }, [phase, showingVideo, postureIdx, qIdx, isMuted]);
 
   // Stop TTS on unmount
   useEffect(() => () => stopTTS(), []);
