@@ -320,6 +320,9 @@ export const CONDITION_WEIGHT: Record<ConditionKey, number> = {
   breathing_disorders: 1.15,
   core_instability: 1.15,
   repetitive_strain: 1.1,
+  ankle_pain: 1.1,
+  upper_back_pain: 1.1,
+  wrist_pain: 1.1,
 };
 
 /** Condition → adapter prefix for exercise ID generation */
