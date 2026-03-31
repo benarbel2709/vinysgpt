@@ -1026,15 +1026,7 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
   // Stop TTS on unmount
   useEffect(() => () => stopTTS(), []);
 
-  // --- Shell wrapper ---
-  const Shell = ({ children, className = "" }) => (
-    <div className={`min-h-screen bg-background flex justify-center items-start ${className}`} style={fadeInStyle}>
-      <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
-      <div className="w-full max-w-[460px] px-5 py-9">
-        {children}
-      </div>
-    </div>
-  );
+  // Shell wrapper moved outside component — see DiagnosticShell above
 
   const totalPostures = activePostures.length > 0 ? activePostures.filter(p => !p.isSummary).length : getPosturesForArea("LB").filter(p => !p.isSummary).length;
 
