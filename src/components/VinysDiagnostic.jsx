@@ -537,6 +537,10 @@ function getPosturesForArea(area) {
   if (area === "HIP") return HIP_POSTURES;
   if (area === "KNEE") return KNEE_POSTURES;
   if (area === "ANKLE") return ANKLE_POSTURES;
+  if (area === "NECK") return NECK_POSTURES;
+  if (area === "UBACK") return UBACK_POSTURES;
+  if (area === "WRIST") return WRIST_POSTURES;
+  if (area === "SHLDR") return SHLDR_POSTURES;
   return [];
 }
 
