@@ -41,7 +41,11 @@ export type ConditionKey =
   | "desk_tension"
   | "breathing_disorders"
   | "core_instability"
-  | "repetitive_strain";
+  | "repetitive_strain"
+  // ── New area-based conditions ──
+  | "ankle_pain"
+  | "upper_back_pain"
+  | "wrist_pain";
 
 export type ExerciseCategory = "breath" | "mobility" | "stability" | "release";
 
