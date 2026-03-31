@@ -900,6 +900,15 @@ const AFFIRMATIONS = [
   "Last one — finish strong.",
 ];
 
+const Shell = ({ children, className = "" }) => (
+  <div className={`min-h-screen bg-background flex justify-center items-start ${className}`} style={fadeInStyle}>
+    <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+    <div className="w-full max-w-[460px] px-5 py-9">
+      {children}
+    </div>
+  </div>
+);
+
 // --- MAIN COMPONENT -----------------------------------------------------------
 export default function VinysDiagnostic({ onComplete, initialArea = null }) {
   const [phase, setPhase] = useState(initialArea ? "red_flags" : "intro");
