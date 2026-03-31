@@ -1552,7 +1552,9 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
 
         {postureIdx > 0 && (
           <p className="mt-4 text-center text-[13px] text-muted-foreground italic">
-            {AFFIRMATIONS[Math.min(postureIdx - 1, AFFIRMATIONS.length - 1)]}
+            {postureIdx === totalPostures - 1
+              ? AFFIRMATIONS[AFFIRMATIONS.length - 1]
+              : AFFIRMATIONS[Math.min(postureIdx - 1, AFFIRMATIONS.length - 2)]}
           </p>
         )}
       </Shell>
