@@ -255,19 +255,26 @@ export default function OnboardingWizard() {
 
   // Profile summary data
   const PROFILE_LABELS: Record<string, { label: string; desc: string }> = {
-    FL: { label: "Flexion Sensitive", desc: "Your back responds best to extension-based movements. Forward bending tends to increase discomfort." },
-    EX: { label: "Extension Sensitive", desc: "Your back prefers flexion and neutral positions. Arching backward tends to increase discomfort." },
-    NE: { label: "Neutral Pattern", desc: "Your back tolerates most movements. The focus will be on building strength and mobility evenly." },
+    FL: { label: "Flexion Sensitive", desc: "Forward bending tends to increase discomfort. Your practice avoids deep flexion and prioritises neutral and extended positions." },
+    EX: { label: "Extension Sensitive", desc: "Arching backward or looking up tends to increase discomfort. Your practice prioritises neutral and flexion-based positions." },
+    NE: { label: "Neural Pattern", desc: "Nerve-related signals detected. Your practice avoids compression and focuses on gentle, decompression-based movements." },
     LI: { label: "Load-Sensitive", desc: "Your body benefits from gentle, progressive loading. Consistency is your best tool." },
-    ST: { label: "Stiffness-Dominant", desc: "Your movement is limited but not acutely painful. The focus will be on progressive mobility." },
+    ST: { label: "Strength-Focused", desc: "Muscle weakness or postural fatigue is your primary finding. Sessions focus on building control and endurance." },
     AN: { label: "Anterior Overload", desc: "Front-of-joint overload pattern. Sessions focus on decompression." },
-    LA: { label: "Lateral Pattern", desc: "Side-bending or rotation is your primary sensitivity. Asymmetrical movements need care." },
+    LA: { label: "Lateral / Rotational", desc: "Side-bending or rotation is your primary sensitivity. Asymmetrical movements need care." },
     PO: { label: "Posterior", desc: "Posterior chain involvement. Sessions address rotation and flexibility." },
     PA: { label: "Patellofemoral", desc: "Kneecap pattern. Sessions focus on quad control and step-down exercises." },
     ME: { label: "Medial Stress", desc: "Inner joint stress pattern. Sessions focus on alignment and hip strength." },
     AC: { label: "Achilles / Posterior", desc: "Achilles pattern. Sessions use graded loading and eccentric work." },
     PF: { label: "Plantar Fascia", desc: "Plantar fasciitis pattern. Sessions include calf release and foot strength." },
     MO: { label: "Mobility-First", desc: "Restricted range without sharp pain. Focus on progressive mobility." },
+    // New area profiles
+    IM: { label: "Anterior Impingement", desc: "Pain at the front of your shoulder during overhead movements. Sessions focus on scapular stabilisation and rotator cuff strengthening." },
+    RC: { label: "Rotator Cuff", desc: "Catching, clicking, or pain with rotation. Sessions use sub-maximal isometric and rhythmic stabilisation." },
+    FR: { label: "Frozen / Restricted", desc: "Significantly restricted in all shoulder directions. Gentle, pain-free range of motion to maintain mobility." },
+    RO: { label: "Rotational Restriction", desc: "Rotation is more restricted on one side. Sessions focus on restoring symmetrical thoracic rotation." },
+    CO: { label: "Compression / Postural", desc: "Pain accumulates with sustained posture and is relieved by movement. Sessions use traction and decompression." },
+    NN: { label: "Neural Component", desc: "Tingling or numbness detected. Sessions avoid positions that compress the wrist canal and include nerve gliding." },
   };
 
   const AREA_LABELS: Record<string, string> = { LB: "Lower Back", HIP: "Hip", KNEE: "Knee", ANKLE: "Ankle & Foot", NECK: "Neck", UBACK: "Upper Back", WRIST: "Wrist & Hand", SHLDR: "Shoulder" };
