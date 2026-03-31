@@ -247,30 +247,37 @@ export default function OnboardingWizard() {
     { id: "HIP", label: "Hip", desc: "Hip joint, groin, outer hip or mobility issues", icon: "🔹", available: true },
     { id: "KNEE", label: "Knee", desc: "Kneecap pain, instability, inner or outer knee", icon: "🔹", available: true },
     { id: "ANKLE", label: "Ankle & Foot", desc: "Achilles, plantar fascia or ankle instability", icon: "🔹", available: true },
-    { id: "SHOULDER", label: "Shoulder", desc: "Rotator cuff, frozen shoulder, impingement", icon: "🔸", available: false },
-    { id: "NECK", label: "Neck", desc: "Cervical stiffness, tension headaches, radiating pain", icon: "🔸", available: false },
-    { id: "UPPER_BACK", label: "Upper Back", desc: "Thoracic stiffness, postural fatigue, rib pain", icon: "🔸", available: false },
-    { id: "WRIST", label: "Wrist & Hand", desc: "Carpal tunnel, repetitive strain, grip weakness", icon: "🔸", available: false },
+    { id: "SHLDR", label: "Shoulder", desc: "Rotator cuff, frozen shoulder, impingement", icon: "🔹", available: true },
+    { id: "NECK", label: "Neck", desc: "Cervical stiffness, tension headaches, radiating pain", icon: "🔹", available: true },
+    { id: "UBACK", label: "Upper Back", desc: "Thoracic stiffness, postural fatigue, rib pain", icon: "🔹", available: true },
+    { id: "WRIST", label: "Wrist & Hand", desc: "Carpal tunnel, repetitive strain, grip weakness", icon: "🔹", available: true },
   ];
 
   // Profile summary data
   const PROFILE_LABELS: Record<string, { label: string; desc: string }> = {
-    FL: { label: "Flexion Sensitive", desc: "Your back responds best to extension-based movements. Forward bending tends to increase discomfort." },
-    EX: { label: "Extension Sensitive", desc: "Your back prefers flexion and neutral positions. Arching backward tends to increase discomfort." },
-    NE: { label: "Neutral Pattern", desc: "Your back tolerates most movements. The focus will be on building strength and mobility evenly." },
+    FL: { label: "Flexion Sensitive", desc: "Forward bending tends to increase discomfort. Your practice avoids deep flexion and prioritises neutral and extended positions." },
+    EX: { label: "Extension Sensitive", desc: "Arching backward or looking up tends to increase discomfort. Your practice prioritises neutral and flexion-based positions." },
+    NE: { label: "Neural Pattern", desc: "Nerve-related signals detected. Your practice avoids compression and focuses on gentle, decompression-based movements." },
     LI: { label: "Load-Sensitive", desc: "Your body benefits from gentle, progressive loading. Consistency is your best tool." },
-    ST: { label: "Stiffness-Dominant", desc: "Your movement is limited but not acutely painful. The focus will be on progressive mobility." },
+    ST: { label: "Strength-Focused", desc: "Muscle weakness or postural fatigue is your primary finding. Sessions focus on building control and endurance." },
     AN: { label: "Anterior Overload", desc: "Front-of-joint overload pattern. Sessions focus on decompression." },
-    LA: { label: "Lateral Pattern", desc: "Side-bending or rotation is your primary sensitivity. Asymmetrical movements need care." },
+    LA: { label: "Lateral / Rotational", desc: "Side-bending or rotation is your primary sensitivity. Asymmetrical movements need care." },
     PO: { label: "Posterior", desc: "Posterior chain involvement. Sessions address rotation and flexibility." },
     PA: { label: "Patellofemoral", desc: "Kneecap pattern. Sessions focus on quad control and step-down exercises." },
     ME: { label: "Medial Stress", desc: "Inner joint stress pattern. Sessions focus on alignment and hip strength." },
     AC: { label: "Achilles / Posterior", desc: "Achilles pattern. Sessions use graded loading and eccentric work." },
     PF: { label: "Plantar Fascia", desc: "Plantar fasciitis pattern. Sessions include calf release and foot strength." },
     MO: { label: "Mobility-First", desc: "Restricted range without sharp pain. Focus on progressive mobility." },
+    // New area profiles
+    IM: { label: "Anterior Impingement", desc: "Pain at the front of your shoulder during overhead movements. Sessions focus on scapular stabilisation and rotator cuff strengthening." },
+    RC: { label: "Rotator Cuff", desc: "Catching, clicking, or pain with rotation. Sessions use sub-maximal isometric and rhythmic stabilisation." },
+    FR: { label: "Frozen / Restricted", desc: "Significantly restricted in all shoulder directions. Gentle, pain-free range of motion to maintain mobility." },
+    RO: { label: "Rotational Restriction", desc: "Rotation is more restricted on one side. Sessions focus on restoring symmetrical thoracic rotation." },
+    CO: { label: "Compression / Postural", desc: "Pain accumulates with sustained posture and is relieved by movement. Sessions use traction and decompression." },
+    NN: { label: "Neural Component", desc: "Tingling or numbness detected. Sessions avoid positions that compress the wrist canal and include nerve gliding." },
   };
 
-  const AREA_LABELS: Record<string, string> = { LB: "Lower Back", HIP: "Hip", KNEE: "Knee", ANKLE: "Ankle" };
+  const AREA_LABELS: Record<string, string> = { LB: "Lower Back", HIP: "Hip", KNEE: "Knee", ANKLE: "Ankle & Foot", NECK: "Neck", UBACK: "Upper Back", WRIST: "Wrist & Hand", SHLDR: "Shoulder" };
 
   // Post-assessment step counter (steps 3-6 = "Step 1 of 4" through "Step 4 of 4")
   const POST_ASSESSMENT_TOTAL = 4;
@@ -330,50 +337,81 @@ export default function OnboardingWizard() {
           </p>
         )}
 
-        {/* ═══ STEP 0: Body area picker ═══ */}
-        {step === 0 && (
-          <div className="w-full" style={{ marginTop: "16px", maxWidth: "520px", margin: "16px auto 0" }}>
-            <p className="text-muted-foreground text-center text-[15px] mb-6 leading-relaxed">
-              Select the area that's been bothering you most. We'll run a short movement assessment to find the right approach.
-            </p>
+        {/* ═══ STEP 0: Body area picker (redesigned 8-area grid) ═══ */}
+        {step === 0 && (() => {
+          const AREA_COLORS: Record<string, string> = {
+            NECK: "#7B6F4A", SHLDR: "#7B4A4A", UBACK: "#4A6B7B", WRIST: "#6B4A7B",
+            LB: "#4A7B6F", HIP: "#7B4A6F", KNEE: "#6F7B4A", ANKLE: "#4A6F7B",
+          };
+          const AREA_ICONS_SVG: Record<string, React.ReactNode> = {
+            NECK:  <path d="M8 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm0 5c-2 0-3 1-3 2v5h6V9c0-1-1-2-3-2z" fill="currentColor"/>,
+            SHLDR: <path d="M4 7h8M4 7c-2 1-3 3-3 5h14c0-2-1-4-3-5M8 7V3" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
+            UBACK: <path d="M8 1v14M5 5l3-3 3 3M5 11l3 3 3-3M4 8h8" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
+            WRIST: <path d="M3 10h10v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3zm1-4c0-2.2 1.8-4 4-4s4 1.8 4 4v4H4V6z" fill="currentColor"/>,
+            LB:    <path d="M8 1C5 1 3 3 3 6v3c0 3 2 5 5 5s5-2 5-5V6c0-3-2-5-5-5zm0 7v4" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
+            HIP:   <><path d="M2 10c0-4 3-7 6-7s6 3 6 7" stroke="currentColor" fill="none" strokeWidth="1.5"/><circle cx="5" cy="10" r="1.5" fill="currentColor"/><circle cx="11" cy="10" r="1.5" fill="currentColor"/></>,
+            KNEE:  <path d="M6 2v5l-3 3h10l-3-3V2h-4zm2 9v5" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
+            ANKLE: <path d="M4 4c0-1 1-2 4-2s4 1 4 2v5c0 2-1 3-4 3s-4-1-4-3V4zm0 5l-2 6h12l-2-6" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
+          };
+          const AREA_DESCS: Record<string, string> = {
+            NECK: "Pain, stiffness, or headaches", SHLDR: "Pain or restricted movement",
+            UBACK: "Mid-back tightness or aching", WRIST: "Pain, tingling, or grip issues",
+            LB: "Lumbar pain or stiffness", HIP: "Pain or restricted range",
+            KNEE: "Knee pain or instability", ANKLE: "Ankle pain or balance issues",
+          };
+          const upperBody = ["NECK", "SHLDR", "UBACK", "WRIST"];
+          const lowerBody = ["LB", "HIP", "KNEE", "ANKLE"];
 
-            <div className="space-y-3">
-              {BODY_AREAS.filter(a => a.available).map((area) => (
-                <button
-                  key={area.id}
-                  onClick={() => {
-                    setSelectedArea(area.id);
-                    setStep(1);
-                  }}
-                  className={`w-full p-5 rounded-2xl border-2 text-left flex items-center gap-4 transition-all group ${
-                    "border-border bg-card hover:border-primary/40 hover:shadow-calm press-scale"
-                  }`}
-                >
-                  <div className="w-12 h-12 rounded-xl bg-primary/8 flex items-center justify-center flex-shrink-0">
-                    <span className="text-primary text-lg font-bold">{area.label.charAt(0)}</span>
+          const AreaCard = ({ areaId }: { areaId: string }) => {
+            const ba = BODY_AREAS.find(a => a.id === areaId)!;
+            const accent = AREA_COLORS[areaId];
+            const isSelected = selectedArea === areaId;
+            return (
+              <button
+                onClick={() => { setSelectedArea(areaId); setTimeout(() => setStep(1), 200); }}
+                style={{
+                  padding: "14px 14px 12px", borderRadius: 16,
+                  border: isSelected ? `2px solid ${accent}` : "1.5px solid #E4DDD6",
+                  background: isSelected ? `${accent}15` : "#FFFFFF",
+                  textAlign: "left" as const, cursor: "pointer", position: "relative" as const,
+                  overflow: "hidden" as const, transition: "all 0.15s ease",
+                  WebkitTapHighlightColor: "transparent",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+                  display: "flex", flexDirection: "column" as const, gap: 6, minHeight: 90,
+                }}
+              >
+                {isSelected && (
+                  <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: accent, borderRadius: "16px 0 0 16px" }} />
+                )}
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: `${accent}1A`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: accent }}>
+                      {AREA_ICONS_SVG[areaId]}
+                    </svg>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-[17px] font-bold text-foreground mb-0.5">{area.label}</div>
-                    <div className="text-[13px] text-muted-foreground leading-snug">{area.desc}</div>
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-primary/8 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/15 transition-colors">
-                    <span className="text-primary text-sm">→</span>
-                  </div>
-                </button>
-              ))}
-            </div>
+                  <span style={{ fontSize: 15, fontWeight: 700, color: "#1C2B26", lineHeight: 1.2 }}>{ba.label}</span>
+                </div>
+                <span style={{ fontSize: 12, color: "#7A8E89", lineHeight: 1.35 }}>{AREA_DESCS[areaId]}</span>
+              </button>
+            );
+          };
 
-            {/* Coming soon section */}
-            <div className="mt-8">
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 mb-3 text-center">Coming soon</p>
-              <div className="grid grid-cols-2 gap-2.5">
-                {BODY_AREAS.filter(a => !a.available).map((area) => (
-                  <ComingSoonCard key={area.id} area={area} />
-                ))}
+          return (
+            <div className="w-full" style={{ marginTop: "16px", maxWidth: "520px", margin: "16px auto 0" }}>
+              <p className="text-muted-foreground text-center text-[15px] mb-6 leading-relaxed">
+                Select the area you want to assess. We'll guide you through a movement session to understand your pattern.
+              </p>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#7A8E89", textTransform: "uppercase" as const, marginBottom: 10 }}>UPPER BODY</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+                {upperBody.map(id => <AreaCard key={id} areaId={id} />)}
+              </div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#7A8E89", textTransform: "uppercase" as const, marginBottom: 10 }}>LOWER BODY</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                {lowerBody.map(id => <AreaCard key={id} areaId={id} />)}
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* ═══ STEP 1: VinysDiagnostic ═══ */}
         {step === 1 && (
@@ -382,8 +420,8 @@ export default function OnboardingWizard() {
               initialArea={selectedArea}
               onComplete={(result: any) => {
                 const areaToCondKey: Record<string, string> = {
-                  LB: "back_pain", HIP: "hip_pain", KNEE: "knee_pain", ANKLE: "knee_pain",
-                  NECK: "neck_pain", UBACK: "back_pain", WRIST: "repetitive_strain", SHLDR: "shoulder_pain",
+                  LB: "back_pain", HIP: "hip_pain", KNEE: "knee_pain", ANKLE: "ankle_pain",
+                  NECK: "neck_pain", UBACK: "upper_back_pain", WRIST: "wrist_pain", SHLDR: "shoulder_pain",
                 };
                 const derivedKey = areaToCondKey[result.area ?? "LB"] ?? "back_pain";
                 setSelected((prev) =>

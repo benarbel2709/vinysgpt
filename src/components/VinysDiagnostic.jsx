@@ -1135,11 +1135,11 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
           <div style={{ fontSize: 13, color: "#7A8E89", lineHeight: 1.5 }}>Select the area you want to assess. We'll guide you through a movement session to understand your pattern.</div>
         </div>
         <div style={{ padding: "8px 16px 32px" }}>
-          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#7A8E89", textTransform: "uppercase", marginBottom: 10, marginTop: 8 }}>Upper Body</div>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#7A8E89", textTransform: "uppercase", marginBottom: 10, marginTop: 8 }}>UPPER BODY</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
             {upperBody.map(id => <AreaCard key={id} id={id} />)}
           </div>
-          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#7A8E89", textTransform: "uppercase", marginBottom: 10 }}>Lower Body</div>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#7A8E89", textTransform: "uppercase", marginBottom: 10 }}>LOWER BODY</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             {lowerBody.map(id => <AreaCard key={id} id={id} />)}
           </div>

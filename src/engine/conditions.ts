@@ -48,6 +48,10 @@ export const LEGACY_CONDITION_MAP: Record<ConditionKey, ConditionIdV2> = {
   breathing_disorders: "stress_sleep",
   core_instability: "back_pain",
   repetitive_strain: "neck_shoulder",
+  // ── New area-based conditions ──
+  ankle_pain: "knees",
+  upper_back_pain: "neck_shoulder",
+  wrist_pain: "neck_shoulder",
 };
 
 // ═══════════════════════════════════

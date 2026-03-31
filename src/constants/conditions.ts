@@ -41,7 +41,11 @@ export type ConditionKey =
   | "desk_tension"
   | "breathing_disorders"
   | "core_instability"
-  | "repetitive_strain";
+  | "repetitive_strain"
+  // ── New area-based conditions ──
+  | "ankle_pain"
+  | "upper_back_pain"
+  | "wrist_pain";
 
 export type ExerciseCategory = "breath" | "mobility" | "stability" | "release";
 
@@ -228,6 +232,9 @@ export const CONDITION_RELEVANCE_KEY: Record<ConditionKey, string> = {
   breathing_disorders: "stressAnxiety",
   core_instability: "backPain",
   repetitive_strain: "neckShoulder",
+  ankle_pain: "kneeHip",
+  upper_back_pain: "neckShoulder",
+  wrist_pain: "neckShoulder",
 };
 
 /** Condition → safety tag mapping */
@@ -269,6 +276,9 @@ export const CONDITION_SAFETY_TAG: Record<ConditionKey, string> = {
   breathing_disorders: "universalSafe",
   core_instability: "universalSafe",
   repetitive_strain: "shoulderSafe",
+  ankle_pain: "kneeSafe",
+  upper_back_pain: "universalSafe",
+  wrist_pain: "universalSafe",
 };
 
 /** Condition weights for scoring */
@@ -310,6 +320,9 @@ export const CONDITION_WEIGHT: Record<ConditionKey, number> = {
   breathing_disorders: 1.15,
   core_instability: 1.15,
   repetitive_strain: 1.1,
+  ankle_pain: 1.1,
+  upper_back_pain: 1.1,
+  wrist_pain: 1.1,
 };
 
 /** Condition → adapter prefix for exercise ID generation */
@@ -351,6 +364,9 @@ export const CONDITION_PREFIX: Record<ConditionKey, string> = {
   breathing_disorders: "breathd_",
   core_instability: "coreinst_",
   repetitive_strain: "repstrain_",
+  ankle_pain: "ankle_",
+  upper_back_pain: "uback_",
+  wrist_pain: "wrist_",
 };
 
 // ═══════════════════════════════════
@@ -502,4 +518,7 @@ export const CONDITION_TIPS: Record<ConditionKey, string> = {
   breathing_disorders: "Restoring healthy breath mechanics — diaphragmatic training and nervous system calming.",
   core_instability: "Building deep core support — progressive stabilization from breath to functional patterns.",
   repetitive_strain: "Releasing accumulated tension — gentle mobility and counter-movement patterns.",
+  ankle_pain: "Strengthening ankle stability, improving balance and addressing foot mechanics.",
+  upper_back_pain: "Thoracic mobility, scapular strength and postural relief.",
+  wrist_pain: "Wrist and hand care — mobility, strength and nerve health.",
 };
