@@ -475,6 +475,43 @@ function checkCrossover(area, sessionAnswers) {
     const met = [kneeCount >= 2, noAnkle, fullROM].filter(Boolean).length;
     return met >= 2 ? "KNEE" : null;
   }
+  // NECK → crossover to UBACK
+  if (area === "NECK") {
+    const ubackXover = ["neck_p3q1", "neck_p8q1"].filter(id => {
+      const a = sessionAnswers[id];
+      return a && (a.includes("upper back") || a.includes("Pain in the upper back"));
+    }).length;
+    const neckPain = ["Pain at the back of the neck", "Pain or pressure at the back of the neck", "Pain on one side of the neck"];
+    const noNeck = !vals.some(a => neckPain.includes(a));
+    return ubackXover >= 2 && noNeck ? "UBACK" : null;
+  }
+  // UBACK → crossover to LB
+  if (area === "UBACK") {
+    const lbXover = ["ub_p1q1", "ub_p5q1", "ub_p6q1", "ub_p8q1"].filter(id => {
+      const a = sessionAnswers[id];
+      return a && (a.includes("lower back") || a.includes("Pain in lower back"));
+    }).length;
+    const ubPain = ["Pain or pressure in the upper/mid back", "Pain in upper back on one side", "Pain in upper back on both sides", "Pain in mid/upper back"];
+    const noUB = !vals.some(a => ubPain.includes(a));
+    return lbXover >= 2 && noUB ? "LB" : null;
+  }
+  // WRIST → crossover to NECK (neural referral)
+  if (area === "WRIST") {
+    const neuralCount = ["wr_p2q1", "wr_p5q1", "wr_p6q1", "wr_p8q1"].filter(id => {
+      const a = sessionAnswers[id];
+      return a && (a.includes("Tingling") || a.includes("numbness"));
+    }).length;
+    const wristPain = ["Pain at the back of the wrist", "Pain at the front of the wrist", "Pain on the thumb side", "Pain on the pinky side"];
+    const noWrist = !vals.some(a => wristPain.some(wp => a && a.includes(wp)));
+    return neuralCount >= 2 && noWrist ? "NECK" : null;
+  }
+  // SHLDR → crossover to NECK
+  if (area === "SHLDR") {
+    const neckRef = vals.filter(a => a && (a.includes("neck") || a.includes("between shoulder blades"))).length;
+    const shoulderPain = ["Pain in front of shoulder", "Pain at front of shoulder", "Pain behind the shoulder", "Catching or clicking"];
+    const noShoulder = !vals.some(a => shoulderPain.some(sp => a && a.includes(sp)));
+    return neckRef >= 2 && noShoulder ? "NECK" : null;
+  }
   return null;
 }
 
