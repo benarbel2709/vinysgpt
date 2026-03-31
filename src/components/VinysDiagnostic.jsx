@@ -8,10 +8,14 @@ const fadeInStyle = { animation: "fadeIn 0.3s ease" };
 
 // --- AREAS --------------------------------------------------------------------
 const AREA_CONFIG = {
-  LB: { label: "Lower Back", icon: "◎", crossoverTo: null },
-  HIP: { label: "Hip", icon: "⟳", crossoverTo: "LB" },
-  KNEE: { label: "Knee", icon: "↓", crossoverTo: "HIP" },
-  ANKLE: { label: "Ankle", icon: "⌇", crossoverTo: "KNEE" },
+  LB:    { label: "Lower Back",   icon: "◎", color: "#4A7B6F", crossoverTo: null   },
+  HIP:   { label: "Hip",          icon: "⟳", color: "#7B4A6F", crossoverTo: "LB"   },
+  KNEE:  { label: "Knee",         icon: "↓", color: "#6F7B4A", crossoverTo: "HIP"  },
+  ANKLE: { label: "Ankle & Foot", icon: "⌇", color: "#4A6F7B", crossoverTo: "KNEE" },
+  NECK:  { label: "Neck",         icon: "↑", color: "#7B6F4A", crossoverTo: "UBACK"},
+  UBACK: { label: "Upper Back",   icon: "⊞", color: "#4A6B7B", crossoverTo: "LB"  },
+  WRIST: { label: "Wrist & Hand", icon: "✋", color: "#6B4A7B", crossoverTo: "NECK"},
+  SHLDR: { label: "Shoulder",     icon: "⟂", color: "#7B4A4A", crossoverTo: "NECK"},
 };
 
 const AREA_DESC = {
@@ -19,6 +23,10 @@ const AREA_DESC = {
   HIP: "Hip joint, groin, outer hip or mobility",
   KNEE: "Kneecap, instability, inner or outer knee",
   ANKLE: "Achilles, plantar fascia or ankle instability",
+  NECK: "Neck tension, stiffness, or nerve symptoms",
+  UBACK: "Upper and mid-back pain, stiffness, or posture",
+  WRIST: "Wrist, hand, or forearm pain and mobility",
+  SHLDR: "Shoulder pain, restriction, or instability",
 };
 
 // --- PROFILE DEFINITIONS (plain English names + descriptions) -----------------
@@ -36,6 +44,12 @@ const PROFILE_DISPLAY = {
   AC: { name: "Achilles / Posterior", description: "Back-of-ankle pain is an Achilles tendinopathy pattern. Your sessions use graded loading and eccentric work — the gold standard approach for Achilles recovery." },
   PF: { name: "Plantar Fascia", description: "Heel or sole-of-foot pain is a plantar fasciitis pattern — very common and very manageable. Your sessions include calf release, intrinsic foot strength, and graded loading." },
   MO: { name: "Mobility-First", description: "Restricted range without sharp pain means mobility work is safe and beneficial. Your sessions focus on restoring movement through progressive, never forced, range of motion work." },
+  RO: { name: "Rotational Restriction", description: "Rotation is more restricted on one side — your practice restores symmetrical rotation through progressive twisting and mobilisation postures." },
+  CO: { name: "Compression / Postural", description: "Pain accumulates with sustained posture and is relieved by movement. Your sessions use traction and decompression postures alongside movement breaks." },
+  NN: { name: "Neural Component", description: "Tingling or numbness suggests nerve involvement. Your practice avoids compression and includes gentle nerve gliding in neutral positions." },
+  IM: { name: "Anterior Impingement", description: "Front-of-shoulder pain during overhead movements suggests subacromial impingement. Your practice focuses on scapular control and rotator cuff strengthening." },
+  RC: { name: "Rotator Cuff", description: "Catching, clicking, or pain with rotation points to rotator cuff involvement. Progressive loading — not rest alone — is the most effective recovery path." },
+  FR: { name: "Frozen / Restricted", description: "Restriction in all shoulder directions suggests adhesive capsulitis. Gentle, pain-free range of motion maintains mobility while the capsule heals." },
 };
 
 // --- PROFILE DATA (for scoring/insights) --------------------------------------
@@ -116,6 +130,42 @@ const PROFILE_DATA = {
     ST: { name: "Ankle Needs Strength", sub: "Weakness and poor single-leg stability", tag: "Strength first", insights: ["Weakness and instability on single-leg tasks are the primary findings.", "Heel raise progressions from bilateral to single-leg are the foundation.", "Ankle strength affects knee and hip mechanics — improving it benefits the whole chain."] },
     MO: { name: "Ankle Needs Mobility", sub: "Restricted range — stiffness without sharp pain", tag: "Mobility first", insights: ["Restricted dorsiflexion or plantarflexion stiffness — mobility work is safe and beneficial.", "Calf stretching and ankle circles address the most common restrictions.", "Ankle mobility directly affects knee and hip movement quality."] },
   },
+};
+
+PROFILE_DATA.NECK = {
+  FL: { name: "Flexion-Sensitive", sub: "Forward bending tends to increase neck discomfort", color: "#B84838", bg: "#FDF0EE", tag: "Disc / anterior load", insights: ["Pain or pressure at the back of your neck increases when you bend forward — a classic disc or anterior osteophyte pattern.", "Your practice avoids deep cervical flexion and prioritises neutral and gently extended positions.", "Supported extension postures are your foundation — forward bending is introduced gradually as you settle."] },
+  EX: { name: "Extension-Sensitive", sub: "Looking up or arching back tends to increase discomfort", color: "#B87028", bg: "#FDF4EE", tag: "Facet / foraminal pattern", insights: ["Pain increases when you tilt your head back — this points to facet joint loading or foraminal narrowing.", "Your practice avoids sustained extension and prioritises neutral and gently flexed positions.", "Decompression, traction-friendly postures, and cervical flexion form your therapeutic foundation."] },
+  NE: { name: "Neural / Cervicogenic", sub: "Radiation, tingling, or arm symptoms detected", color: "#5840B0", bg: "#F2EFFE", tag: "Nerve root involvement", insights: ["We noticed signals suggesting nerve root involvement — tingling, pulling, or radiation toward the arm.", "Your practice is designed to reduce nerve irritation — no compression, minimal strong flexion or extension early on.", "If arm symptoms persist outside practice, please mention this to a healthcare provider."] },
+  LA: { name: "Lateral / Rotational", sub: "One-sided restriction or pain on turning and side-bending", color: "#207890", bg: "#EEF5FD", tag: "Unilateral facet / disc", insights: ["Restriction or pain is more pronounced on one side — suggesting a unilateral facet joint or lateral disc pattern.", "Your practice focuses on symmetry: restoring equal rotation and lateral flexion to both sides.", "Gentle, progressive rotation work is the cornerstone of your program."] },
+  ST: { name: "Neck Needs Strength", sub: "Postural fatigue, forward-head weakness, or poor endurance", color: "#B83858", bg: "#FDF0F3", tag: "Postural weakness", insights: ["Your neck muscles fatigue quickly under load — a forward-head posture or endurance deficit pattern.", "Your practice focuses on deep cervical flexor activation and postural endurance to support the head.", "Short, consistent sessions build the control your neck needs — intensity comes later."] },
+  MO: { name: "Neck Needs Mobility", sub: "Bilateral stiffness without sharp pain", color: "#3A7080", bg: "#EDF8FA", tag: "Mobility first", insights: ["Stiffness in multiple directions without sharp pain is your primary finding — mobility work is safe and beneficial.", "Your practice focuses on restoring rotation, lateral flexion, and flexion range progressively.", "Daily gentle movement is more effective than occasional intensive stretching for cervical stiffness."] },
+};
+
+PROFILE_DATA.UBACK = {
+  EX: { name: "Extension-Blocked", sub: "Chest opening and arching the upper back is restricted", color: "#B84838", bg: "#FDF0EE", tag: "Thoracic kyphosis pattern", insights: ["You struggle to open your chest and extend your thoracic spine — a postural kyphosis or facet compression pattern.", "Your practice prioritises thoracic extension and chest opening through supported and active extension postures.", "Consistent thoracic extension work reduces neck strain, shoulder tension, and lumbar compensations."] },
+  RO: { name: "Rotational Restriction", sub: "Asymmetric twist — one side is more restricted", color: "#B87028", bg: "#FDF4EE", tag: "Unilateral rib / facet", insights: ["Rotation is more restricted on one side — suggesting unilateral facet, rib joint, or asymmetric tightness.", "Your practice focuses on restoring symmetrical thoracic rotation through progressive twisting postures.", "Even a small rotation deficit on one side can drive neck, shoulder, and lower back compensations."] },
+  CO: { name: "Compression / Postural", sub: "Pain with sustained sitting or posture, relieved by movement", color: "#5840B0", bg: "#F2EFFE", tag: "Postural / disc load", insights: ["Pain accumulates with sustained sitting or static posture and is relieved by movement — a disc or postural loading pattern.", "Your practice uses traction and decompression postures to reduce compression and restore fluid mechanics.", "Movement breaks and postural resets are as important as formal practice sessions."] },
+  NE: { name: "Neural / Referred", sub: "Intercostal, rib, or arm referred sensation detected", color: "#207890", bg: "#EEF5FD", tag: "T-spine nerve root", insights: ["We noticed signals suggesting intercostal or referred pain — possibly a thoracic nerve root contributing.", "Your practice avoids positions that increase ribcage or thoracic compression.", "If band-like chest or rib sensations persist outside practice, mention this to a healthcare provider."] },
+  ST: { name: "Upper Back Needs Strength", sub: "Mid-back fatigue, scapular winging, or poor postural endurance", color: "#B83858", bg: "#FDF0F3", tag: "Scapular weakness", insights: ["Weakness and fatigue in the mid-back, scapular area, or postural muscles are your primary finding.", "Your practice focuses on scapular stabilisation, rhomboid and lower trapezius strength, and postural endurance.", "Building thoracic strength is one of the most effective ways to permanently reduce upper back and neck pain."] },
+  MO: { name: "Upper Back Needs Mobility", sub: "Generalised thoracic stiffness in multiple directions", color: "#3A7080", bg: "#EDF8FA", tag: "Thoracic mobility first", insights: ["Stiffness through the thoracic spine without sharp pain — mobility work is safe and highly effective here.", "Your practice systematically restores flexion, extension, and rotation range through progressive mobilisation.", "Thoracic mobility directly improves shoulder range of motion, neck comfort, and lower back health."] },
+};
+
+PROFILE_DATA.WRIST = {
+  EX: { name: "Extension Overload", sub: "Weight-bearing wrist extension is the primary trigger", color: "#B84838", bg: "#FDF0EE", tag: "Dorsal impingement / TFCC", insights: ["Loading your wrist in extension — like Downward Dog or Table Top — triggers your symptoms.", "Your practice uses fist modifications, forearm support, and reduced wrist extension loading while your wrist settles.", "Gradually reintroducing extension under load is the therapeutic goal — we'll get there progressively."] },
+  FL: { name: "Flexor / Volar Strain", sub: "Wrist flexion or gripping is the primary trigger", color: "#B87028", bg: "#FDF4EE", tag: "Flexor tendinopathy", insights: ["Pain on the palm side of your wrist suggests flexor tendinopathy or volar plate involvement.", "Your practice avoids sustained gripping and wrist flexion loading while the flexors settle.", "Eccentric loading and progressive strengthening at manageable ranges are the therapeutic tools."] },
+  LA: { name: "Lateral / Radial-Ulnar", sub: "Thumb-side or pinky-side outer wrist pain", color: "#5840B0", bg: "#F2EFFE", tag: "De Quervain's / TFCC", insights: ["Pain on the radial (thumb) or ulnar (pinky) side suggests De Quervain's tendinopathy or TFCC involvement.", "Your practice avoids rotational wrist loading and positions that stress the radial or ulnar structures.", "Gentle tendon gliding and gradual lateral loading are the therapeutic approach."] },
+  NN: { name: "Neural Component", sub: "Tingling, numbness, or nerve-related hand symptoms", color: "#207890", bg: "#EEF5FD", tag: "Carpal / cervical neural", insights: ["Tingling or numbness in the hand or fingers suggests carpal tunnel, cubital tunnel, or cervical referral.", "Your practice avoids positions that compress the wrist canal and includes nerve gliding in neutral positions.", "If symptoms persist or worsen at night, mention this to a healthcare provider — it's very treatable."] },
+  ST: { name: "Wrist Needs Strength", sub: "Instability, weakness, or poor wrist/forearm control", color: "#B83858", bg: "#FDF0F3", tag: "Wrist instability", insights: ["Instability and weakness under load are your primary finding — the wrist needs progressive strengthening.", "Your practice starts with low-load wrist stability work and progressively builds load tolerance.", "Forearm strength and proprioception training are as important as wrist strengthening exercises."] },
+  MO: { name: "Wrist Needs Mobility", sub: "Restricted range without sharp pain", color: "#3A7080", bg: "#EDF8FA", tag: "Mobility first", insights: ["Restricted extension or flexion range without sharp pain — mobility work is safe and beneficial.", "Your practice systematically restores wrist range through progressive loaded and unloaded mobility.", "Wrist mobility directly affects grip strength, shoulder position, and upper limb movement quality."] },
+};
+
+PROFILE_DATA.SHLDR = {
+  IM: { name: "Anterior Impingement", sub: "Front-of-shoulder pain overhead or when reaching", color: "#B84838", bg: "#FDF0EE", tag: "Subacromial / rotator cuff", insights: ["Pain at the front of your shoulder during overhead movements suggests subacromial impingement or rotator cuff involvement.", "Your practice avoids the painful arc (60–120°) and focuses on scapular stabilisation and rotator cuff strengthening.", "Restoring scapular control is the foundation — it creates more space and reduces impingement forces."] },
+  RC: { name: "Rotator Cuff", sub: "Pain with rotation, reaching behind, or catching sensation", color: "#B87028", bg: "#FDF4EE", tag: "Rotator cuff strain", insights: ["Catching, clicking, or pain with rotation or reaching behind your back points to rotator cuff involvement.", "Your practice uses sub-maximal isometric and rhythmic stabilisation to allow the tendon to settle.", "Progressive rotator cuff loading — not rest alone — is the most effective path to recovery."] },
+  FR: { name: "Frozen / Restricted", sub: "Significantly restricted in all directions — possible adhesive capsulitis", color: "#5840B0", bg: "#F2EFFE", tag: "Adhesive capsulitis", insights: ["Restriction in all shoulder directions, especially rotation and overhead reach, suggests adhesive capsulitis.", "Your practice uses gentle, pain-free range of motion to maintain mobility while the capsule heals — no forced stretching.", "Gentle consistency is more effective than aggressive stretching for frozen shoulder. Warmth before practice helps."] },
+  PO: { name: "Posterior Capsule", sub: "Pain behind the shoulder, limited internal rotation", color: "#207890", bg: "#EEF5FD", tag: "Posterior capsule tightness", insights: ["Tightness or pain behind the shoulder with internal rotation restriction points to posterior capsule tightness.", "Your practice focuses on posterior capsule stretching and internal rotation recovery in pain-free ranges.", "Posterior capsule tightness is extremely common in athletes and desk workers — and very responsive to the right exercises."] },
+  ST: { name: "Shoulder Needs Strength", sub: "Instability, scapular winging, or poor shoulder girdle control", color: "#B83858", bg: "#FDF0F3", tag: "Scapular instability", insights: ["Instability, scapular winging, or poor control under load are your primary findings.", "Your practice focuses on scapular stabilisation, lower and middle trapezius strength, and progressive shoulder girdle loading.", "Stable shoulders come from strong postural muscles — the rotator cuff is only part of the picture."] },
+  MO: { name: "Shoulder Needs Mobility", sub: "Restricted range without sharp pain — early capsule or stiffness", color: "#3A7080", bg: "#EDF8FA", tag: "Mobility first", insights: ["Restricted shoulder range without sharp pain — mobility work is safe and beneficial here.", "Your practice restores flexion, rotation, and horizontal abduction progressively through the pain-free range.", "Shoulder mobility is closely linked to thoracic mobility — improving both together produces the fastest results."] },
 };
 
 // --- LB POSTURES --------------------------------------------------------------
@@ -240,11 +290,72 @@ const ANKLE_POSTURES = [
   { id: "ankle_summary", name: "Session Check-in", subtitle: "", grad: ["#E4DDD6", "#C4B8B0"], time: "", conditional: false, double_score: false, videoId: null, isSummary: true, how: "", qs: [{ id: "ankle_summary_q", text: "Compared to before the session, how does your ankle feel now?", opts: [{ t: "Better — less pain or more comfortable", sig: {} }, { t: "No change", sig: {} }, { t: "Slightly worse — more discomfort", sig: {} }, { t: "Significantly worse — pain increased", sig: {} }, { t: "I had no pain to begin with", sig: {} }] }] },
 ];
 
+// --- NECK POSTURES ------------------------------------------------------------
+const NECK_POSTURES = [
+  { id:"neck_p1", name:"Gentle Neck Rotation", subtitle:"Bilateral Baseline", grad:["#A8CCCA","#6AA8A4"], time:"~60 sec", conditional:false, double_score:false, videoId:null, how:"Slowly rotate your head to look over each shoulder. Both directions. Observe restriction, asymmetry, or any pain before provocation postures.", qs:[{ id:"neck_p1q1", text:"Slowly rotate your head to each side. How does the movement feel?", opts:[{t:"Free and symmetrical on both sides", sig:{}},{t:"Slightly restricted but no pain", sig:{MO:1}},{t:"One side is more restricted than the other", sig:{LA:1, MO:1}},{t:"One side causes pain or discomfort", sig:{LA:1}},{t:"Both sides cause pain or discomfort", sig:{MO:1}},{t:"Pulling sensation toward the shoulder", sig:{NE:1}},{t:"Pain spreads toward the temple or jaw", sig:{NE:1}}]}] },
+  { id:"neck_p2", name:"Chin-In Test", subtitle:"Cervical Retraction", grad:["#B4D0B0","#80B07C"], time:"~30 sec", conditional:false, double_score:false, videoId:null, how:"Sitting tall, gently draw your chin straight backward — as if making a double chin — without tilting your head up or down. Hold 3 seconds, repeat 3×.", qs:[{ id:"neck_p2q1", text:"How did your neck feel during this movement?", opts:[{t:"Neck felt more supported or stable", sig:{ST:1}},{t:"Movement felt difficult to control", sig:{ST:1}},{t:"Pain increased at the back of the neck", sig:{EX:1}},{t:"Pulling sensation toward shoulder or arm", sig:{NE:1}},{t:"No change", sig:{}}]}] },
+  { id:"neck_p3", name:"Chin to Chest", subtitle:"Cervical Flexion ★ ×2", grad:["#C4B8D4","#9880B4"], time:"~30 sec", conditional:false, double_score:true, videoId:null, how:"Draw your chin toward your chest as far as comfortably possible. Hold 4 slow breaths.", qs:[{ id:"neck_p3q1", text:"Draw your chin toward your chest. How does your neck feel in this position?", opts:[{t:"Comfortable stretch — no pain", sig:{}},{t:"Tightness at the back of the neck", sig:{MO:1}},{t:"Pain at the back of the neck", sig:{FL:1}},{t:"Pulling sensation or radiation toward the arm", sig:{NE:1}},{t:"Pain in the upper back — not the neck", sig:{}, xover:true},{t:"No sensation", sig:{}},{t:"Pressure or pain at the base of the skull", sig:{EX:1}}]}] },
+  { id:"neck_p4", name:"Seated Neck Extension", subtitle:"Cervical Extension", grad:["#D0BCA8","#B09880"], time:"~30 sec", conditional:false, double_score:false, videoId:null, how:"Slowly tilt your head back to look toward the ceiling. Stop immediately if dizziness occurs. Hold 3 seconds if comfortable.", qs:[{ id:"neck_p4q1", text:"Slowly tilt your head back, looking toward the ceiling. How does your neck respond?", opts:[{t:"Comfortable — no pain", sig:{}},{t:"Mild tightness only", sig:{MO:1}},{t:"Pain at the back of the neck or base of skull", sig:{EX:1}},{t:"Pulling sensation into the shoulder or arm", sig:{EX:1, NE:1}},{t:"Dizziness or light-headedness — had to stop", sig:{}, dizziness:true}]}] },
+  { id:"neck_p5", name:"Seated Side Bend", subtitle:"Lateral Cervical Flexion", grad:["#B8CCDC","#84A4C0"], time:"~45 sec", conditional:false, double_score:false, videoId:null, how:"Sitting tall, let your right ear drop toward your right shoulder. Hold 2 breaths. Repeat on the left side.", qs:[{ id:"neck_p5q1", text:"Sitting tall, let your right ear drop toward your right shoulder. Repeat left. How does each side feel?", opts:[{t:"Comfortable on both sides", sig:{}},{t:"Restricted on one side — couldn't reach fully", sig:{LA:1, MO:1}},{t:"Pain or discomfort on one side", sig:{LA:1}},{t:"Pulling sensation down the arm on one side", sig:{NE:1}},{t:"Restricted and tight on both sides", sig:{MO:1}}]}] },
+  { id:"neck_p6", name:"Thread the Needle", subtitle:"Thoracic Rotation + Cervical Torsion", grad:["#B4D4C4","#7CB898"], time:"~60 sec", conditional:false, double_score:false, videoId:null, how:"From hands and knees, slide one arm under your body and rotate your trunk fully. Look under your arm. Both sides.", qs:[{ id:"neck_p6q1", text:"From hands and knees, slide one arm under your body — how does the cervical rotation feel on each side?", opts:[{t:"Free and equal on both sides", sig:{}},{t:"Restricted on one side — couldn't rotate fully", sig:{LA:1, MO:1}},{t:"Pain or discomfort on one side", sig:{LA:1}},{t:"Pain at the back of the neck on both sides", sig:{MO:1}},{t:"Pulling sensation into the arm on one side", sig:{NE:1}}]}] },
+  { id:"neck_p7", name:"Eagle Arms", subtitle:"Garudasana Arms ★ ×2", grad:["#C8B8DC","#A090C0"], time:"~45 sec", conditional:false, double_score:true, videoId:null, how:"Wrap your arms in eagle position — one elbow over the other, forearms crossed. Hold 4 breaths.", qs:[{ id:"neck_p7q1", text:"Wrap your arms in eagle position. How does your neck feel with the shoulders under load?", opts:[{t:"Comfortable — no neck effect", sig:{}},{t:"Neck fatigue or effort to hold head up", sig:{ST:1}},{t:"Pain or pressure at the back of the neck", sig:{EX:1}},{t:"Pulling sensation or tingling into the arm", sig:{NE:1}},{t:"Pain on one side of the neck", sig:{LA:1}},{t:"Jaw or temple tension increased", sig:{LA:1}}]}] },
+  { id:"neck_p8", name:"Puppy Pose", subtitle:"Anahatasana", grad:["#DCC8B0","#C0A484"], time:"~45 sec", conditional:false, double_score:false, videoId:null, how:"From hands and knees, walk your hands forward and lower your chest toward the floor. Hips remain over knees. Hold 4 breaths.", qs:[{ id:"neck_p8q1", text:"Walk hands forward, lower chest toward the floor — how does your neck feel in this position?", opts:[{t:"Comfortable — pleasant stretch", sig:{}},{t:"Tightness at the back of the neck", sig:{MO:1}},{t:"Pain at the back of the neck", sig:{FL:1}},{t:"Relief — felt like decompression", sig:{FL:1}},{t:"Neck pain worsened in this position", sig:{FL:1}},{t:"Pain in the upper back — not the neck", sig:{}, xover:true}]}] },
+  { id:"neck_p9", name:"Supported Fish", subtitle:"Matsyasana", grad:["#A8CCCA","#6AA8A4"], time:"~45 sec", conditional:false, double_score:false, videoId:null, how:"Lie on your back with a rolled blanket or block under your mid-back (T5–T8). Let your head rest back passively. Hold 4 breaths.", qs:[{ id:"neck_p9q1", text:"Lie with support under your thoracic spine — head rests back. How does your neck respond to this passive extension?", opts:[{t:"Comfortable — pleasant stretch", sig:{}},{t:"Manageable — mild neck discomfort that settled", sig:{}},{t:"Pain or pressure at the back of the neck", sig:{EX:1}},{t:"Pulling sensation or tingling into the arm", sig:{NE:1}},{t:"Strong discomfort or dizziness — had to come out", sig:{EX:1}, dizziness:true},{t:"Neck weakness — difficulty sustaining position", sig:{ST:1}}]}] },
+  { id:"neck_p10", name:"Child's Pose", subtitle:"Balasana", grad:["#B4D0C0","#7CB898"], time:"~45 sec", conditional:false, double_score:false, videoId:null, how:"From kneeling, walk your hands forward and lower your forehead toward the floor. Arms extended. Hold 4 breaths.", qs:[{ id:"neck_p10q1", text:"From kneeling, walk hands forward and lower forehead toward the floor. How does the neck feel?", opts:[{t:"Comfortable — full relaxation", sig:{}},{t:"Tightness at the back of the neck", sig:{MO:1}},{t:"Pain at the back of the neck", sig:{FL:1}},{t:"Neck weakness — hard to sustain position", sig:{ST:1}},{t:"Pulling sensation into the shoulder or arm", sig:{NE:1}}]}] },
+  { id:"neck_summary", name:"Session Check-in", subtitle:"", grad:["#E4DDD6","#C4B8B0"], time:"", conditional:false, double_score:false, videoId:null, isSummary:true, how:"", qs:[{ id:"neck_summary_q", text:"Compared to before the session, how does your neck feel now?", opts:[{t:"Better — less pain or more comfortable", sig:{}},{t:"No change", sig:{}},{t:"Slightly worse — more discomfort", sig:{}},{t:"Significantly worse — pain increased", sig:{}},{t:"I had no pain to begin with", sig:{}}]}] },
+];
+
+// --- UBACK POSTURES -----------------------------------------------------------
+const UBACK_POSTURES = [
+  { id:"ub_p1", name:"Cat-Cow", subtitle:"Thoracic Flex / Ext Baseline", grad:["#A8CCCA","#6AA8A4"], time:"~60 sec", conditional:false, double_score:false, videoId:null, how:"On hands and knees, move through Cat-Cow slowly — 5 cycles. Focus on thoracic spine movement. Inhale to arch (Cow), exhale to round (Cat).", qs:[{ id:"ub_p1q1", text:"Move through Cat-Cow slowly. How does your upper and mid back respond?", opts:[{t:"Free and comfortable in both directions", sig:{}},{t:"Easier to round (cat) than to arch (cow)", sig:{EX:1}},{t:"Easier to arch (cow) than to round (cat)", sig:{MO:1}},{t:"Both directions feel stiff or restricted", sig:{MO:1}},{t:"Movement was painful in one direction", sig:{EX:1, CO:1}},{t:"Pulling sensation around the ribs", sig:{NE:1}},{t:"Pain in the lower back — not upper back", sig:{}, xover:true}]}] },
+  { id:"ub_p2", name:"Supine Twist", subtitle:"Thoracic Rotation Baseline", grad:["#B4D0B0","#80B07C"], time:"~60 sec", conditional:false, double_score:false, videoId:null, how:"Lie on your back. Drop both knees to one side, arms out wide. Hold 3 breaths. Repeat other side.", qs:[{ id:"ub_p2q1", text:"Lie on your back, drop both knees to one side, then the other. How does each direction feel?", opts:[{t:"Free and comfortable — both sides", sig:{}},{t:"One side more restricted than the other", sig:{RO:1, MO:1}},{t:"One side caused pain or discomfort", sig:{RO:1}},{t:"Pulling sensation to ribs, chest, or arm", sig:{NE:1}},{t:"Both sides restricted", sig:{MO:1}},{t:"Pain in lower back — not upper back", sig:{}, xover:true}]}] },
+  { id:"ub_p3", name:"Supported Fish", subtitle:"Matsyasana ★ ×2", grad:["#C4B8D4","#9880B4"], time:"~45 sec", conditional:false, double_score:true, videoId:null, how:"Place a rolled blanket or block under your thoracic spine at shoulder blade level (T5–T8). Arms wide. Let your chest open toward the ceiling. Hold 4 breaths.", qs:[{ id:"ub_p3q1", text:"With support under your thoracic spine, let your chest open toward the ceiling. How does your upper back respond?", opts:[{t:"Comfortable — chest opens freely", sig:{}},{t:"Tight — chest resisted opening", sig:{EX:1, MO:1}},{t:"Pain or pressure in the upper/mid back", sig:{EX:1}},{t:"Pulling sensation to ribs or arm", sig:{NE:1}},{t:"Strong discomfort — had to come out", sig:{EX:1}},{t:"Relief — felt like decompression", sig:{CO:1}}]}] },
+  { id:"ub_p4", name:"Thread the Needle", subtitle:"Thoracic Rotation", grad:["#D0BCA8","#B09880"], time:"~60 sec", conditional:false, double_score:false, videoId:null, how:"From hands and knees, slide one arm under your body and rotate to look under. Both sides. Focus on upper back movement.", qs:[{ id:"ub_p4q1", text:"From hands and knees, slide one arm under your body and rotate. How does each side feel?", opts:[{t:"Free and equal on both sides", sig:{}},{t:"One side more restricted than the other", sig:{RO:1, MO:1}},{t:"One side caused pain in upper/mid back", sig:{RO:1}},{t:"Pulling or tingling sensation to ribs or arm", sig:{NE:1}},{t:"Both sides restricted equally", sig:{MO:1}}]}] },
+  { id:"ub_p5", name:"Puppy Pose", subtitle:"Anahatasana — Thoracic Traction", grad:["#B8CCDC","#84A4C0"], time:"~45 sec", conditional:false, double_score:false, videoId:null, how:"From hands and knees, walk your hands forward and lower your chest toward the floor. Hips stay above the knees. Hold 4 breaths.", qs:[{ id:"ub_p5q1", text:"Walk hands forward, lower chest toward the floor. How does the upper and mid back respond?", opts:[{t:"Pleasant stretch", sig:{}},{t:"Tight — difficult to lower chest", sig:{EX:1, MO:1}},{t:"Relief — felt like decompression", sig:{}},{t:"Pain in mid/upper back", sig:{EX:1}},{t:"Pulling sensation to chest or ribs", sig:{NE:1}},{t:"Pain in lower back — not upper", sig:{}, xover:true}]}] },
+  { id:"ub_p6", name:"Seated Twist", subtitle:"Ardha Matsyendrasana ★ ×2", grad:["#C8B8DC","#A090C0"], time:"~60 sec", conditional:false, double_score:true, videoId:null, how:"Sit cross-legged or in a chair. Place one hand on the opposite knee. Twist fully — hold 4 breaths each side.", qs:[{ id:"ub_p6q1", text:"Sitting tall, twist to the right then left. How does the thoracic spine respond on each side?", opts:[{t:"Equal on both sides", sig:{}},{t:"One side significantly more restricted", sig:{RO:1, MO:1}},{t:"Pain in upper back on one side", sig:{RO:1}},{t:"Pulling or discomfort into ribs or arm", sig:{NE:1}},{t:"Pain in upper back on both sides", sig:{CO:1}},{t:"Pain in lower back — not upper", sig:{}, xover:true}]}] },
+  { id:"ub_p7", name:"Prone Cobra", subtitle:"Bhujangasana — Active Extension", grad:["#DCC8B0","#C0A484"], time:"~45 sec", conditional:false, double_score:false, videoId:null, how:"Lie on your stomach, hands under shoulders. Lift your chest off the floor using your back muscles — elbows slightly bent. Hold 3 breaths.", qs:[{ id:"ub_p7q1", text:"From lying on your stomach, lift your chest using your back muscles. How does the upper back feel?", opts:[{t:"Strong and controlled — good lift", sig:{}},{t:"Muscle effort — managed to lift", sig:{ST:1}},{t:"Fatigued quickly — couldn't hold position", sig:{ST:1}},{t:"Pain or pressure in the mid/upper back", sig:{CO:1}},{t:"Relief — felt like decompression", sig:{}}]}] },
+  { id:"ub_p8", name:"Wide-Legged Forward Fold", subtitle:"Prasarita Padottanasana", grad:["#B4D4C4","#7CB898"], time:"~60 sec", conditional:false, double_score:false, videoId:null, how:"Stand with wide legs and fold forward from your hips, letting your upper body hang. Hold 4 breaths.", qs:[{ id:"ub_p8q1", text:"Stand with wide legs and fold forward. How does your upper and mid back respond?", opts:[{t:"Pleasant decompression", sig:{}},{t:"Tight upper/mid back — difficult to fold", sig:{MO:1}},{t:"One side tighter or more restricted", sig:{RO:1, MO:1}},{t:"Pain in upper/mid back", sig:{CO:1}},{t:"Pain in lower back — not upper", sig:{}, xover:true}]}] },
+  { id:"ub_p9", name:"Eagle Arms", subtitle:"Garudasana Arms", grad:["#A8CCCA","#6AA8A4"], time:"~45 sec", conditional:false, double_score:false, videoId:null, how:"Wrap your arms in eagle position. Draw your elbows forward and away from your chest. Hold 4 breaths.", qs:[{ id:"ub_p9q1", text:"Wrap your arms in eagle position and draw elbows away from chest. How does the upper back and between the shoulder blades feel?", opts:[{t:"Comfortable — good stretch between shoulder blades", sig:{}},{t:"Tight between shoulder blades", sig:{MO:1}},{t:"Pain or pressure between shoulder blades", sig:{CO:1}},{t:"One shoulder significantly higher or tighter", sig:{RO:1}},{t:"Weakness or fatigue holding the position", sig:{ST:1}}]}] },
+  { id:"ub_summary", name:"Session Check-in", subtitle:"", grad:["#E4DDD6","#C4B8B0"], time:"", conditional:false, double_score:false, videoId:null, isSummary:true, how:"", qs:[{ id:"ub_summary_q", text:"Compared to before the session, how does your upper back feel now?", opts:[{t:"Better — less pain or more comfortable", sig:{}},{t:"No change", sig:{}},{t:"Slightly worse — more discomfort", sig:{}},{t:"Significantly worse — pain increased", sig:{}},{t:"I had no pain to begin with", sig:{}}]}] },
+];
+
+// --- WRIST POSTURES -----------------------------------------------------------
+const WRIST_POSTURES = [
+  { id:"wr_p1", name:"Wrist Rotation", subtitle:"Circumduction ROM Baseline", grad:["#A8CCCA","#6AA8A4"], time:"~45 sec", conditional:false, double_score:false, videoId:null, how:"Make slow, large circles with each wrist — both clockwise and counterclockwise. Both wrists separately. Observe range and smoothness.", qs:[{ id:"wr_p1q1", text:"Make slow circles with each wrist. What do you notice about the range and quality of movement?", opts:[{t:"Full and smooth — both wrists equal", sig:{}},{t:"One wrist slightly more restricted", sig:{MO:1}},{t:"Clicking or catching on one side", sig:{LA:1}},{t:"Pain on the outer side of the wrist (thumb or pinky side)", sig:{LA:1}},{t:"Both wrists restricted", sig:{MO:1}},{t:"No sensation", sig:{}},{t:"Pain at the end of the circular range", sig:{LA:1}}]}] },
+  { id:"wr_p2", name:"Prayer Hands", subtitle:"Anjali Mudra — Passive Extension", grad:["#B4D0B0","#80B07C"], time:"~30 sec", conditional:false, double_score:false, videoId:null, how:"Press your palms together in front of your chest, fingers pointing up. Both wrists in passive extension. Note range and any symptoms.", qs:[{ id:"wr_p2q1", text:"Press your palms together in front of your chest, fingers pointing up. How far can the wrists extend and how do they feel?", opts:[{t:"Comfortable — full extension", sig:{}},{t:"Mild tightness — manageable", sig:{MO:1}},{t:"Pain at the back of the wrist", sig:{EX:1}},{t:"Could not fully flatten palms — limited extension", sig:{EX:1, MO:1}},{t:"Tingling or numbness in the fingers", sig:{NN:1}}]}] },
+  { id:"wr_p3", name:"Table Top", subtitle:"Bharmanasana — Loaded Extension", grad:["#C4B8D4","#9880B4"], time:"~45 sec", conditional:false, double_score:false, videoId:null, how:"Come to hands and knees, wrists directly under shoulders, fingers spread wide. Moderate weight-bearing. Hold 4 breaths.", qs:[{ id:"wr_p3q1", text:"On hands and knees, with wrists under shoulders — how do your wrists feel under this load?", opts:[{t:"Comfortable — stable and strong", sig:{}},{t:"Mild pressure — manageable", sig:{}},{t:"Pain at the back of the wrist", sig:{EX:1}},{t:"Wrist instability or wobbling", sig:{ST:1}},{t:"Could not hold — wrist weakness or pain", sig:{ST:1}}]}] },
+  { id:"wr_p4", name:"Downward Dog", subtitle:"Adho Mukha Svanasana ★ ×2", grad:["#D0BCA8","#B09880"], time:"~45 sec", conditional:false, double_score:true, videoId:null, how:"From hands and knees, tuck toes and lift hips to full Downward Dog. Press through the base of the fingers. Hold 4 breaths.", qs:[{ id:"wr_p4q1", text:"Hold Downward Dog for 4 breaths, pressing through the base of the fingers. How do the wrists respond under this load?", opts:[{t:"Comfortable and stable", sig:{}},{t:"Mild discomfort — manageable", sig:{EX:1}},{t:"Pain at the back of the wrist", sig:{EX:1}},{t:"Wrist instability or shaking", sig:{ST:1}},{t:"Sharp pain — had to come out of position", sig:{EX:1}}]}] },
+  { id:"wr_p5", name:"Reverse Prayer", subtitle:"Paschima Anjali Mudra — Wrist Flexion", grad:["#B8CCDC","#84A4C0"], time:"~30 sec", conditional:false, double_score:false, videoId:null, how:"Bring your hands behind your back, fingers pointing down, pressing palms together if possible. Tests wrist flexion range.", qs:[{ id:"wr_p5q1", text:"With hands behind your back, fingers pointing down, press palms together. How does this position feel in the wrists?", opts:[{t:"Comfortable — full flexion", sig:{}},{t:"Mild tightness at the front of the wrist", sig:{MO:1}},{t:"Pain at the front of the wrist (palm side)", sig:{FL:1}},{t:"Could not fully flex — limited range", sig:{FL:1, MO:1}},{t:"Tingling or numbness in the fingers", sig:{NN:1}}]}] },
+  { id:"wr_p6", name:"Fist to Extension", subtitle:"Tendon Glide + Neural Screen ★ ×2", grad:["#C8B8DC","#A090C0"], time:"~45 sec", conditional:false, double_score:true, videoId:null, how:"Slowly make a full fist, then fully extend and spread your fingers wide. Repeat 5 times smoothly.", qs:[{ id:"wr_p6q1", text:"Slowly make a full fist, then extend and spread your fingers wide. Repeat 5 times. How do your hands and wrists feel?", opts:[{t:"Smooth and pain-free throughout", sig:{}},{t:"Stiffness on opening or closing", sig:{MO:1}},{t:"Pain on the thumb side of the wrist", sig:{LA:1}},{t:"Pain on the pinky side of the wrist", sig:{LA:1}},{t:"Tingling or numbness with repeated movement", sig:{NN:1}}]}] },
+  { id:"wr_p7", name:"Modified Plank on Fists", subtitle:"Neutral Wrist Load Test", grad:["#DCC8B0","#C0A484"], time:"~45 sec", conditional:false, double_score:false, videoId:null, how:"Hold a plank position on closed fists — wrists in neutral. Compare comfort to the flat-hand Downward Dog.", qs:[{ id:"wr_p7q1", text:"Hold a plank on closed fists. How do your wrists feel compared to the flat-hand positions?", opts:[{t:"More comfortable on fists — wrists feel relieved", sig:{EX:1}},{t:"Similar to flat hands — no difference", sig:{}},{t:"Still painful even on fists", sig:{FL:1}},{t:"Instability or weakness even on fists", sig:{ST:1}},{t:"Could not maintain the position", sig:{ST:1}}]}] },
+  { id:"wr_p8", name:"Wrist-Free Cat-Cow", subtitle:"Forearm Support — Unloaded Screen", grad:["#B4D4C4","#7CB898"], time:"~45 sec", conditional:false, double_score:false, videoId:null, how:"Perform Cat-Cow resting on your forearms instead of your palms, completely unloading the wrists. Note any residual symptoms.", qs:[{ id:"wr_p8q1", text:"Perform Cat-Cow resting on your forearms instead of your palms. How do the wrists and hands feel when completely unloaded?", opts:[{t:"Complete relief — no symptoms when unloaded", sig:{}},{t:"Mild residual tingling or numbness", sig:{NN:1}},{t:"No change — symptoms persist even unloaded", sig:{NN:1}},{t:"Pain persists even without wrist loading", sig:{LA:1}},{t:"Better but not fully resolved", sig:{}}]}] },
+  { id:"wr_p9", name:"Wrist Traction Test", subtitle:"Passive Decompression", grad:["#A8CCCA","#6AA8A4"], time:"~30 sec", conditional:false, double_score:false, videoId:null, how:"Option A: Gently hang from a pull-up bar for 5–10 seconds. Option B: Extend one arm forward, gently pull the hand backward with the other hand for mild traction.", qs:[{ id:"wr_p9q1", text:"When the wrist is gently tractioned, how do the symptoms change?", opts:[{t:"Symptoms improve or feel relieved", sig:{EX:1}},{t:"No change", sig:{}},{t:"Pain increases during traction", sig:{FL:1}},{t:"Tingling or numbness increases", sig:{NN:1}},{t:"Feels weak or unstable", sig:{ST:1}}]}] },
+  { id:"wr_summary", name:"Session Check-in", subtitle:"", grad:["#E4DDD6","#C4B8B0"], time:"", conditional:false, double_score:false, videoId:null, isSummary:true, how:"", qs:[{ id:"wr_summary_q", text:"Compared to before the session, how does your wrist feel now?", opts:[{t:"Better — less pain or more comfortable", sig:{}},{t:"No change", sig:{}},{t:"Slightly worse — more discomfort", sig:{}},{t:"Significantly worse — pain increased", sig:{}},{t:"I had no pain to begin with", sig:{}}]}] },
+];
+
+// --- SHLDR POSTURES -----------------------------------------------------------
+const SHLDR_POSTURES = [
+  { id:"sh_p1", name:"Mountain Pose — Arm Raise", subtitle:"Overhead Flexion Baseline", grad:["#A8CCCA","#6AA8A4"], time:"~45 sec", conditional:false, double_score:false, videoId:null, how:"Standing. Slowly raise both arms overhead — go as far as comfortable. Observe any asymmetry, pain arc between 60–120°, or end-range restriction.", qs:[{ id:"sh_p1q1", text:"Slowly raise both arms overhead. How do your shoulders feel at full reach?", opts:[{t:"Smooth and pain-free — both sides", sig:{}},{t:"One arm reaches higher than the other", sig:{MO:1}},{t:"Pain in front of shoulder during the lift", sig:{IM:1}},{t:"Pain at the top — couldn't fully reach", sig:{IM:1}},{t:"Both arms restricted — couldn't reach fully", sig:{FR:1, MO:1}}]}] },
+  { id:"sh_p2", name:"Shoulder Circles", subtitle:"Circumduction ROM Screen", grad:["#B4D0B0","#80B07C"], time:"~45 sec", conditional:false, double_score:false, videoId:null, how:"Make large, slow circles with each arm — forward and backward. Both directions. Focus on smooth movement and any catching or pain arc.", qs:[{ id:"sh_p2q1", text:"Make large slow circles with each arm in both directions. What do you notice about the full range?", opts:[{t:"Full and smooth in both directions", sig:{}},{t:"Catching or clicking in one shoulder", sig:{RC:1}},{t:"Restricted in a portion of the arc", sig:{FR:1, MO:1}},{t:"Pain at a specific point in the arc", sig:{IM:1, RC:1}},{t:"Significantly restricted — couldn't complete", sig:{FR:1, MO:1}}]}] },
+  { id:"sh_p3", name:"Doorway Stretch", subtitle:"Anterior Capsule Screen", grad:["#C4B8D4","#9880B4"], time:"~30 sec", conditional:false, double_score:false, videoId:null, how:"Stand in a doorway with forearms on the frame at shoulder height. Gently lean forward slightly. Alternative: fingers interlaced behind the back, gently lift arms away from body.", qs:[{ id:"sh_p3q1", text:"With forearms on a doorframe, gently lean forward. How does the front of your shoulder feel?", opts:[{t:"Comfortable stretch across the chest", sig:{}},{t:"Tightness across front of shoulder", sig:{MO:1}},{t:"Pain at the front of the shoulder", sig:{IM:1}},{t:"Sharp or catching sensation", sig:{IM:1}},{t:"Could not achieve this position", sig:{FR:1, MO:1}}]}] },
+  { id:"sh_p4", name:"Wall Slide", subtitle:"Overhead Scapular Stability", grad:["#D0BCA8","#B09880"], time:"~45 sec", conditional:false, double_score:false, videoId:null, how:"Back against a wall, arms at 90° (goalpost position). Slide both arms overhead while maintaining full back/arm contact with the wall.", qs:[{ id:"sh_p4q1", text:"With your back against a wall, slide both arms overhead. How do your shoulders respond?", opts:[{t:"Smooth and controlled — full contact", sig:{}},{t:"One arm lifts off the wall earlier", sig:{ST:1, MO:1}},{t:"Both arms lift off — couldn't maintain contact", sig:{ST:1}},{t:"Pain at the front of shoulder on the way up", sig:{IM:1}},{t:"Shoulder instability or giving way", sig:{ST:1}}]}] },
+  { id:"sh_p5", name:"Cow Face Arms", subtitle:"Gomukhasana Arms ★ ×2", grad:["#B8CCDC","#84A4C0"], time:"~60 sec", conditional:false, double_score:true, videoId:null, how:"Reach one arm up and behind your head (external rotation). Reach the other arm behind your lower back (internal rotation). Try to clasp or bring fingers close. Both sides.", qs:[{ id:"sh_p5q1", text:"Reaching your upper arm behind your head — how does the shoulder feel at the top?", opts:[{t:"Comfortable — full reach behind head", sig:{}},{t:"Restricted — couldn't reach far behind head", sig:{FR:1, MO:1}},{t:"Pain at front of shoulder", sig:{IM:1}},{t:"Catching or clicking sensation", sig:{RC:1}},{t:"Pain behind the shoulder", sig:{PO:1}}]},{ id:"sh_p5q2", text:"Reaching your lower arm behind your back — how does the shoulder feel?", opts:[{t:"Comfortable — hand reaches between shoulder blades", sig:{}},{t:"Restricted — couldn't reach far up the back", sig:{PO:1, MO:1}},{t:"Pain behind the shoulder", sig:{PO:1}},{t:"Pain at front of shoulder", sig:{IM:1}},{t:"Significant asymmetry between sides", sig:{FR:1}}]}] },
+  { id:"sh_p6", name:"Side-Lying External Rotation", subtitle:"Rotator Cuff Screen", grad:["#C8B8DC","#A090C0"], time:"~45 sec", conditional:false, double_score:false, videoId:null, how:"Lie on your side, top arm bent to 90° at the elbow, elbow at your waist. Rotate your forearm upward toward the ceiling. Both sides.", qs:[{ id:"sh_p6q1", text:"Lying on your side, rotate your forearm toward the ceiling. How does the shoulder respond?", opts:[{t:"Smooth and pain-free", sig:{}},{t:"Weakness — difficult to control", sig:{RC:1, ST:1}},{t:"Pain on rotation", sig:{RC:1}},{t:"Catching or clicking", sig:{RC:1}},{t:"Pain behind the shoulder", sig:{PO:1}}]}] },
+  { id:"sh_p7", name:"Eagle Arms", subtitle:"Garudasana Arms", grad:["#DCC8B0","#C0A484"], time:"~45 sec", conditional:false, double_score:false, videoId:null, how:"Wrap your arms in eagle position — one elbow over the other, forearms crossed. Draw elbows forward and slightly up. Hold 4 breaths.", qs:[{ id:"sh_p7q1", text:"With arms in eagle position, how do your shoulders feel?", opts:[{t:"Comfortable stretch", sig:{}},{t:"Restricted — couldn't wrap fully", sig:{FR:1, MO:1}},{t:"Pain at front of shoulder", sig:{IM:1}},{t:"Pain behind shoulder or between blades", sig:{PO:1}},{t:"Significant asymmetry between sides", sig:{MO:1}}]}] },
+  { id:"sh_p8", name:"Warrior II Arms", subtitle:"Virabhadrasana II — Sustained Abduction", grad:["#B4D4C4","#7CB898"], time:"~45 sec", conditional:false, double_score:false, videoId:null, how:"Stand with arms extended out to the sides at shoulder height, palms down. Hold 30 seconds. Focus on shoulder fatigue and scapular control.", qs:[{ id:"sh_p8q1", text:"With arms extended at shoulder height for 30 seconds, how do your shoulders respond?", opts:[{t:"Comfortable — held easily", sig:{}},{t:"Muscle fatigue — arms dropped early", sig:{ST:1}},{t:"Pain in front of shoulder", sig:{IM:1}},{t:"Pain at top of shoulder", sig:{IM:1, RC:1}},{t:"One side significantly weaker", sig:{ST:1}}]}] },
+  { id:"sh_p9", name:"Prone Y-Raise", subtitle:"Lower Trapezius Activation", grad:["#A8CCCA","#6AA8A4"], time:"~45 sec", conditional:false, double_score:false, videoId:null, how:"Lie face down, arms in a Y-position overhead. Slowly lift both arms off the floor using your mid-back muscles. Hold 3 seconds. Repeat 5×.", qs:[{ id:"sh_p9q1", text:"Lying face down, lift both arms in a Y-position. How do your shoulders and mid-back respond?", opts:[{t:"Strong and controlled", sig:{}},{t:"Fatigued quickly — couldn't hold", sig:{ST:1}},{t:"Pain at front of shoulder on lifting", sig:{IM:1}},{t:"Couldn't lift arms off the floor", sig:{ST:1}},{t:"Pain between shoulder blades", sig:{}, xover:true}]}] },
+  { id:"sh_summary", name:"Session Check-in", subtitle:"", grad:["#E4DDD6","#C4B8B0"], time:"", conditional:false, double_score:false, videoId:null, isSummary:true, how:"", qs:[{ id:"sh_summary_q", text:"Compared to before the session, how does your shoulder feel now?", opts:[{t:"Better — less pain or more comfortable", sig:{}},{t:"No change", sig:{}},{t:"Slightly worse — more discomfort", sig:{}},{t:"Significantly worse — pain increased", sig:{}},{t:"I had no pain to begin with", sig:{}}]}] },
+];
+
 // --- CROSSOVER MINI-SEQUENCES -------------------------------------------------
 const LB_MINI_IDS = ["knee-hug", "sphinx", "hip-hinge", "bridge", "supine-twist"];
 const HIP_MINI_IDS = ["hip_p1", "hip_p3", "hip_p5", "hip_p6", "hip_p8"];
 const KNEE_MINI_IDS = ["knee_p3", "knee_p4", "knee_p5", "knee_p8", "knee_p7"];
 const ANKLE_MINI_IDS = ["ankle_p2", "ankle_p3", "ankle_p4", "ankle_p5", "ankle_p6"];
+const NECK_MINI_IDS = ["neck_p1", "neck_p3", "neck_p5", "neck_p7", "neck_p10"];
+const UBACK_MINI_IDS = ["ub_p1", "ub_p3", "ub_p4", "ub_p6", "ub_p9"];
+const WRIST_MINI_IDS = ["wr_p2", "wr_p4", "wr_p5", "wr_p6", "wr_p7"];
+const SHLDR_MINI_IDS = ["sh_p1", "sh_p3", "sh_p5", "sh_p6", "sh_p8"];
 
 function getCrossoverPostures(fromArea) {
   // Phase 2 uses the SAME body area's postures, not the adjacent area
@@ -252,6 +363,10 @@ function getCrossoverPostures(fromArea) {
   if (fromArea === "HIP") return HIP_POSTURES.filter((p) => HIP_MINI_IDS.includes(p.id));
   if (fromArea === "KNEE") return KNEE_POSTURES.filter((p) => KNEE_MINI_IDS.includes(p.id));
   if (fromArea === "ANKLE") return ANKLE_POSTURES.filter((p) => ANKLE_MINI_IDS.includes(p.id));
+  if (fromArea === "NECK") return NECK_POSTURES.filter((p) => NECK_MINI_IDS.includes(p.id));
+  if (fromArea === "UBACK") return UBACK_POSTURES.filter((p) => UBACK_MINI_IDS.includes(p.id));
+  if (fromArea === "WRIST") return WRIST_POSTURES.filter((p) => WRIST_MINI_IDS.includes(p.id));
+  if (fromArea === "SHLDR") return SHLDR_POSTURES.filter((p) => SHLDR_MINI_IDS.includes(p.id));
   return [];
 }
 
@@ -261,6 +376,10 @@ function emptyScores(area) {
   if (area === "HIP") return { AN: 0, LA: 0, PO: 0, NE: 0, ST: 0, MO: 0 };
   if (area === "KNEE") return { PA: 0, ME: 0, LA: 0, PO: 0, ST: 0, MO: 0 };
   if (area === "ANKLE") return { AN: 0, AC: 0, PF: 0, LA: 0, ST: 0, MO: 0 };
+  if (area === "NECK") return { FL: 0, EX: 0, NE: 0, LA: 0, ST: 0, MO: 0 };
+  if (area === "UBACK") return { EX: 0, RO: 0, CO: 0, NE: 0, ST: 0, MO: 0 };
+  if (area === "WRIST") return { EX: 0, FL: 0, LA: 0, NN: 0, ST: 0, MO: 0 };
+  if (area === "SHLDR") return { IM: 0, RC: 0, FR: 0, PO: 0, ST: 0, MO: 0 };
   return {};
 }
 
@@ -316,7 +435,7 @@ function resolveProfile(area, rawScores, sessionAnswers, irritabilityLevel) {
     const neSigs = neuralQ.filter(([id, vals]) => vals.includes(sessionAnswers[id])).length;
     if (neSigs >= 1 && primary !== "NE" && secondary !== "NE" && (s.NE || 0) > 0) secondary = "NE";
   }
-  const summaryAns = sessionAnswers["knee_summary_q"] || sessionAnswers["ankle_summary_q"];
+  const summaryAns = sessionAnswers["knee_summary_q"] || sessionAnswers["ankle_summary_q"] || sessionAnswers["neck_summary_q"] || sessionAnswers["ub_summary_q"] || sessionAnswers["wr_summary_q"] || sessionAnswers["sh_summary_q"];
   let reassess = isTie || allZero;
   
   // Confidence scoring: count total signal points
@@ -362,6 +481,43 @@ function checkCrossover(area, sessionAnswers) {
     const met = [kneeCount >= 2, noAnkle, fullROM].filter(Boolean).length;
     return met >= 2 ? "KNEE" : null;
   }
+  // NECK → crossover to UBACK
+  if (area === "NECK") {
+    const ubackXover = ["neck_p3q1", "neck_p8q1"].filter(id => {
+      const a = sessionAnswers[id];
+      return a && (a.includes("upper back") || a.includes("Pain in the upper back"));
+    }).length;
+    const neckPain = ["Pain at the back of the neck", "Pain or pressure at the back of the neck", "Pain on one side of the neck"];
+    const noNeck = !vals.some(a => neckPain.includes(a));
+    return ubackXover >= 2 && noNeck ? "UBACK" : null;
+  }
+  // UBACK → crossover to LB
+  if (area === "UBACK") {
+    const lbXover = ["ub_p1q1", "ub_p5q1", "ub_p6q1", "ub_p8q1"].filter(id => {
+      const a = sessionAnswers[id];
+      return a && (a.includes("lower back") || a.includes("Pain in lower back"));
+    }).length;
+    const ubPain = ["Pain or pressure in the upper/mid back", "Pain in upper back on one side", "Pain in upper back on both sides", "Pain in mid/upper back"];
+    const noUB = !vals.some(a => ubPain.includes(a));
+    return lbXover >= 2 && noUB ? "LB" : null;
+  }
+  // WRIST → crossover to NECK (neural referral)
+  if (area === "WRIST") {
+    const neuralCount = ["wr_p2q1", "wr_p5q1", "wr_p6q1", "wr_p8q1"].filter(id => {
+      const a = sessionAnswers[id];
+      return a && (a.includes("Tingling") || a.includes("numbness"));
+    }).length;
+    const wristPain = ["Pain at the back of the wrist", "Pain at the front of the wrist", "Pain on the thumb side", "Pain on the pinky side"];
+    const noWrist = !vals.some(a => wristPain.some(wp => a && a.includes(wp)));
+    return neuralCount >= 2 && noWrist ? "NECK" : null;
+  }
+  // SHLDR → crossover to NECK
+  if (area === "SHLDR") {
+    const neckRef = vals.filter(a => a && (a.includes("neck") || a.includes("between shoulder blades"))).length;
+    const shoulderPain = ["Pain in front of shoulder", "Pain at front of shoulder", "Pain behind the shoulder", "Catching or clicking"];
+    const noShoulder = !vals.some(a => shoulderPain.some(sp => a && a.includes(sp)));
+    return neckRef >= 2 && noShoulder ? "NECK" : null;
+  }
   return null;
 }
 
@@ -387,6 +543,10 @@ function getPosturesForArea(area) {
   if (area === "HIP") return HIP_POSTURES;
   if (area === "KNEE") return KNEE_POSTURES;
   if (area === "ANKLE") return ANKLE_POSTURES;
+  if (area === "NECK") return NECK_POSTURES;
+  if (area === "UBACK") return UBACK_POSTURES;
+  if (area === "WRIST") return WRIST_POSTURES;
+  if (area === "SHLDR") return SHLDR_POSTURES;
   return [];
 }
 
@@ -426,6 +586,45 @@ const RED_FLAGS_BY_AREA = {
     "Complete loss of ankle movement after injury",
     "Numbness or tingling in the foot following trauma",
     "Severe pain following a fall or accident",
+  ],
+  NECK: [
+    "Sudden severe weakness or paralysis in the arm or hand",
+    "Loss of bladder or bowel control (possible cervical myelopathy)",
+    "Progressive numbness spreading down both arms or into the body",
+    "Severe neck pain following a fall or trauma (possible fracture)",
+    "Fever with neck stiffness and severe headache",
+    "Difficulty swallowing, speaking, or coordinating movement",
+    "Rapidly worsening neurological symptoms in the arms",
+  ],
+  UBACK: [
+    "Sudden severe upper back pain following a fall, impact, or trauma (possible fracture)",
+    "Progressive weakness, numbness, or tingling spreading into both arms or legs",
+    "Loss of bladder or bowel control",
+    "Unexplained weight loss with back pain",
+    "Fever with upper back pain",
+    "History of osteoporosis with new onset upper back pain",
+    "Chest pain or shortness of breath accompanying upper back pain",
+    "Rapidly worsening neurological symptoms",
+  ],
+  WRIST: [
+    "Visible deformity of the wrist or hand following a fall or impact (possible fracture)",
+    "Inability to grip or move fingers following a trauma",
+    "Severe swelling or bruising immediately following an injury",
+    "Progressive numbness spreading into the hand from the forearm or above",
+    "Sudden complete loss of wrist or hand movement",
+    "Fever with wrist pain and swelling (possible septic joint)",
+    "Rapidly worsening neurological symptoms (spreading numbness, weakness)",
+    "Suspected scaphoid fracture — wrist pain after fall onto outstretched hand, tenderness in the anatomical snuffbox",
+  ],
+  SHLDR: [
+    "Sudden severe shoulder pain or inability to move arm following a fall or impact",
+    "Visible deformity of the shoulder joint or collarbone",
+    "Complete sudden loss of shoulder movement with severe pain (possible dislocation)",
+    "Numbness or progressive weakness spreading down the arm",
+    "Fever with shoulder pain and swelling (possible septic joint)",
+    "Unexplained weight loss with shoulder pain",
+    "Cancer history with new onset shoulder pain",
+    "Rapidly worsening neurological symptoms in the arm",
   ],
 };
 
