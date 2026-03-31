@@ -232,6 +232,9 @@ export const CONDITION_RELEVANCE_KEY: Record<ConditionKey, string> = {
   breathing_disorders: "stressAnxiety",
   core_instability: "backPain",
   repetitive_strain: "neckShoulder",
+  ankle_pain: "kneeHip",
+  upper_back_pain: "neckShoulder",
+  wrist_pain: "neckShoulder",
 };
 
 /** Condition → safety tag mapping */
