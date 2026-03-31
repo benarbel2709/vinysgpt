@@ -364,6 +364,9 @@ export const CONDITION_PREFIX: Record<ConditionKey, string> = {
   breathing_disorders: "breathd_",
   core_instability: "coreinst_",
   repetitive_strain: "repstrain_",
+  ankle_pain: "ankle_",
+  upper_back_pain: "uback_",
+  wrist_pain: "wrist_",
 };
 
 // ═══════════════════════════════════
