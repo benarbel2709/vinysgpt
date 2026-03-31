@@ -1074,39 +1074,86 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
   // PHASE: AREA SELECTION
   // ==========================================================================
   if (phase === "area_select") {
-    return (
-      <Shell>
-        <div className="mb-8">
-          <span className="inline-block px-3.5 py-1 rounded-full bg-muted text-xs font-bold uppercase tracking-wider mb-4" style={{ color: "#888" }}>
-            Movement Assessment
-          </span>
-          <h2 className="text-[26px] sm:text-[30px] font-bold leading-[1.15] text-foreground mb-3">
-            Where would you like to start?
-          </h2>
-          <p className="text-[15px] text-muted-foreground leading-[1.65]">
-            Select the area you'd like to assess. We'll guide you through a short movement screen to understand your pattern.
-          </p>
-        </div>
+    const AREA_ICONS = {
+      NECK:  <path d="M8 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm0 5c-2 0-3 1-3 2v5h6V9c0-1-1-2-3-2z" fill="currentColor"/>,
+      SHLDR: <path d="M4 7h8M4 7c-2 1-3 3-3 5h14c0-2-1-4-3-5M8 7V3" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
+      UBACK: <path d="M8 1v14M5 5l3-3 3 3M5 11l3 3 3-3M4 8h8" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
+      WRIST: <path d="M3 10h10v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3zm1-4c0-2.2 1.8-4 4-4s4 1.8 4 4v4H4V6z" fill="currentColor"/>,
+      LB:    <path d="M8 1C5 1 3 3 3 6v3c0 3 2 5 5 5s5-2 5-5V6c0-3-2-5-5-5zm0 7v4" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
+      HIP:   <><path d="M2 10c0-4 3-7 6-7s6 3 6 7" stroke="currentColor" fill="none" strokeWidth="1.5"/><circle cx="5" cy="10" r="1.5" fill="currentColor"/><circle cx="11" cy="10" r="1.5" fill="currentColor"/></>,
+      KNEE:  <path d="M6 2v5l-3 3h10l-3-3V2h-4zm2 9v5" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
+      ANKLE: <path d="M4 4c0-1 1-2 4-2s4 1 4 2v5c0 2-1 3-4 3s-4-1-4-3V4zm0 5l-2 6h12l-2-6" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
+    };
+    const AREA_DESCRIPTORS = {
+      NECK:  "Pain, stiffness, or headaches",
+      SHLDR: "Pain or restricted movement",
+      UBACK: "Mid-back tightness or aching",
+      WRIST: "Pain, tingling, or grip issues",
+      LB:    "Lumbar pain or stiffness",
+      HIP:   "Pain or restricted range",
+      KNEE:  "Knee pain or instability",
+      ANKLE: "Ankle pain or balance issues",
+    };
+    const upperBody = ["NECK", "SHLDR", "UBACK", "WRIST"];
+    const lowerBody = ["LB", "HIP", "KNEE", "ANKLE"];
 
-        <div className="space-y-3">
-          {Object.entries(AREA_CONFIG).map(([id, cfg]) => (
-            <button
-              key={id}
-              onClick={() => { setArea(id); setPhase("red_flags"); }}
-              className="w-full p-5 rounded-2xl border border-border bg-card text-left flex items-center gap-4 hover:shadow-calm transition-all press-scale group"
-            >
-              <div className="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center flex-shrink-0">
-                <span className="text-xl">{cfg.icon}</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-[17px] font-bold text-foreground mb-0.5">{cfg.label}</div>
-                <div className="text-[13px] text-muted-foreground leading-snug">{AREA_DESC[id]}</div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground/40 group-hover:text-primary transition-colors flex-shrink-0" />
-            </button>
-          ))}
+    const AreaCard = ({ id }) => {
+      const cfg = AREA_CONFIG[id];
+      const accent = cfg.color;
+      return (
+        <button
+          onClick={() => { setArea(id); setPhase("red_flags"); }}
+          style={{
+            padding: "14px 14px 12px",
+            borderRadius: 16,
+            border: `1.5px solid #E4DDD6`,
+            background: "#FFFFFF",
+            textAlign: "left",
+            cursor: "pointer",
+            position: "relative",
+            overflow: "hidden",
+            transition: "all 0.15s ease",
+            WebkitTapHighlightColor: "transparent",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 6,
+            minHeight: 90,
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = accent; e.currentTarget.style.background = `${accent}15`; e.currentTarget.style.transform = "scale(1.02)"; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = "#E4DDD6"; e.currentTarget.style.background = "#FFFFFF"; e.currentTarget.style.transform = "scale(1)"; }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: `${accent}1A`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: accent }}>
+                {AREA_ICONS[id]}
+              </svg>
+            </div>
+            <span style={{ fontSize: 15, fontWeight: 700, color: "#1C2B26", lineHeight: 1.2 }}>{cfg.label}</span>
+          </div>
+          <span style={{ fontSize: 12, color: "#7A8E89", lineHeight: 1.35 }}>{AREA_DESCRIPTORS[id]}</span>
+        </button>
+      );
+    };
+
+    return (
+      <div style={{ minHeight: "100vh", background: "#F6F3EE" }}>
+        <div style={{ position: "sticky", top: 0, background: "#F6F3EE", zIndex: 10, padding: "20px 20px 12px" }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#4A7B6F", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 6 }}>VINYS</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "#1C2B26", lineHeight: 1.25, marginBottom: 4 }}>Where would you like to focus today?</div>
+          <div style={{ fontSize: 13, color: "#7A8E89", lineHeight: 1.5 }}>Select the area you want to assess. We'll guide you through a movement session to understand your pattern.</div>
         </div>
-      </Shell>
+        <div style={{ padding: "8px 16px 32px" }}>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#7A8E89", textTransform: "uppercase", marginBottom: 10, marginTop: 8 }}>Upper Body</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+            {upperBody.map(id => <AreaCard key={id} id={id} />)}
+          </div>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#7A8E89", textTransform: "uppercase", marginBottom: 10 }}>Lower Body</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            {lowerBody.map(id => <AreaCard key={id} id={id} />)}
+          </div>
+        </div>
+      </div>
     );
   }
 
