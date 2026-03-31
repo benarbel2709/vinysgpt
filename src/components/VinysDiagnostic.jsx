@@ -18,16 +18,7 @@ const AREA_CONFIG = {
   SHLDR: { label: "Shoulder",     icon: "⟂", color: "#7B4A4A", crossoverTo: "NECK"},
 };
 
-const AREA_DESC = {
-  LB: "Pain, stiffness, sciatica or disc symptoms",
-  HIP: "Hip joint, groin, outer hip or mobility",
-  KNEE: "Kneecap, instability, inner or outer knee",
-  ANKLE: "Achilles, plantar fascia or ankle instability",
-  NECK: "Neck tension, stiffness, or nerve symptoms",
-  UBACK: "Upper and mid-back pain, stiffness, or posture",
-  WRIST: "Wrist, hand, or forearm pain and mobility",
-  SHLDR: "Shoulder pain, restriction, or instability",
-};
+// AREA_DESC moved into area_select phase as AREA_DESCRIPTORS
 
 // --- PROFILE DEFINITIONS (plain English names + descriptions) -----------------
 const PROFILE_DISPLAY = {
