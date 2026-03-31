@@ -276,6 +276,9 @@ export const CONDITION_SAFETY_TAG: Record<ConditionKey, string> = {
   breathing_disorders: "universalSafe",
   core_instability: "universalSafe",
   repetitive_strain: "shoulderSafe",
+  ankle_pain: "kneeSafe",
+  upper_back_pain: "universalSafe",
+  wrist_pain: "universalSafe",
 };
 
 /** Condition weights for scoring */
