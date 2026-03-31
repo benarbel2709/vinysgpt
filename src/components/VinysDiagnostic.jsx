@@ -8,10 +8,14 @@ const fadeInStyle = { animation: "fadeIn 0.3s ease" };
 
 // --- AREAS --------------------------------------------------------------------
 const AREA_CONFIG = {
-  LB: { label: "Lower Back", icon: "◎", crossoverTo: null },
-  HIP: { label: "Hip", icon: "⟳", crossoverTo: "LB" },
-  KNEE: { label: "Knee", icon: "↓", crossoverTo: "HIP" },
-  ANKLE: { label: "Ankle", icon: "⌇", crossoverTo: "KNEE" },
+  LB:    { label: "Lower Back",   icon: "◎", color: "#4A7B6F", crossoverTo: null   },
+  HIP:   { label: "Hip",          icon: "⟳", color: "#7B4A6F", crossoverTo: "LB"   },
+  KNEE:  { label: "Knee",         icon: "↓", color: "#6F7B4A", crossoverTo: "HIP"  },
+  ANKLE: { label: "Ankle & Foot", icon: "⌇", color: "#4A6F7B", crossoverTo: "KNEE" },
+  NECK:  { label: "Neck",         icon: "↑", color: "#7B6F4A", crossoverTo: "UBACK"},
+  UBACK: { label: "Upper Back",   icon: "⊞", color: "#4A6B7B", crossoverTo: "LB"  },
+  WRIST: { label: "Wrist & Hand", icon: "✋", color: "#6B4A7B", crossoverTo: "NECK"},
+  SHLDR: { label: "Shoulder",     icon: "⟂", color: "#7B4A4A", crossoverTo: "NECK"},
 };
 
 const AREA_DESC = {
@@ -19,6 +23,10 @@ const AREA_DESC = {
   HIP: "Hip joint, groin, outer hip or mobility",
   KNEE: "Kneecap, instability, inner or outer knee",
   ANKLE: "Achilles, plantar fascia or ankle instability",
+  NECK: "Neck tension, stiffness, or nerve symptoms",
+  UBACK: "Upper and mid-back pain, stiffness, or posture",
+  WRIST: "Wrist, hand, or forearm pain and mobility",
+  SHLDR: "Shoulder pain, restriction, or instability",
 };
 
 // --- PROFILE DEFINITIONS (plain English names + descriptions) -----------------
