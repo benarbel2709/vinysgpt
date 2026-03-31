@@ -247,10 +247,10 @@ export default function OnboardingWizard() {
     { id: "HIP", label: "Hip", desc: "Hip joint, groin, outer hip or mobility issues", icon: "🔹", available: true },
     { id: "KNEE", label: "Knee", desc: "Kneecap pain, instability, inner or outer knee", icon: "🔹", available: true },
     { id: "ANKLE", label: "Ankle & Foot", desc: "Achilles, plantar fascia or ankle instability", icon: "🔹", available: true },
-    { id: "SHOULDER", label: "Shoulder", desc: "Rotator cuff, frozen shoulder, impingement", icon: "🔸", available: false },
-    { id: "NECK", label: "Neck", desc: "Cervical stiffness, tension headaches, radiating pain", icon: "🔸", available: false },
-    { id: "UPPER_BACK", label: "Upper Back", desc: "Thoracic stiffness, postural fatigue, rib pain", icon: "🔸", available: false },
-    { id: "WRIST", label: "Wrist & Hand", desc: "Carpal tunnel, repetitive strain, grip weakness", icon: "🔸", available: false },
+    { id: "SHLDR", label: "Shoulder", desc: "Rotator cuff, frozen shoulder, impingement", icon: "🔹", available: true },
+    { id: "NECK", label: "Neck", desc: "Cervical stiffness, tension headaches, radiating pain", icon: "🔹", available: true },
+    { id: "UBACK", label: "Upper Back", desc: "Thoracic stiffness, postural fatigue, rib pain", icon: "🔹", available: true },
+    { id: "WRIST", label: "Wrist & Hand", desc: "Carpal tunnel, repetitive strain, grip weakness", icon: "🔹", available: true },
   ];
 
   // Profile summary data
