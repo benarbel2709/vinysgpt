@@ -5,6 +5,7 @@ import { useState, useRef, useCallback } from "react";
  * TTS hook using ElevenLabs via the Supabase edge function.
  * Includes a circuit breaker: after 3 consecutive 401/403 errors,
  * permanently stops all TTS requests for the session.
+ * Uses AbortController + generation counter to prevent overlapping audio.
  */
 export function useTTS() {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -13,8 +14,17 @@ export function useTTS() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const failCountRef = useRef(0);
   const permanentlyFailedRef = useRef(false);
+  const abortRef = useRef<AbortController | null>(null);
+  const genRef = useRef(0);
 
   const stop = useCallback(() => {
+    // Bump generation so any in-flight fetch becomes stale
+    genRef.current += 1;
+    // Abort any in-flight fetch
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
     const a = audioRef.current;
     if (a) {
       a.pause();
@@ -33,6 +43,10 @@ export function useTTS() {
       // Circuit breaker: don't attempt if permanently failed or muted
       if (isMuted || !text || permanentlyFailedRef.current) return;
 
+      const thisGen = genRef.current;
+      const controller = new AbortController();
+      abortRef.current = controller;
+
       setIsLoading(true);
 
       try {
@@ -46,11 +60,14 @@ export function useTTS() {
               Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
             },
             body: JSON.stringify({ text }),
+            signal: controller.signal,
           }
         );
 
+        // Stale response — a newer speak() was called while we were fetching
+        if (thisGen !== genRef.current) return;
+
         if (!response.ok) {
-          // Circuit breaker for auth errors
           if (response.status === 401 || response.status === 403) {
             failCountRef.current += 1;
             if (failCountRef.current >= 3) {
@@ -63,34 +80,39 @@ export function useTTS() {
           return;
         }
 
-        // Reset fail count on success
         failCountRef.current = 0;
 
         const blob = await response.blob();
+
+        // Check again after blob read
+        if (thisGen !== genRef.current) return;
+
         const url = URL.createObjectURL(blob);
         const audio = new Audio(url);
         audioRef.current = audio;
 
         audio.onplay = () => {
+          if (thisGen !== genRef.current) { audio.pause(); URL.revokeObjectURL(url); return; }
           setIsPlaying(true);
           setIsLoading(false);
         };
         audio.onended = () => {
           setIsPlaying(false);
           URL.revokeObjectURL(url);
-          audioRef.current = null;
+          if (audioRef.current === audio) audioRef.current = null;
         };
         audio.onerror = () => {
           setIsPlaying(false);
           setIsLoading(false);
           URL.revokeObjectURL(url);
-          audioRef.current = null;
+          if (audioRef.current === audio) audioRef.current = null;
         };
 
         await audio.play();
-      } catch (err) {
+      } catch (err: any) {
+        if (err?.name === "AbortError") return;
         console.error("TTS fetch error:", err);
-        setIsLoading(false);
+        if (thisGen === genRef.current) setIsLoading(false);
       }
     },
     [stop, isMuted]
