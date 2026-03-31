@@ -1635,7 +1635,7 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
   if (phase === "summary" && diagnosticOutput) {
     const { primary, secondary, confidence, reassess, area: resultArea, originalArea: origArea, crossoverTriggered: crossed } = diagnosticOutput;
     const prof = PROFILE_DATA[resultArea]?.[primary];
-    const displayInfo = PROFILE_DISPLAY[primary] || { name: primary, description: "" };
+    const displayInfo = prof ? { name: prof.name, description: prof.sub } : (PROFILE_DISPLAY[primary] || { name: primary, description: "" });
     if (!prof) return <div className="p-6 text-muted-foreground">No profile resolved.</div>;
 
     const confBadgeClass =
