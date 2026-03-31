@@ -382,8 +382,8 @@ export default function OnboardingWizard() {
               initialArea={selectedArea}
               onComplete={(result: any) => {
                 const areaToCondKey: Record<string, string> = {
-                  LB: "back_pain", HIP: "hip_pain", KNEE: "knee_pain", ANKLE: "knee_pain",
-                  NECK: "neck_pain", UBACK: "back_pain", WRIST: "repetitive_strain", SHLDR: "shoulder_pain",
+                  LB: "back_pain", HIP: "hip_pain", KNEE: "knee_pain", ANKLE: "ankle_pain",
+                  NECK: "neck_pain", UBACK: "upper_back_pain", WRIST: "wrist_pain", SHLDR: "shoulder_pain",
                 };
                 const derivedKey = areaToCondKey[result.area ?? "LB"] ?? "back_pain";
                 setSelected((prev) =>
