@@ -44,6 +44,12 @@ const PROFILE_DISPLAY = {
   AC: { name: "Achilles / Posterior", description: "Back-of-ankle pain is an Achilles tendinopathy pattern. Your sessions use graded loading and eccentric work — the gold standard approach for Achilles recovery." },
   PF: { name: "Plantar Fascia", description: "Heel or sole-of-foot pain is a plantar fasciitis pattern — very common and very manageable. Your sessions include calf release, intrinsic foot strength, and graded loading." },
   MO: { name: "Mobility-First", description: "Restricted range without sharp pain means mobility work is safe and beneficial. Your sessions focus on restoring movement through progressive, never forced, range of motion work." },
+  RO: { name: "Rotational Restriction", description: "Rotation is more restricted on one side — your practice restores symmetrical rotation through progressive twisting and mobilisation postures." },
+  CO: { name: "Compression / Postural", description: "Pain accumulates with sustained posture and is relieved by movement. Your sessions use traction and decompression postures alongside movement breaks." },
+  NN: { name: "Neural Component", description: "Tingling or numbness suggests nerve involvement. Your practice avoids compression and includes gentle nerve gliding in neutral positions." },
+  IM: { name: "Anterior Impingement", description: "Front-of-shoulder pain during overhead movements suggests subacromial impingement. Your practice focuses on scapular control and rotator cuff strengthening." },
+  RC: { name: "Rotator Cuff", description: "Catching, clicking, or pain with rotation points to rotator cuff involvement. Progressive loading — not rest alone — is the most effective recovery path." },
+  FR: { name: "Frozen / Restricted", description: "Restriction in all shoulder directions suggests adhesive capsulitis. Gentle, pain-free range of motion maintains mobility while the capsule heals." },
 };
 
 // --- PROFILE DATA (for scoring/insights) --------------------------------------
