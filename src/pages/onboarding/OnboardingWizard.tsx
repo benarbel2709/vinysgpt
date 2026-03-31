@@ -270,7 +270,7 @@ export default function OnboardingWizard() {
     MO: { label: "Mobility-First", desc: "Restricted range without sharp pain. Focus on progressive mobility." },
   };
 
-  const AREA_LABELS: Record<string, string> = { LB: "Lower Back", HIP: "Hip", KNEE: "Knee", ANKLE: "Ankle" };
+  const AREA_LABELS: Record<string, string> = { LB: "Lower Back", HIP: "Hip", KNEE: "Knee", ANKLE: "Ankle & Foot", NECK: "Neck", UBACK: "Upper Back", WRIST: "Wrist & Hand", SHLDR: "Shoulder" };
 
   // Post-assessment step counter (steps 3-6 = "Step 1 of 4" through "Step 4 of 4")
   const POST_ASSESSMENT_TOTAL = 4;
