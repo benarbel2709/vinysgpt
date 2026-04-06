@@ -10,7 +10,7 @@ import { HELPED_MOST_LABELS } from "@/constants/conditions";
 import type { HelpedMost } from "@/constants/conditions";
 import type { Checkin as CheckinType } from "@/types";
 import { useTTS } from "@/hooks/useTTS";
-import { X, Play, Pause, Volume2, VolumeX, Loader2, ChevronLeft, ChevronDown, CheckCircle2, Settings2, RotateCcw, Smartphone } from "lucide-react";
+import { X, Play, Pause, Volume2, VolumeX, Loader2, ChevronLeft, ChevronDown, CheckCircle2, Settings2, RotateCcw, Smartphone, Camera } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { trackEvent } from "@/lib/analytics";
 import universalVideo from "@/assets/exercises/universal-fallback.mp4";
