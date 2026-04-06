@@ -182,11 +182,11 @@ export default function Plan() {
     );
   }
 
-  // Completed sessions for history
-  const completedSessions = plan.sessions.filter(s => s.status === "done").map((s, idx) => {
+  // Completed sessions for history (from legacy plan data if it exists)
+  const completedSessions = plan?.sessions?.filter(s => s.status === "done").map((s, idx) => {
     const matchingCheckin = checkins.find(c => c.sessionId === s.id);
-    return { ...s, checkin: matchingCheckin, sessionNumber: plan.sessions.indexOf(s) + 1 };
-  });
+    return { ...s, checkin: matchingCheckin, sessionNumber: (plan?.sessions.indexOf(s) ?? 0) + 1 };
+  }) || [];
 
   return (
     <Layout hideHeader hideFooter>
