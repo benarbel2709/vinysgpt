@@ -84,32 +84,13 @@ export default function Plan() {
       setShowWeeklyDone(true);
       return;
     }
-    const nextSession = plan?.sessions.find((s) => s.status !== "done");
-    if (nextSession) {
-      navigate(`/workout/${nextSession.id}`);
-      return;
-    }
-    const newPlan = generatePlan(
-      state.profile,
-      `assessment_${Date.now()}`,
-      undefined,
-      state.exerciseLibrary,
-      { pain: 5, fatigue: 5, sleep: 5, flareNow: state.profile.flareToday ? "yes" : "no" },
-    );
-    updateState({ currentPlan: newPlan });
-    if (newPlan.sessions[0]) navigate(`/workout/${newPlan.sessions[0].id}`);
+    // V2: on-demand session — navigate to workout without a session ID
+    navigate("/workout");
   };
 
-  const handleRepeat = (sessionId: string) => {
-    const newPlan = generatePlan(
-      state.profile,
-      `assessment_${Date.now()}`,
-      undefined,
-      state.exerciseLibrary,
-      { pain: 5, fatigue: 5, sleep: 5, flareNow: state.profile.flareToday ? "yes" : "no" },
-    );
-    updateState({ currentPlan: newPlan });
-    if (newPlan.sessions[0]) navigate(`/workout/${newPlan.sessions[0].id}`);
+  const handleRepeat = (_sessionId: string) => {
+    // V2: generate a fresh on-demand session
+    navigate("/workout");
   };
 
   const handleStartSession = (sessionId: string) => {
