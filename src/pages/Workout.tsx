@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import PhaseHeader from "@/components/PhaseHeader";
 import { useParams, useNavigate } from "react-router-dom";
 import { useApp } from "@/context/AppContext";
 import { useAuthContext } from "@/context/AuthContext";
@@ -479,13 +480,21 @@ export default function Workout() {
               </h1>
               <p className="text-white/60 text-sm mb-6">{exercises.length} exercises · {sessionDurationMinutes} min</p>
               <div className="rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md p-4 mb-8 max-h-[40vh] overflow-y-auto text-left">
-                {exercises.map((ex, i) => (
-                  <div key={ex.id} className={`flex items-center gap-3 py-2.5 ${i < exercises.length - 1 ? "border-b border-white/10" : ""}`}>
-                    <span className="text-white/30 text-xs font-mono w-5 text-right shrink-0">{i + 1}</span>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-white/90 text-sm font-medium block truncate">{ex.name}</span>
-                      <span className="text-white/40 text-xs">{ex.phaseLabel}</span>
-                    </div>
+                {(playableSession?.phases || []).map((block) => (
+                  <div key={block.phase}>
+                    <PhaseHeader
+                      phaseName={block.label}
+                      description={block.description}
+                      poseCount={block.exercises.length}
+                    />
+                    {block.exercises.map((ex, i) => (
+                      <div key={ex.id} className={`flex items-center gap-3 py-2.5 px-3 ${i < block.exercises.length - 1 ? "border-b border-white/10" : ""}`}>
+                        <span className="text-white/30 text-xs font-mono w-5 text-right shrink-0">{ex.position}</span>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-white/90 text-sm font-medium block truncate">{ex.name}</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
