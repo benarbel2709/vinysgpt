@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthContext } from "@/context/AuthContext";
-import { useApp } from "@/context/AppContext";
+import { useAppSafe } from "@/context/AppContext";
 import { Button } from "@/components/ui/button";
 import BrandLogo from "@/components/BrandLogo";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -9,9 +9,9 @@ export default function MarketingNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isGuest } = useAuthContext();
-  const { state } = useApp();
+  const appCtx = useAppSafe();
   const isAuthenticated = !!user || isGuest;
-  const hasPlan = !!state.currentPlan;
+  const hasPlan = !!appCtx?.state.currentPlan;
   const isMobile = useIsMobile();
   const isHomepage = location.pathname === "/";
 
