@@ -202,6 +202,16 @@ export default function Plan() {
         {/* Stage progress indicator */}
         <StageProgressIndicator />
 
+        {/* Explore exercises CTA */}
+        <button
+          onClick={() => setShowLibrary(true)}
+          className="w-full rounded-2xl p-4 text-left flex items-center justify-between transition-colors hover:shadow-sm"
+          style={{ background: "hsl(var(--surface-sage))", border: "1px solid hsl(var(--border))" }}
+        >
+          <span className="text-sm font-semibold text-foreground">Explore all exercises</span>
+          <span className="text-secondary font-medium text-sm">→</span>
+        </button>
+
         {/* First-session milestone banner (after first ever session) */}
         {completedCount === 1 && !milestoneDismissed && (
           <div className="rounded-2xl p-5 flex items-center gap-3" style={{ background: "hsl(var(--surface-warm))", border: "1px solid hsl(var(--border))" }}>
