@@ -109,3 +109,16 @@ export const ANKLE_PROTOCOL: DiagnosticProtocol = {
 
 export const PROTOCOL_REGISTRY = { HI: HIP_PROTOCOL, KN: KNEE_PROTOCOL, AN: ANKLE_PROTOCOL } as const;
 export type ProtocolArea = keyof typeof PROTOCOL_REGISTRY;
+
+/** Full registry mapping all 8 body-area codes to their diagnostic protocol (or null if not yet available). */
+export const FULL_PROTOCOL_REGISTRY: Record<string, DiagnosticProtocol | null> = {
+  LB: null,   // Lower Back — protocol TBD (uses LB-specific logic in VinysDiagnostic for now)
+  HI: HIP_PROTOCOL,
+  KN: KNEE_PROTOCOL,
+  AN: ANKLE_PROTOCOL,
+  UB: null,   // Upper Back — not yet available
+  NK: null,   // Neck — not yet available
+  SH: null,   // Shoulder — not yet available
+  WR: null,   // Wrist & Hand — not yet available
+};
+export type FullProtocolArea = keyof typeof FULL_PROTOCOL_REGISTRY;
