@@ -6,6 +6,7 @@ import { useAuthContext } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { createSession, buildSessionInput } from "@/engine/sessionService";
 import type { PlayableExercise, PlayableSession } from "@/engine/sessionService";
+import { MASTER_EXERCISES } from "@/data/masterExercises";
 import { HELPED_MOST_LABELS } from "@/constants/conditions";
 import type { HelpedMost } from "@/constants/conditions";
 import type { Checkin as CheckinType } from "@/types";
@@ -77,8 +78,70 @@ export default function Workout() {
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // ─── Generate V2 session on mount ───
+  // ─── Generate V2 session on mount (or load solo exercise) ───
   const playableSession = useMemo<PlayableSession | null>(() => {
+    // Check for solo exercise session from Exercise Library
+    try {
+      const soloRaw = localStorage.getItem("vinys_solo_session");
+      if (soloRaw && sessionId?.startsWith("solo_")) {
+        const solo = JSON.parse(soloRaw);
+        if (solo.isSoloExercise && solo.exerciseIds?.[0]) {
+          const master = MASTER_EXERCISES.find((m) => m.id === solo.exerciseIds[0]);
+          if (master) {
+            const playable: PlayableExercise = {
+              id: master.id,
+              name: master.title,
+              phase: "main_build" as any,
+              phaseLabel: "Practice",
+              position: 0,
+              durationSeconds: master.durationMin * 60,
+              clinicalScore: 0,
+              cautionFlag: false,
+              cautionAreas: [],
+              activeModification: "",
+              wasSimplified: false,
+              poseFamily: master.poseSet || "",
+              movementCategory: master.category,
+              videoId: null,
+              clinicalRationale: master.why || "",
+              exercise: {
+                id: master.id,
+                name: master.title,
+                pose_family: master.poseSet || master.title,
+                areas: [],
+                movement_category: master.category === "breath" ? "Breath" : "Spinal Mobility",
+                movement_direction: "Neutral Stability" as any,
+                load_type: "passive",
+                stability: "low" as any,
+                complexity: 1 as any,
+                goal_tag: [],
+                var_rank: 1,
+                duration: [master.durationMin * 60, master.durationMin * 60],
+                simpler_alternative: null,
+                profiles: {},
+                clinical_rationale: master.why || "",
+                video_id: null,
+              },
+            };
+            localStorage.removeItem("vinys_solo_session");
+            return {
+              exercises: [playable],
+              phases: [{ phase: "main_build" as any, label: "Practice", description: "Solo exercise", exercises: [playable] }],
+              totalExercises: 1,
+              totalDurationSeconds: master.durationMin * 60,
+              durationMinutes: master.durationMin as any,
+              peakCount: 0,
+              cumulativeLoad: 0,
+              loadCeiling: 100,
+            };
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("[Workout] Solo session parse error:", e);
+    }
+
+    // Normal V2 session generation
     try {
       const input = buildSessionInput(state.profile as any);
       return createSession(input);
