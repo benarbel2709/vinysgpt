@@ -29,6 +29,7 @@ import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import DevExportEngineData from "./pages/DevExportEngineData";
 import About from "./pages/About";
+import ExerciseLibrary from "./pages/ExerciseLibrary";
 import Cookies from "./pages/Cookies";
 import Accessibility from "./pages/Accessibility";
 import CookieConsent from "./components/CookieConsent";
@@ -85,6 +86,7 @@ function AppRoutes() {
       <Route path="/check-in" element={<AuthGuard><QuickCheckin /></AuthGuard>} />
       <Route path="/complete" element={<AuthGuard><OnboardingGuard><CompletePage /></OnboardingGuard></AuthGuard>} />
       <Route path="/stop" element={<AuthGuard><Stop /></AuthGuard>} />
+      <Route path="/exercises" element={<ExerciseLibrary />} />
       <Route path="/library" element={<AuthGuard><Library /></AuthGuard>} />
       <Route path="/settings" element={<AuthGuard><Settings /></AuthGuard>} />
       <Route path="/expert-review" element={<AuthGuard><ExpertReview /></AuthGuard>} />

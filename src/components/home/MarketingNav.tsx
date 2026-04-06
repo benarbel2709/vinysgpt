@@ -58,6 +58,13 @@ export default function MarketingNav() {
                 </button>
               ))}
               <a
+                href="/exercises"
+                onClick={(e) => { e.preventDefault(); navigate("/exercises"); }}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-full hover:bg-foreground/5"
+              >
+                Exercises
+              </a>
+              <a
                 href="/about"
                 onClick={(e) => { e.preventDefault(); navigate("/about"); }}
                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-full hover:bg-foreground/5"

@@ -204,7 +204,7 @@ export default function Plan() {
 
         {/* Explore exercises CTA */}
         <button
-          onClick={() => setShowLibrary(true)}
+          onClick={() => navigate("/exercises")}
           className="w-full rounded-2xl p-4 text-left flex items-center justify-between transition-colors hover:shadow-sm"
           style={{ background: "hsl(var(--surface-sage))", border: "1px solid hsl(var(--border))" }}
         >
