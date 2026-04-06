@@ -59,15 +59,16 @@ const EQUIPMENT_CHOICES = [
 
 // Step mapping:
 // 0 = conditions
-// 1 = diagnostic (VinysDiagnostic handles its own flow including red flags, intake, postures, clarification, summary)
-// 2 = profile summary (from diagnostic result)
+// 1 = diagnostic
+// 2 = profile summary
 // 3 = restrictions
 // 4 = equipment
-// 5 = schedule
-// 6 = closing preference
-// 7 = confirmation
-const STEPPER_STEPS = 8;
-const TOTAL_STEPS = 8;
+// 5 = session duration (DurationSelector)
+// 6 = schedule (sessions/week, time of day)
+// 7 = closing preference
+// 8 = confirmation
+const STEPPER_STEPS = 9;
+const TOTAL_STEPS = 9;
 
 const tagBase =
   "px-3.5 py-1.5 rounded-[8px] border-2 text-[18px] font-semibold transition-all cursor-pointer leading-tight";
@@ -143,10 +144,12 @@ export default function OnboardingWizard() {
       case 4:
         return true; // equipment always has mat
       case 5:
-        return true; // schedule has defaults
+        return true; // duration has default
       case 6:
-        return !!closingPref;
+        return true; // schedule has defaults
       case 7:
+        return !!closingPref;
+      case 8:
         return true;
       default:
         return true;
@@ -238,6 +241,7 @@ export default function OnboardingWizard() {
     "Here's what we found",
     "Any movements to avoid?",
     "What equipment do you have?",
+    "How long should each session be?",
     "How would you like to practice?",
     "How would you like to end each practice?",
     "You're all set.",
