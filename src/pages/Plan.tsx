@@ -165,15 +165,16 @@ export default function Plan() {
   const greetingDisplay = greeting;
 
   // No plan state
-  if (!plan) {
+  // V2: no pre-generated plan needed. If onboarding not completed, show setup prompt.
+  if (!state.onboardingCompleted) {
     return (
       <Layout hideHeader hideFooter>
         <NavBar onStart={handleStartNextPractice} onAccountClick={() => setShowAccount(true)} onLibraryClick={() => { setLibraryInitialId(null); setShowLibrary(true); }} />
         <div className="px-6 py-10 max-w-5xl mx-auto space-y-6">
           <GreetingBlock greeting={greetingDisplay} greetingSuffix={greetingSuffix} user={user} showAccount={showAccount} setShowAccount={setShowAccount} firstName={firstName} setFirstName={setFirstName} />
-          <p className="text-muted-foreground">No practice plan yet</p>
+          <p className="text-muted-foreground">Complete the diagnostic to start your practice.</p>
           <Button variant="hero" size="lg" onClick={() => navigate("/onboarding")} className="w-full">
-            Start a new plan
+            Start diagnostic
           </Button>
         </div>
         <RestartModal open={showRestart} onClose={() => setShowRestart(false)} onConfirm={handleRestartConfirm} />
