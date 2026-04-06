@@ -108,14 +108,7 @@ export default function Plan() {
     if (pendingConditions.length === 0) return;
     const merged = Array.from(new Set([...conditions, ...pendingConditions]));
     updateProfile({ conditions: merged as ConditionKey[] });
-    const newPlan = generatePlan(
-      { ...state.profile, conditions: merged as ConditionKey[] },
-      `assessment_${Date.now()}`,
-      undefined,
-      state.exerciseLibrary,
-      { pain: 5, fatigue: 5, sleep: 5, flareNow: state.profile.flareToday ? "yes" : "no" },
-    );
-    updateState({ currentPlan: newPlan });
+    // V2: no plan regeneration needed — sessions are generated on-demand
     setPendingConditions([]);
     setConditionSearch("");
     setShowAddCondition(false);
@@ -133,14 +126,7 @@ export default function Plan() {
       energyLevel: tempLevel,
       sessionsPerWeek: tempSessions,
     });
-    const newPlan = generatePlan(
-      { ...state.profile, minutesPerSession: tempMinutes, energyLevel: tempLevel, sessionsPerWeek: tempSessions },
-      `assessment_${Date.now()}`,
-      undefined,
-      state.exerciseLibrary,
-      { pain: 5, fatigue: 5, sleep: 5, flareNow: state.profile.flareToday ? "yes" : "no" },
-    );
-    updateState({ currentPlan: newPlan });
+    // V2: no plan regeneration needed — sessions are generated on-demand
     setEditingSetup(false);
   };
 
