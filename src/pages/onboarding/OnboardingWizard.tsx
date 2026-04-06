@@ -153,23 +153,16 @@ export default function OnboardingWizard() {
     }
   };
 
+  // Map onboarding area IDs to V2 engine area codes
+  const AREA_TO_ENGINE: Record<string, string> = {
+    LB: 'LB', HIP: 'HI', KNEE: 'KN', ANKLE: 'AN',
+    NECK: 'NK', UBACK: 'UB', SHLDR: 'SH', WRIST: 'WR',
+  };
+
   const handleBuild = () => {
     // Ensure equipment is never empty
     const finalEquipment = equipment.length > 0 ? equipment : ["mat"];
 
-    const updatedProfile = {
-      ...profile,
-      conditions: selected,
-      energyLevel,
-      flareToday: false,
-      sessionsPerWeek,
-      minutesPerSession,
-      practiceTime,
-      closingPreference: closingPref as "savasana" | "meditation" | "body_rest",
-      availableEquipment: finalEquipment,
-      restrictions: restrictions.filter(r => r !== "None of the above"),
-    };
-    updateState({ disclaimerAccepted: true, onboardingCompleted: true });
     updateProfile({
       conditions: selected,
       energyLevel,
@@ -194,9 +187,30 @@ export default function OnboardingWizard() {
     };
     const assessment: Assessment = { id: assessmentId, createdAt: new Date().toISOString(), type: "generic", data };
 
-    // V2: No pre-generated plan. Sessions are created on-demand by sessionService.
-    // Save assessment and mark onboarding complete — the Plan page handles session generation.
-    updateState({ assessments: [...state.assessments, assessment] });
+    // Map experience level from energy answer
+    const expMap: Record<string, 'beginner' | 'intermediate' | 'advanced'> = {
+      low: 'beginner', medium: 'intermediate', high: 'advanced',
+    };
+
+    // Build userProfile from selected area + any diagnostic areas
+    const areaCodes: string[] = [];
+    if (selectedArea) {
+      const code = AREA_TO_ENGINE[selectedArea];
+      if (code) areaCodes.push(code);
+    }
+
+    // V2 engine state: save diagnostic output + defaults
+    updateState({
+      disclaimerAccepted: true,
+      onboardingCompleted: true,
+      assessments: [...state.assessments, assessment],
+      userProfile: areaCodes,
+      stage: 1,
+      session_count: 0,
+      experienceLevel: expMap[energyLevel] || 'intermediate',
+      sessionDuration: minutesPerSession || 20,
+    });
+
     trackEvent("plan_generated", { condition: selected[0], duration: minutesPerSession });
     navigate("/plan");
   };

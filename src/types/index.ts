@@ -111,6 +111,12 @@ export interface AppState {
   progress: {
     lastSessionId: string | null;
   };
+  /** V2 engine fields */
+  userProfile?: string[];          // area codes e.g. ['LB', 'HI']
+  stage?: number;                  // progression stage (starts at 1)
+  session_count?: number;          // total sessions completed
+  experienceLevel?: 'beginner' | 'intermediate' | 'advanced';
+  sessionDuration?: number;        // minutes per session
 }
 
 export const DEFAULT_APP_STATE: AppState = {
