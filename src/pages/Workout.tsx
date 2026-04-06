@@ -488,11 +488,16 @@ export default function Workout() {
                       poseCount={block.exercises.length}
                     />
                     {block.exercises.map((ex, i) => (
-                      <div key={ex.id} className={`flex items-center gap-3 py-2.5 px-3 ${i < block.exercises.length - 1 ? "border-b border-white/10" : ""}`}>
+                      <div key={ex.id} className={`relative flex items-center gap-3 py-2.5 px-3 ${i < block.exercises.length - 1 ? "border-b border-white/10" : ""}`}>
                         <span className="text-white/30 text-xs font-mono w-5 text-right shrink-0">{ex.position}</span>
                         <div className="flex-1 min-w-0">
                           <span className="text-white/90 text-sm font-medium block truncate">{ex.name}</span>
                         </div>
+                        {ex.activeModification && (
+                          <span className="shrink-0 px-2 py-0.5 rounded-md text-[10px] font-semibold text-white leading-tight max-w-[140px] truncate" style={{ backgroundColor: "#F59E0B" }}>
+                            {ex.activeModification}
+                          </span>
+                        )}
                       </div>
                     ))}
                   </div>
