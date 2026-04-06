@@ -300,7 +300,7 @@ export default function OnboardingWizard() {
         <div className="flex items-center h-[56px] px-6 lg:px-[100px]">
           <BrandLogo size="md" linkToHome={false} />
           <div className="flex-1 flex justify-center">
-            {step < 7 && step !== 1 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
+            {step < 8 && step !== 1 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
           </div>
           <button
             onClick={() => navigate("/")}
@@ -337,7 +337,7 @@ export default function OnboardingWizard() {
             This helps us filter out anything that could cause harm.
           </p>
         )}
-        {step === 7 && (
+        {step === 8 && (
           <p className="text-muted-foreground text-center text-sm mt-1 shrink-0">
             We'll build your personalized practice.
           </p>
