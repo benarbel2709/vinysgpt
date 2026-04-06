@@ -112,12 +112,13 @@ export interface AppState {
     lastSessionId: string | null;
   };
   /** V2 engine fields */
-  userProfile?: string[];          // area codes e.g. ['LB', 'HI']
-  stage?: number;                  // progression stage (starts at 1)
-  session_count?: number;          // total sessions completed
-  experienceLevel?: 'beginner' | 'intermediate' | 'advanced';
-  sessionDuration?: number;        // minutes per session
-  justAdvancedStage?: boolean;     // flag for UI celebration on stage transition
+  userProfile: string[];
+  stage: number;
+  session_count: number;
+  experienceLevel: 'beginner' | 'intermediate' | 'advanced';
+  sessionDuration: number;
+  justAdvancedStage: boolean;
+  hasCompletedOnboarding: boolean;
 }
 
 export const DEFAULT_APP_STATE: AppState = {
@@ -139,6 +140,13 @@ export const DEFAULT_APP_STATE: AppState = {
   progress: {
     lastSessionId: null,
   },
+  userProfile: [],
+  stage: 1,
+  session_count: 0,
+  experienceLevel: 'intermediate',
+  sessionDuration: 20,
+  justAdvancedStage: false,
+  hasCompletedOnboarding: false,
 };
 
 // Re-export from constants for backward compat
