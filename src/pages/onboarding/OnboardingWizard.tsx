@@ -585,14 +585,14 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 6: Session Closing (FIX 6 Step D) ═══ */}
-        {step === 6 && (
+        {/* ═══ STEP 7: Session Closing ═══ */}
+        {step === 7 && (
           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "440px" }}>
             <div className="flex flex-col" style={{ gap: "12px" }}>
               {CLOSING_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
-                  onClick={() => { setClosingPref(opt.value); setTimeout(() => setStep(7), 250); }}
+                  onClick={() => { setClosingPref(opt.value); setTimeout(() => setStep(8), 250); }}
                   className={`w-full text-left p-4 rounded-[12px] border-2 transition-all ${
                     closingPref === opt.value ? tagSelected : tagUnselected
                   }`}
@@ -605,8 +605,8 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 7: Confirmation / Summary ═══ */}
-        {step === 7 &&
+        {/* ═══ STEP 8: Confirmation / Summary ═══ */}
+        {step === 8 &&
           (() => {
             const doStartOver = () => {
               setStep(0);
@@ -644,10 +644,10 @@ export default function OnboardingWizard() {
                   {editRow("Conditions", selected.map((k) => label(k)).join(", "), 0)}
                   {allRestrictions.length > 0 && editRow("Restrictions", allRestrictions.join(", "), 3)}
                   {editRow("Equipment", equipment.join(", "), 4)}
-                  {editRow("Time of day", practiceTime.charAt(0).toUpperCase() + practiceTime.slice(1), 5)}
+                  {editRow("Time of day", practiceTime.charAt(0).toUpperCase() + practiceTime.slice(1), 6)}
                   {editRow("Duration", `${minutesPerSession} min`, 5)}
-                  {editRow("Sessions / week", String(sessionsPerWeek), 5)}
-                  {editRow("Session closing", CLOSING_OPTIONS.find((o) => o.value === closingPref)?.label || "", 6)}
+                  {editRow("Sessions / week", String(sessionsPerWeek), 6)}
+                  {editRow("Session closing", CLOSING_OPTIONS.find((o) => o.value === closingPref)?.label || "", 7)}
                 </div>
 
                 <Button variant="hero" size="lg" className="w-full rounded-full" onClick={() => handleBuild()}>
@@ -678,7 +678,7 @@ export default function OnboardingWizard() {
       </div>
 
       {/* ── FIXED BOTTOM BUTTONS ── */}
-      {step !== 1 && step !== 0 && step < 7 && (
+      {step !== 1 && step !== 0 && step < 8 && (
         <div
           className="fixed bottom-0 inset-x-0 z-40 pointer-events-none bg-background"
           style={{ paddingBottom: "40px", paddingTop: "16px", boxShadow: "0 -2px 8px rgba(0,0,0,0.04)" }}
