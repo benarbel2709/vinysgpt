@@ -8,6 +8,7 @@ import type { GenericAssessmentData, Assessment } from "@/types";
 // V1 planGenerator no longer used — sessions are generated on-demand by sessionService
 import { trackEvent } from "@/lib/analytics";
 import BrandLogo from "@/components/BrandLogo";
+import DurationSelector from "@/components/onboarding/DurationSelector";
 import FlowProgress from "@/components/FlowProgress";
 import { Button } from "@/components/ui/button";
 import { X, Check, Pencil, Clock, Lock } from "lucide-react";
@@ -59,15 +60,16 @@ const EQUIPMENT_CHOICES = [
 
 // Step mapping:
 // 0 = conditions
-// 1 = diagnostic (VinysDiagnostic handles its own flow including red flags, intake, postures, clarification, summary)
-// 2 = profile summary (from diagnostic result)
+// 1 = diagnostic
+// 2 = profile summary
 // 3 = restrictions
 // 4 = equipment
-// 5 = schedule
-// 6 = closing preference
-// 7 = confirmation
-const STEPPER_STEPS = 8;
-const TOTAL_STEPS = 8;
+// 5 = session duration (DurationSelector)
+// 6 = schedule (sessions/week, time of day)
+// 7 = closing preference
+// 8 = confirmation
+const STEPPER_STEPS = 9;
+const TOTAL_STEPS = 9;
 
 const tagBase =
   "px-3.5 py-1.5 rounded-[8px] border-2 text-[18px] font-semibold transition-all cursor-pointer leading-tight";
@@ -143,10 +145,12 @@ export default function OnboardingWizard() {
       case 4:
         return true; // equipment always has mat
       case 5:
-        return true; // schedule has defaults
+        return true; // duration has default
       case 6:
-        return !!closingPref;
+        return true; // schedule has defaults
       case 7:
+        return !!closingPref;
+      case 8:
         return true;
       default:
         return true;
@@ -238,6 +242,7 @@ export default function OnboardingWizard() {
     "Here's what we found",
     "Any movements to avoid?",
     "What equipment do you have?",
+    "How long should each session be?",
     "How would you like to practice?",
     "How would you like to end each practice?",
     "You're all set.",
@@ -280,10 +285,10 @@ export default function OnboardingWizard() {
 
   const AREA_LABELS: Record<string, string> = { LB: "Lower Back", HIP: "Hip", KNEE: "Knee", ANKLE: "Ankle & Foot", NECK: "Neck", UBACK: "Upper Back", WRIST: "Wrist & Hand", SHLDR: "Shoulder" };
 
-  // Post-assessment step counter (steps 3-6 = "Step 1 of 4" through "Step 4 of 4")
-  const POST_ASSESSMENT_TOTAL = 4;
+  // Post-assessment step counter (steps 3-7 = "Step 1 of 5" through "Step 5 of 5")
+  const POST_ASSESSMENT_TOTAL = 5;
   const getPostAssessmentStep = (s: number) => {
-    if (s >= 3 && s <= 6) return s - 2;
+    if (s >= 3 && s <= 7) return s - 2;
     return null;
   };
   const postStep = getPostAssessmentStep(step);
@@ -295,7 +300,7 @@ export default function OnboardingWizard() {
         <div className="flex items-center h-[56px] px-6 lg:px-[100px]">
           <BrandLogo size="md" linkToHome={false} />
           <div className="flex-1 flex justify-center">
-            {step < 7 && step !== 1 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
+            {step < 8 && step !== 1 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
           </div>
           <button
             onClick={() => navigate("/")}
@@ -332,7 +337,7 @@ export default function OnboardingWizard() {
             This helps us filter out anything that could cause harm.
           </p>
         )}
-        {step === 7 && (
+        {step === 8 && (
           <p className="text-muted-foreground text-center text-sm mt-1 shrink-0">
             We'll build your personalized practice.
           </p>
@@ -548,26 +553,20 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 5: Schedule (FIX 6 Step C) ═══ */}
+        {/* ═══ STEP 5: Session Duration (DurationSelector) ═══ */}
         {step === 5 && (
-          <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
+          <DurationSelector value={minutesPerSession} onChange={(v) => { setMinutesPerSession(v); setDurationSelected(true); }} />
+        )}
+
+        {/* ═══ STEP 6: Schedule (FIX 6 Step C) ═══ */}
+        {step === 6 && (
+           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
             <div>
               <h2 className="font-bold text-[21px]" style={{ color: "#888" }}>Sessions per week</h2>
               <div className="flex justify-center" style={{ gap: "10px", marginTop: "16px" }}>
                 {SESSIONS_OPTIONS.map((n) => (
                   <button key={n} onClick={() => { setSessionsPerWeek(n); setSessionsSelected(true); }} className={tagSmall(sessionsPerWeek === n)}>
                     {n}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div style={{ margin: "24px 0", height: "1px", width: "100%", backgroundColor: "hsl(var(--border) / 0.4)" }} />
-            <div>
-              <h2 className="font-bold text-[21px]" style={{ color: "#888" }}>Session length</h2>
-              <div className="flex justify-center" style={{ gap: "10px", marginTop: "16px" }}>
-                {MINUTES_OPTIONS.map((opt) => (
-                  <button key={opt.value} onClick={() => { setMinutesPerSession(opt.value); setDurationSelected(true); }} className={tagSmall(minutesPerSession === opt.value)}>
-                    {opt.label}
                   </button>
                 ))}
               </div>
@@ -586,14 +585,14 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 6: Session Closing (FIX 6 Step D) ═══ */}
-        {step === 6 && (
+        {/* ═══ STEP 7: Session Closing ═══ */}
+        {step === 7 && (
           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "440px" }}>
             <div className="flex flex-col" style={{ gap: "12px" }}>
               {CLOSING_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
-                  onClick={() => { setClosingPref(opt.value); setTimeout(() => setStep(7), 250); }}
+                  onClick={() => { setClosingPref(opt.value); setTimeout(() => setStep(8), 250); }}
                   className={`w-full text-left p-4 rounded-[12px] border-2 transition-all ${
                     closingPref === opt.value ? tagSelected : tagUnselected
                   }`}
@@ -606,8 +605,8 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 7: Confirmation / Summary ═══ */}
-        {step === 7 &&
+        {/* ═══ STEP 8: Confirmation / Summary ═══ */}
+        {step === 8 &&
           (() => {
             const doStartOver = () => {
               setStep(0);
@@ -645,10 +644,10 @@ export default function OnboardingWizard() {
                   {editRow("Conditions", selected.map((k) => label(k)).join(", "), 0)}
                   {allRestrictions.length > 0 && editRow("Restrictions", allRestrictions.join(", "), 3)}
                   {editRow("Equipment", equipment.join(", "), 4)}
-                  {editRow("Time of day", practiceTime.charAt(0).toUpperCase() + practiceTime.slice(1), 5)}
+                  {editRow("Time of day", practiceTime.charAt(0).toUpperCase() + practiceTime.slice(1), 6)}
                   {editRow("Duration", `${minutesPerSession} min`, 5)}
-                  {editRow("Sessions / week", String(sessionsPerWeek), 5)}
-                  {editRow("Session closing", CLOSING_OPTIONS.find((o) => o.value === closingPref)?.label || "", 6)}
+                  {editRow("Sessions / week", String(sessionsPerWeek), 6)}
+                  {editRow("Session closing", CLOSING_OPTIONS.find((o) => o.value === closingPref)?.label || "", 7)}
                 </div>
 
                 <Button variant="hero" size="lg" className="w-full rounded-full" onClick={() => handleBuild()}>
@@ -679,7 +678,7 @@ export default function OnboardingWizard() {
       </div>
 
       {/* ── FIXED BOTTOM BUTTONS ── */}
-      {step !== 1 && step !== 0 && step < 7 && (
+      {step !== 1 && step !== 0 && step < 8 && (
         <div
           className="fixed bottom-0 inset-x-0 z-40 pointer-events-none bg-background"
           style={{ paddingBottom: "40px", paddingTop: "16px", boxShadow: "0 -2px 8px rgba(0,0,0,0.04)" }}
