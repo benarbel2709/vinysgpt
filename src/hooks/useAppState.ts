@@ -71,6 +71,14 @@ function loadState(): AppState {
   if (stored) {
     stored.exerciseLibrary = ALL_EXERCISES;
     stored.profile = migrateProfile(stored.profile);
+    // Migrate V2 fields — backfill defaults for any missing keys
+    if (stored.userProfile === undefined) stored.userProfile = [];
+    if (stored.stage === undefined) stored.stage = 1;
+    if (stored.session_count === undefined) stored.session_count = 0;
+    if (stored.experienceLevel === undefined) stored.experienceLevel = 'intermediate';
+    if (stored.sessionDuration === undefined) stored.sessionDuration = 20;
+    if (stored.justAdvancedStage === undefined) stored.justAdvancedStage = false;
+    if (stored.hasCompletedOnboarding === undefined) stored.hasCompletedOnboarding = stored.onboardingCompleted ?? false;
     return stored;
   }
   return { ...DEFAULT_APP_STATE, exerciseLibrary: ALL_EXERCISES };
