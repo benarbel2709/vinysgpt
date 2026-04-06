@@ -4,7 +4,7 @@ import { useLatestCheckin } from "@/hooks/useLatestCheckin";
 import { useWeeklyProgress } from "@/hooks/useWeeklyProgress";
 import { useApp } from "@/context/AppContext";
 import { useAuthContext } from "@/context/AuthContext";
-import { generatePlan } from "@/lib/planGenerator";
+// V1 planGenerator no longer used — sessions are generated on-demand by sessionService
 import { HELPED_MOST_LABELS, CONDITIONS, CONDITION_LABELS, EQUIPMENT_OPTIONS } from "@/constants/conditions";
 import type { HelpedMost, ConditionKey, EnergyLevel } from "@/constants/conditions";
 import { Button } from "@/components/ui/button";
