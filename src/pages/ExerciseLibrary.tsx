@@ -103,7 +103,7 @@ function ExerciseCard({ master, onClick }: { master: MasterExercise; onClick: ()
           </span>
         </div>
       </div>
-    </motion.button>
+    </button>
   );
 }
 
