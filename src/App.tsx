@@ -32,6 +32,7 @@ import About from "./pages/About";
 import Cookies from "./pages/Cookies";
 import Accessibility from "./pages/Accessibility";
 import CookieConsent from "./components/CookieConsent";
+import StageTransitionModal from "./components/StageTransitionModal";
 
 const queryClient = new QueryClient();
 
@@ -112,6 +113,7 @@ const App = () => (
               </a>
               <AppRoutes />
               <CookieConsent />
+              <StageTransitionModal />
             </BrowserRouter>
           </AppProvider>
         </AuthProvider>
