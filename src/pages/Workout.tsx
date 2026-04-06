@@ -492,6 +492,11 @@ export default function Workout() {
                         <span className="text-white/30 text-xs font-mono w-5 text-right shrink-0">{ex.position}</span>
                         <div className="flex-1 min-w-0">
                           <span className="text-white/90 text-sm font-medium block truncate">{ex.name}</span>
+                          {ex.wasSimplified && (
+                            <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ backgroundColor: "rgba(13,148,136,0.15)", color: "#0D9488" }}>
+                              Simplified for you
+                            </span>
+                          )}
                         </div>
                         {ex.activeModification && (
                           <span className="shrink-0 px-2 py-0.5 rounded-md text-[10px] font-semibold text-white leading-tight max-w-[140px] truncate" style={{ backgroundColor: "#F59E0B" }}>
