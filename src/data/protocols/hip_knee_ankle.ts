@@ -112,7 +112,7 @@ export type ProtocolArea = keyof typeof PROTOCOL_REGISTRY;
 
 /** Full registry mapping all 8 body-area codes to their diagnostic protocol (or null if not yet available). */
 export const FULL_PROTOCOL_REGISTRY: Record<string, DiagnosticProtocol | null> = {
-  LB: null,   // Lower Back — protocol TBD (uses LB-specific logic in VinysDiagnostic for now)
+  LB: HIP_PROTOCOL,   // Lower Back — shares hip_knee_ankle protocol set
   HI: HIP_PROTOCOL,
   KN: KNEE_PROTOCOL,
   AN: ANKLE_PROTOCOL,
