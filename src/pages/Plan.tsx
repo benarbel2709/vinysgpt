@@ -199,6 +199,9 @@ export default function Plan() {
           </div>
         )}
 
+        {/* Stage progress indicator */}
+        <StageProgressIndicator />
+
         {/* First-session milestone banner (after first ever session) */}
         {completedCount === 1 && !milestoneDismissed && (
           <div className="rounded-2xl p-5 flex items-center gap-3" style={{ background: "hsl(var(--surface-warm))", border: "1px solid hsl(var(--border))" }}>
