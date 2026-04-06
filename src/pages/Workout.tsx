@@ -10,7 +10,7 @@ import { HELPED_MOST_LABELS } from "@/constants/conditions";
 import type { HelpedMost } from "@/constants/conditions";
 import type { Checkin as CheckinType } from "@/types";
 import { useTTS } from "@/hooks/useTTS";
-import { X, Play, Pause, Volume2, VolumeX, Loader2, ChevronLeft, ChevronDown, CheckCircle2, Settings2, RotateCcw, Smartphone } from "lucide-react";
+import { X, Play, Pause, Volume2, VolumeX, Loader2, ChevronLeft, ChevronDown, CheckCircle2, Settings2, RotateCcw, Smartphone, Camera } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { trackEvent } from "@/lib/analytics";
 import universalVideo from "@/assets/exercises/universal-fallback.mp4";
@@ -488,8 +488,14 @@ export default function Workout() {
                       poseCount={block.exercises.length}
                     />
                     {block.exercises.map((ex, i) => (
-                      <div key={ex.id} className={`relative flex items-center gap-3 py-2.5 px-3 ${i < block.exercises.length - 1 ? "border-b border-white/10" : ""}`}>
-                        <span className="text-white/30 text-xs font-mono w-5 text-right shrink-0">{ex.position}</span>
+                      <div key={ex.id} className={`relative flex items-start gap-3 py-2.5 px-3 ${i < block.exercises.length - 1 ? "border-b border-white/10" : ""}`}>
+                        {!ex.videoId && (
+                          <div className="shrink-0 w-12 h-12 rounded-lg flex flex-col items-center justify-center" style={{ backgroundColor: "#0D9488" }}>
+                            <Camera size={16} className="text-white" />
+                            <span className="text-white text-[7px] font-medium mt-0.5 leading-none">Coming soon</span>
+                          </div>
+                        )}
+                        <span className="text-white/30 text-xs font-mono w-5 text-right shrink-0 mt-1">{ex.position}</span>
                         <div className="flex-1 min-w-0">
                           <span className="text-white/90 text-sm font-medium block truncate">{ex.name}</span>
                           {ex.wasSimplified && (
