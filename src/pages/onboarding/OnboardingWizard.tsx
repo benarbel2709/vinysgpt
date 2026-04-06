@@ -552,8 +552,13 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 5: Schedule (FIX 6 Step C) ═══ */}
+        {/* ═══ STEP 5: Session Duration (DurationSelector) ═══ */}
         {step === 5 && (
+          <DurationSelector value={minutesPerSession} onChange={(v) => { setMinutesPerSession(v); setDurationSelected(true); }} />
+        )}
+
+        {/* ═══ STEP 6: Schedule (FIX 6 Step C) ═══ */}
+        {step === 6 && (
           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
             <div>
               <h2 className="font-bold text-[21px]" style={{ color: "#888" }}>Sessions per week</h2>
