@@ -5,7 +5,7 @@ import { useApp } from "@/context/AppContext";
 import type { ConditionKey, EnergyLevel, PracticeTime } from "@/constants/conditions";
 import { CONDITION_LABELS } from "@/constants/conditions";
 import type { GenericAssessmentData, Assessment } from "@/types";
-import { generatePlan } from "@/lib/planGenerator";
+// V1 planGenerator no longer used — sessions are generated on-demand by sessionService
 import { trackEvent } from "@/lib/analytics";
 import BrandLogo from "@/components/BrandLogo";
 import FlowProgress from "@/components/FlowProgress";
@@ -194,23 +194,10 @@ export default function OnboardingWizard() {
     };
     const assessment: Assessment = { id: assessmentId, createdAt: new Date().toISOString(), type: "generic", data };
 
-    // Use diagnostic irritability to set plan intensity
-    const irr = diagnosticResult?.irritability ?? 0;
-    const plan = generatePlan(updatedProfile, assessmentId, undefined, state.exerciseLibrary, {
-      pain: irr >= 3 ? 7 : 5,
-      fatigue: irr >= 3 ? 7 : 5,
-      sleep: 5,
-      flareNow: irr >= 4 ? "yes" : "no",
-    });
-
-    // Ensure NO sessions start as "done" — diagnostic must not count
-    const cleanPlan = {
-      ...plan,
-      sessions: plan.sessions.map(s => ({ ...s, status: "planned" as const })),
-    };
-
-    updateState({ assessments: [...state.assessments, assessment], currentPlan: cleanPlan });
-    trackEvent("plan_generated", { condition: selected[0], duration: cleanPlan.sessions[0]?.durationMinutes });
+    // V2: No pre-generated plan. Sessions are created on-demand by sessionService.
+    // Save assessment and mark onboarding complete — the Plan page handles session generation.
+    updateState({ assessments: [...state.assessments, assessment] });
+    trackEvent("plan_generated", { condition: selected[0], duration: minutesPerSession });
     navigate("/plan");
   };
 

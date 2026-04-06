@@ -79,7 +79,7 @@ function AppRoutes() {
       <Route path="/questionnaire" element={<Navigate to="/onboarding" replace />} />
 
       <Route path="/plan" element={<AuthGuard><OnboardingGuard><Plan /></OnboardingGuard></AuthGuard>} />
-      <Route path="/workout/:sessionId" element={<AuthGuard><Workout /></AuthGuard>} />
+      <Route path="/workout/:sessionId?" element={<AuthGuard><Workout /></AuthGuard>} />
       <Route path="/checkin/:sessionId" element={<AuthGuard><OnboardingGuard><CheckinPage /></OnboardingGuard></AuthGuard>} />
       <Route path="/check-in" element={<AuthGuard><QuickCheckin /></AuthGuard>} />
       <Route path="/complete" element={<AuthGuard><OnboardingGuard><CompletePage /></OnboardingGuard></AuthGuard>} />

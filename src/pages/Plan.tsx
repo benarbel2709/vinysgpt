@@ -4,7 +4,7 @@ import { useLatestCheckin } from "@/hooks/useLatestCheckin";
 import { useWeeklyProgress } from "@/hooks/useWeeklyProgress";
 import { useApp } from "@/context/AppContext";
 import { useAuthContext } from "@/context/AuthContext";
-import { generatePlan } from "@/lib/planGenerator";
+// V1 planGenerator no longer used — sessions are generated on-demand by sessionService
 import { HELPED_MOST_LABELS, CONDITIONS, CONDITION_LABELS, EQUIPMENT_OPTIONS } from "@/constants/conditions";
 import type { HelpedMost, ConditionKey, EnergyLevel } from "@/constants/conditions";
 import { Button } from "@/components/ui/button";
@@ -84,32 +84,13 @@ export default function Plan() {
       setShowWeeklyDone(true);
       return;
     }
-    const nextSession = plan?.sessions.find((s) => s.status !== "done");
-    if (nextSession) {
-      navigate(`/workout/${nextSession.id}`);
-      return;
-    }
-    const newPlan = generatePlan(
-      state.profile,
-      `assessment_${Date.now()}`,
-      undefined,
-      state.exerciseLibrary,
-      { pain: 5, fatigue: 5, sleep: 5, flareNow: state.profile.flareToday ? "yes" : "no" },
-    );
-    updateState({ currentPlan: newPlan });
-    if (newPlan.sessions[0]) navigate(`/workout/${newPlan.sessions[0].id}`);
+    // V2: on-demand session — navigate to workout without a session ID
+    navigate("/workout");
   };
 
-  const handleRepeat = (sessionId: string) => {
-    const newPlan = generatePlan(
-      state.profile,
-      `assessment_${Date.now()}`,
-      undefined,
-      state.exerciseLibrary,
-      { pain: 5, fatigue: 5, sleep: 5, flareNow: state.profile.flareToday ? "yes" : "no" },
-    );
-    updateState({ currentPlan: newPlan });
-    if (newPlan.sessions[0]) navigate(`/workout/${newPlan.sessions[0].id}`);
+  const handleRepeat = (_sessionId: string) => {
+    // V2: generate a fresh on-demand session
+    navigate("/workout");
   };
 
   const handleStartSession = (sessionId: string) => {
@@ -127,14 +108,7 @@ export default function Plan() {
     if (pendingConditions.length === 0) return;
     const merged = Array.from(new Set([...conditions, ...pendingConditions]));
     updateProfile({ conditions: merged as ConditionKey[] });
-    const newPlan = generatePlan(
-      { ...state.profile, conditions: merged as ConditionKey[] },
-      `assessment_${Date.now()}`,
-      undefined,
-      state.exerciseLibrary,
-      { pain: 5, fatigue: 5, sleep: 5, flareNow: state.profile.flareToday ? "yes" : "no" },
-    );
-    updateState({ currentPlan: newPlan });
+    // V2: no plan regeneration needed — sessions are generated on-demand
     setPendingConditions([]);
     setConditionSearch("");
     setShowAddCondition(false);
@@ -152,14 +126,7 @@ export default function Plan() {
       energyLevel: tempLevel,
       sessionsPerWeek: tempSessions,
     });
-    const newPlan = generatePlan(
-      { ...state.profile, minutesPerSession: tempMinutes, energyLevel: tempLevel, sessionsPerWeek: tempSessions },
-      `assessment_${Date.now()}`,
-      undefined,
-      state.exerciseLibrary,
-      { pain: 5, fatigue: 5, sleep: 5, flareNow: state.profile.flareToday ? "yes" : "no" },
-    );
-    updateState({ currentPlan: newPlan });
+    // V2: no plan regeneration needed — sessions are generated on-demand
     setEditingSetup(false);
   };
 
@@ -184,15 +151,16 @@ export default function Plan() {
   const greetingDisplay = greeting;
 
   // No plan state
-  if (!plan) {
+  // V2: no pre-generated plan needed. If onboarding not completed, show setup prompt.
+  if (!state.onboardingCompleted) {
     return (
       <Layout hideHeader hideFooter>
         <NavBar onStart={handleStartNextPractice} onAccountClick={() => setShowAccount(true)} onLibraryClick={() => { setLibraryInitialId(null); setShowLibrary(true); }} />
         <div className="px-6 py-10 max-w-5xl mx-auto space-y-6">
           <GreetingBlock greeting={greetingDisplay} greetingSuffix={greetingSuffix} user={user} showAccount={showAccount} setShowAccount={setShowAccount} firstName={firstName} setFirstName={setFirstName} />
-          <p className="text-muted-foreground">No practice plan yet</p>
+          <p className="text-muted-foreground">Complete the diagnostic to start your practice.</p>
           <Button variant="hero" size="lg" onClick={() => navigate("/onboarding")} className="w-full">
-            Start a new plan
+            Start diagnostic
           </Button>
         </div>
         <RestartModal open={showRestart} onClose={() => setShowRestart(false)} onConfirm={handleRestartConfirm} />
@@ -200,11 +168,11 @@ export default function Plan() {
     );
   }
 
-  // Completed sessions for history
-  const completedSessions = plan.sessions.filter(s => s.status === "done").map((s, idx) => {
+  // Completed sessions for history (from legacy plan data if it exists)
+  const completedSessions = plan?.sessions?.filter(s => s.status === "done").map((s, idx) => {
     const matchingCheckin = checkins.find(c => c.sessionId === s.id);
-    return { ...s, checkin: matchingCheckin, sessionNumber: plan.sessions.indexOf(s) + 1 };
-  });
+    return { ...s, checkin: matchingCheckin, sessionNumber: (plan?.sessions.indexOf(s) ?? 0) + 1 };
+  }) || [];
 
   return (
     <Layout hideHeader hideFooter>
@@ -221,12 +189,9 @@ export default function Plan() {
             <div className="flex items-start gap-3">
               <Sparkles size={20} className="text-primary mt-0.5 shrink-0" />
               <div>
-                <p className="text-foreground font-semibold text-[15px]">Your plan is ready. Practice 01 is waiting for you — it only takes {state.profile.minutesPerSession} minutes.</p>
-                <Button variant="hero" size="sm" className="mt-3 rounded-full px-5" onClick={() => {
-                  const first = plan.sessions[0];
-                  if (first) navigate(`/workout/${first.id}`);
-                }}>
-                  Start Practice 01 →
+                <p className="text-foreground font-semibold text-[15px]">Your practice is ready — it only takes {state.profile.minutesPerSession} minutes.</p>
+                <Button variant="hero" size="sm" className="mt-3 rounded-full px-5" onClick={() => navigate("/workout")}>
+                  Start Practice →
                 </Button>
               </div>
             </div>
@@ -317,41 +282,13 @@ export default function Plan() {
             <div className="flex flex-wrap items-center justify-between gap-2 shrink-0 mb-4">
               <h3 className="text-lg font-bold text-foreground">My next practice</h3>
             </div>
-            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain pr-2 space-y-4" style={{ scrollbarWidth: "thin" }}>
-              {plan.sessions.map((session, idx) => {
-                const isDone = session.status === "done";
-                const firstPendingIdx = plan.sessions.findIndex(s => s.status !== "done");
-                const isNext = !isDone && firstPendingIdx === idx;
-                const lastDoneIdx = plan.sessions.reduce((acc, s, i) => s.status === "done" ? i : acc, -1);
-                const isLocked = idx > lastDoneIdx + 1;
-                return (
-                  <div
-                    key={session.id}
-                    className={`flex items-center justify-between rounded-xl p-4 transition-opacity ${
-                      isLocked ? "opacity-45 cursor-not-allowed" : isNext ? "bg-secondary/5 ring-1 ring-secondary/20" : "bg-background/60"
-                    }`}
-                  >
-                    <div>
-                      <h4 className={`font-semibold ${isLocked ? "text-muted-foreground" : "text-secondary"}`}>Practice {String(idx + 1).padStart(2, "0")}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {session.durationMinutes} min – {session.exerciseIds.length} exercises
-                      </p>
-                      {isLocked && (
-                        <p className="text-xs text-muted-foreground/70 mt-0.5">Complete Session {String(lastDoneIdx + 2).padStart(2, "0")} to unlock</p>
-                      )}
-                    </div>
-                    <Button
-                      variant={isLocked ? "outline" : "hero"}
-                      size="sm"
-                      className={`rounded-full px-5 text-sm ${isLocked ? "bg-muted text-muted-foreground border-0 cursor-not-allowed hover:bg-muted" : ""}`}
-                      disabled={isLocked}
-                      onClick={() => isDone ? handleRepeat(session.id) : handleStartSession(session.id)}
-                    >
-                      {isDone ? <><RefreshCw size={16} /> Repeat</> : <><Play size={16} /> Start</>}
-                    </Button>
-                  </div>
-                );
-              })}
+            <div className="flex-1 min-h-0 flex flex-col items-center justify-center py-6 space-y-4">
+              <p className="text-sm text-muted-foreground text-center max-w-[260px]">
+                Each session is freshly generated based on your diagnostic profile and progress.
+              </p>
+              <Button variant="hero" size="lg" className="rounded-full px-8" onClick={() => navigate("/workout")}>
+                <Play size={18} /> Start Practice
+              </Button>
             </div>
           </div>
 

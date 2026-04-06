@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useApp } from "@/context/AppContext";
 import { useAuthContext } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { selectExercisesForConditions, adaptNextSession } from "@/lib/planGenerator";
-import { MASTER_LOOKUP } from "@/data/exerciseAdapter";
+import { createSession, buildSessionInput } from "@/engine/sessionService";
+import type { PlayableExercise, PlayableSession } from "@/engine/sessionService";
 import { HELPED_MOST_LABELS } from "@/constants/conditions";
 import type { HelpedMost } from "@/constants/conditions";
 import type { Checkin as CheckinType } from "@/types";
@@ -76,15 +76,24 @@ export default function Workout() {
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const plan = state.currentPlan;
-  const session = plan?.sessions.find((s) => s.id === sessionId);
+  // ─── Generate V2 session on mount ───
+  const playableSession = useMemo<PlayableSession | null>(() => {
+    try {
+      const input = buildSessionInput(state.profile as any);
+      return createSession(input);
+    } catch (err) {
+      console.error("[Workout] Failed to generate V2 session:", err);
+      return null;
+    }
+  }, []); // Only generate once on mount
+
+  const exercises = playableSession?.exercises || [];
+  const sessionDurationMinutes = playableSession?.durationMinutes || state.profile.minutesPerSession || 20;
 
   const [activeIdx, setActiveIdx] = useState(0);
   const [showPreview, setShowPreview] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const [timerDone, setTimerDone] = useState(false);
-  const [currentMode, setCurrentMode] = useState(session?.mode || "normal");
-  const [currentExerciseIds, setCurrentExerciseIds] = useState(session?.exerciseIds || []);
   const [showClosing, setShowClosing] = useState(false);
   const [closingRemaining, setClosingRemaining] = useState(180);
   const [adjustOpen, setAdjustOpen] = useState(false);
@@ -119,16 +128,25 @@ export default function Workout() {
     }
   }, []);
 
-  const exercises = currentExerciseIds
-    .map((id) => state.exerciseLibrary.find((ex) => ex.id === id))
-    .filter(Boolean) as typeof state.exerciseLibrary;
+  const perExerciseSeconds = useMemo(() => {
+    if (exercises.length === 0) return 180;
+    // Use each exercise's own duration from V2 data
+    return null; // Signal to use per-exercise duration
+  }, [exercises.length]);
 
-  const perExerciseMinutes = exercises.length > 0
-    ? Math.round((session?.durationMinutes || 30) / exercises.length) : 3;
+  const activeExercise = exercises[activeIdx] || null;
+  const exerciseDuration = activeExercise?.durationSeconds || 60;
 
-  const [remaining, setRemaining] = useState(perExerciseMinutes * 60);
+  const [remaining, setRemaining] = useState(exerciseDuration);
 
-  useEffect(() => { setRemaining(perExerciseMinutes * 60); setTimerDone(false); setInstructionsOpen(false); setWhyOpen(false); }, [activeIdx, perExerciseMinutes]);
+  useEffect(() => {
+    if (activeExercise) {
+      setRemaining(activeExercise.durationSeconds);
+      setTimerDone(false);
+      setInstructionsOpen(false);
+      setWhyOpen(false);
+    }
+  }, [activeIdx, activeExercise?.id]);
 
   useEffect(() => {
     if (!isPlaying || remaining <= 0) return;
@@ -155,10 +173,8 @@ export default function Workout() {
   }, [isPlaying, isEnded, showPreview]);
 
   // TTS
-  const speakExercise = useCallback((exercise: typeof state.exerciseLibrary[0]) => {
-    const m = MASTER_LOOKUP[exercise.id];
-    const instructions = m?.instructions || exercise.steps_he;
-    const text = `${m?.title || exercise.name_he}. ${instructions.join(". ")}`;
+  const speakExercise = useCallback((exercise: PlayableExercise) => {
+    const text = `${exercise.name}. ${exercise.activeModification || ""}`;
     speak(text);
   }, [speak]);
 
@@ -177,27 +193,10 @@ export default function Workout() {
 
   useEffect(() => { return () => { stopTTS(); }; }, [stopTTS]);
 
-  const switchMode = useCallback((mode: "easier" | "flare") => {
-    stopTTS();
-    setCurrentMode(mode);
-    const newIds = selectExercisesForConditions(state.exerciseLibrary, state.profile.conditions, mode, session?.durationMinutes || 30);
-    setCurrentExerciseIds(newIds);
-    setActiveIdx(0);
-    setAdjustOpen(false);
-    toast({ title: mode === "easier" ? "Switched to easier variation." : "Flare mode — gentler exercises loaded.", duration: 2500 });
-  }, [session?.durationMinutes, state.exerciseLibrary, state.profile.conditions, stopTTS]);
-
   const finishWorkout = async () => {
-    if (!plan || !session) return;
     stopTTS();
-    const updatedSessions = plan.sessions.map((s) =>
-      s.id === session.id ? { ...s, status: "done" as const, mode: currentMode, exerciseIds: currentExerciseIds } : s
-    );
-    updateState({
-      currentPlan: { ...plan, sessions: updatedSessions },
-      progress: { lastSessionId: session.id },
-    });
-    trackEvent("session_completed", { sessionId: session.id, mode: currentMode, exercises: exercises.length });
+
+    trackEvent("session_completed", { mode: "v2", exercises: exercises.length, duration: sessionDurationMinutes });
 
     if (user) {
       const now = new Date();
@@ -230,6 +229,8 @@ export default function Workout() {
     meditation: "Sit or lie in a comfortable position. Close your eyes and bring your attention to your breath. When your mind wanders, gently return to the breath.",
   };
 
+  const isLastExercise = activeIdx === exercises.length - 1;
+
   const goNext = () => {
     if (isLastExercise) {
       stopTTS();
@@ -247,16 +248,11 @@ export default function Workout() {
   const togglePlay = () => setIsPlaying(p => !p);
 
   const handleCheckinSave = async () => {
-    if (!sessionId || !session) return;
     const checkin: CheckinType = {
-      id: `checkin_${Date.now()}`, sessionId, createdAt: new Date().toISOString(),
+      id: `checkin_${Date.now()}`, sessionId: sessionId || `v2_${Date.now()}`, createdAt: new Date().toISOString(),
       painBefore, painAfter, fatigueBefore, fatigueAfter, tooMuch, helpedMost,
     };
-    let updatedPlan = state.currentPlan;
-    if (updatedPlan) {
-      updatedPlan = adaptNextSession(updatedPlan, sessionId, tooMuch, painAfter - painBefore, state.profile.flareToday, state.profile.minutesPerSession);
-    }
-    updateState({ checkins: [...state.checkins, checkin], currentPlan: updatedPlan });
+    updateState({ checkins: [...state.checkins, checkin] });
 
     if (user) {
       await supabase.from("user_checkins").insert({
@@ -266,18 +262,19 @@ export default function Workout() {
       });
     }
 
-    trackEvent("checkin_completed", { sessionId });
+    trackEvent("checkin_completed", { sessionId: sessionId || "v2_ondemand" });
     toast({ title: "Saved — we'll adapt your next session.", duration: 2000 });
     setEndStep("summary");
   };
 
   const exitWorkout = () => { stopTTS(); navigate("/plan"); };
 
-  if (!session) {
+  // No session generated
+  if (!playableSession || exercises.length === 0) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-black text-white">
         <div className="text-center">
-          <p className="text-white/60 mb-4">Session not found</p>
+          <p className="text-white/60 mb-4">Could not generate a session. Please complete the diagnostic first.</p>
           <button onClick={() => navigate("/plan")} className="rounded-full px-6 py-3 bg-white/20 text-white font-medium">Back to plan</button>
         </div>
       </div>
@@ -291,17 +288,13 @@ export default function Workout() {
 
   const displayMinutes = Math.floor(remaining / 60);
   const displaySeconds = remaining % 60;
-  const activeExercise = exercises[activeIdx];
-  const master = activeExercise ? MASTER_LOOKUP[activeExercise.id] : null;
-  const isLastExercise = activeIdx === exercises.length - 1;
-  const exerciseTitle = master?.title || activeExercise?.name_he || "";
-  const exerciseCue = master?.breathing || master?.cue || "";
-  const instructions = master?.instructions || activeExercise?.steps_he || [];
-  const safetyNote = master?.safety || activeExercise?.safety_he || "";
-  const whyText = master?.why || "";
-  const equipmentList = activeExercise?.equipment?.filter(e => e.toLowerCase() !== "mat" && e.toLowerCase() !== "מזרן") || [];
-  const repsText = master?.reps || "";
-  const rangeText = master?.range || "";
+  const exerciseTitle = activeExercise?.name || "";
+  const exerciseCue = activeExercise?.activeModification || "";
+  const safetyNote = activeExercise?.cautionFlag
+    ? `Caution: ${activeExercise.cautionAreas.join(", ")}. ${activeExercise.activeModification}`
+    : "";
+  const whyText = activeExercise?.clinicalRationale || "";
+  const equipmentList: string[] = []; // V2 exercises don't have per-exercise equipment display yet
 
   return (
     <>
@@ -366,11 +359,12 @@ export default function Workout() {
               </div>
             )}
 
-            {/* Bottom overlay gradient — exercise name + breathing */}
+            {/* Bottom overlay gradient — exercise name + phase */}
             {!isEnded && !showClosing && (
               <div className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-3"
                 style={{ background: "linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%)", height: 100 }}>
                 <div className="absolute bottom-0 left-0 right-0 px-4 pb-3">
+                  <p className="text-white/50 text-xs font-medium uppercase tracking-wider mb-0.5">{activeExercise?.phaseLabel}</p>
                   <p className="text-white font-semibold text-lg leading-tight">{exerciseTitle}</p>
                   {exerciseCue && (
                     <p className="text-white/80 text-sm mt-1" style={{ animation: "pulse 4s ease-in-out infinite" }}>
@@ -386,8 +380,8 @@ export default function Workout() {
           <div className="hidden lg:flex lg:flex-col lg:w-[40%] lg:overflow-y-auto lg:bg-black/90 lg:border-l lg:border-white/10">
             <BelowVideoPanel
               goNext={goNext} isLastExercise={isLastExercise} safetyNote={safetyNote}
-              instructions={instructions} whyText={whyText} equipmentList={equipmentList}
-              repsText={repsText} rangeText={rangeText}
+              instructions={[]} whyText={whyText} equipmentList={equipmentList}
+              repsText="" rangeText=""
               instructionsOpen={instructionsOpen} setInstructionsOpen={setInstructionsOpen}
               whyOpen={whyOpen} setWhyOpen={setWhyOpen}
             />
@@ -398,8 +392,8 @@ export default function Workout() {
         <div className="flex-1 overflow-y-auto lg:hidden bg-black/95">
           <BelowVideoPanel
             goNext={goNext} isLastExercise={isLastExercise} safetyNote={safetyNote}
-            instructions={instructions} whyText={whyText} equipmentList={equipmentList}
-            repsText={repsText} rangeText={rangeText}
+            instructions={[]} whyText={whyText} equipmentList={equipmentList}
+            repsText="" rangeText=""
             instructionsOpen={instructionsOpen} setInstructionsOpen={setInstructionsOpen}
             whyOpen={whyOpen} setWhyOpen={setWhyOpen}
           />
@@ -408,14 +402,6 @@ export default function Workout() {
         {/* === FIXED BOTTOM BAR === */}
         {!isEnded && !showClosing && (
           <div className="flex-shrink-0 z-30 border-t border-white/10 bg-black/90 backdrop-blur-md px-4 py-3 flex items-center justify-center gap-2">
-            <button onClick={() => switchMode("easier")}
-              className={`rounded-full px-4 py-2 text-xs font-medium transition-colors ${currentMode === "easier" ? "bg-white/25 text-white" : "bg-white/10 text-white/60 hover:bg-white/15 hover:text-white"}`}>
-              Easier
-            </button>
-            <button onClick={() => switchMode("flare")}
-              className={`rounded-full px-4 py-2 text-xs font-medium transition-colors ${currentMode === "flare" ? "bg-white/25 text-white" : "bg-white/10 text-white/60 hover:bg-white/15 hover:text-white"}`}>
-              Flare mode
-            </button>
             <button onClick={togglePlay}
               className="rounded-full px-4 py-2 text-xs font-medium bg-white/10 text-white/60 hover:bg-white/15 hover:text-white transition-colors flex items-center gap-1.5">
               {isPlaying ? <Pause size={14} /> : <Play size={14} />}
@@ -468,19 +454,19 @@ export default function Workout() {
             <div className="text-center max-w-md w-full">
               <p className="text-white/50 text-sm font-medium uppercase tracking-wider mb-2">Session Preview</p>
               <h1 className="text-white text-3xl md:text-4xl font-semibold mb-2">
-                Practice {session ? String((plan?.sessions.indexOf(session) ?? 0) + 1).padStart(2, "0") : "01"}
+                Your Practice
               </h1>
-              <p className="text-white/60 text-sm mb-6">{exercises.length} exercises · {session?.durationMinutes || 20} min</p>
+              <p className="text-white/60 text-sm mb-6">{exercises.length} exercises · {sessionDurationMinutes} min</p>
               <div className="rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md p-4 mb-8 max-h-[40vh] overflow-y-auto text-left">
-                {exercises.map((ex, i) => {
-                  const m = MASTER_LOOKUP[ex.id];
-                  return (
-                    <div key={ex.id} className={`flex items-center gap-3 py-2.5 ${i < exercises.length - 1 ? "border-b border-white/10" : ""}`}>
-                      <span className="text-white/30 text-xs font-mono w-5 text-right shrink-0">{i + 1}</span>
-                      <span className="text-white/90 text-sm font-medium">{m?.title || ex.name_he}</span>
+                {exercises.map((ex, i) => (
+                  <div key={ex.id} className={`flex items-center gap-3 py-2.5 ${i < exercises.length - 1 ? "border-b border-white/10" : ""}`}>
+                    <span className="text-white/30 text-xs font-mono w-5 text-right shrink-0">{i + 1}</span>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-white/90 text-sm font-medium block truncate">{ex.name}</span>
+                      <span className="text-white/40 text-xs">{ex.phaseLabel}</span>
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
               <button onClick={() => { setShowPreview(false); setIsPlaying(true); }}
                 className="w-full max-w-xs rounded-full py-3.5 px-6 bg-white text-black font-medium hover:bg-white/90 transition-colors text-base">
@@ -580,11 +566,11 @@ export default function Workout() {
               <div className="mt-8 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md overflow-hidden">
                 <div className="grid grid-cols-3 divide-x divide-white/10">
                   <div className="py-5 px-3">
-                    <p className="text-white text-2xl font-bold">{plan ? plan.sessions.filter(s => s.status === "done").length : "–"}</p>
-                    <p className="text-white/50 text-xs mt-1">Session</p>
+                    <p className="text-white text-2xl font-bold">{exercises.length}</p>
+                    <p className="text-white/50 text-xs mt-1">Exercises</p>
                   </div>
                   <div className="py-5 px-3">
-                    <p className="text-white text-2xl font-bold">{session?.durationMinutes || "–"}</p>
+                    <p className="text-white text-2xl font-bold">{sessionDurationMinutes}</p>
                     <p className="text-white/50 text-xs mt-1">Duration (min)</p>
                   </div>
                   <div className="py-5 px-3">
@@ -596,7 +582,7 @@ export default function Workout() {
               <div className="mt-8 space-y-3">
                 <button onClick={exitWorkout} className="w-full rounded-full py-3.5 px-6 bg-white text-black font-medium hover:bg-white/90 transition-colors text-base">Return to my plan →</button>
                 <button onClick={async () => {
-                  const shareText = `I just completed a Vinys adaptive yoga session. ${session?.durationMinutes || 20} min · ${state.profile.conditions?.map(c => c.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())).join(", ") || "Therapeutic"} program · vinys.app`;
+                  const shareText = `I just completed a Vinys adaptive yoga session. ${sessionDurationMinutes} min · vinys.app`;
                   const shareData = { title: "I just completed a Vinys session", text: shareText, url: "https://vinys.app" };
                   try {
                     if (navigator.share) { await navigator.share(shareData); }
@@ -623,16 +609,6 @@ export default function Workout() {
                 <X size={18} className="text-white/70" />
               </button>
             </div>
-            <button onClick={() => switchMode("easier")}
-              className={`w-full min-h-[48px] rounded-2xl px-5 py-3 text-sm font-medium text-white transition-colors text-left ${currentMode === "easier" ? "bg-white/25" : "bg-white/10 hover:bg-white/15"}`}>
-              <span className="block">Switch to easier variation</span>
-              <span className="block text-xs text-white/50 mt-0.5">Replaces this exercise with a gentler version targeting the same area</span>
-            </button>
-            <button onClick={() => switchMode("flare")}
-              className={`w-full min-h-[48px] rounded-2xl px-5 py-3 text-sm font-medium text-white transition-colors text-left ${currentMode === "flare" ? "bg-white/25" : "bg-white/10 hover:bg-white/15"}`}>
-              <span className="block">Activate Flare mode (gentler)</span>
-              <span className="block text-xs text-white/50 mt-0.5">Slows the pace and reduces intensity for the rest of this session</span>
-            </button>
             <button onClick={() => { setAdjustOpen(false); finishWorkout(); }}
               className="w-full rounded-2xl px-5 py-3 text-sm text-white/50 hover:text-red-400 transition-colors font-medium text-left">
               <span className="block">Finish practice early</span>
