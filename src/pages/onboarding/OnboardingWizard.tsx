@@ -8,6 +8,7 @@ import type { GenericAssessmentData, Assessment } from "@/types";
 // V1 planGenerator no longer used — sessions are generated on-demand by sessionService
 import { trackEvent } from "@/lib/analytics";
 import BrandLogo from "@/components/BrandLogo";
+import DurationSelector from "@/components/onboarding/DurationSelector";
 import FlowProgress from "@/components/FlowProgress";
 import { Button } from "@/components/ui/button";
 import { X, Check, Pencil, Clock, Lock } from "lucide-react";
