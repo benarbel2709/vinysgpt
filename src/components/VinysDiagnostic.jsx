@@ -936,6 +936,7 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
   const { speak, stop: stopTTS, isPlaying: ttsPlaying, isLoading: ttsLoading, isMuted, setMuted } = useTTS();
 
   const [videoPlaying, setVideoPlaying] = useState(false);
+  const transitioningRef = useRef(false);
 
   const areaLabel = area ? AREA_CONFIG[area].label.toLowerCase() : "this area";
 
@@ -1291,6 +1292,8 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
         <div className="space-y-2.5">
           {q.opts.map((opt, i) => (
             <OptionTile key={i} label={opt} selected={selected === opt} onClick={() => {
+              if (transitioningRef.current) return;
+              transitioningRef.current = true;
               setSelected(opt);
               setTimeout(() => {
                 if (intakeStep === 0) {
@@ -1308,6 +1311,7 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
                   setSelected(null);
                   startPostures(area, irritability);
                 }
+                transitioningRef.current = false;
               }, 250);
             }} />
           ))}
@@ -1409,8 +1413,10 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
           <div className="space-y-2.5">
             {q.opts.map((opt, i) => (
               <OptionTile key={i} label={opt.t} selected={selected === opt.t} onClick={() => {
+                if (transitioningRef.current) return;
+                transitioningRef.current = true;
                 setSelected(opt.t);
-                setTimeout(() => handleAnswer(opt.t), 250);
+                setTimeout(() => { handleAnswer(opt.t); transitioningRef.current = false; }, 250);
               }} />
             ))}
           </div>
@@ -1544,8 +1550,10 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
         <div className="space-y-2.5">
           {q.opts.map((opt, i) => (
             <OptionTile key={i} label={opt.t} selected={selected === opt.t} onClick={() => {
+              if (transitioningRef.current) return;
+              transitioningRef.current = true;
               setSelected(opt.t);
-              setTimeout(() => { handleAnswer(opt.t); setSelected(null); }, 250);
+              setTimeout(() => { handleAnswer(opt.t); setSelected(null); transitioningRef.current = false; }, 250);
             }} />
           ))}
         </div>
@@ -1603,6 +1611,8 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
         <div className="space-y-2.5">
           {currentQ.opts.map((opt, i) => (
             <OptionTile key={i} label={opt} selected={selected === opt} onClick={() => {
+              if (transitioningRef.current) return;
+              transitioningRef.current = true;
               setSelected(opt);
 
               // Auto-advance after brief highlight
@@ -1635,6 +1645,7 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
                   setSelected(null);
                   setPhase("summary");
                 }
+                transitioningRef.current = false;
               }, 250);
             }} />
           ))}
