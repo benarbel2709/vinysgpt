@@ -296,41 +296,13 @@ export default function Plan() {
             <div className="flex flex-wrap items-center justify-between gap-2 shrink-0 mb-4">
               <h3 className="text-lg font-bold text-foreground">My next practice</h3>
             </div>
-            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain pr-2 space-y-4" style={{ scrollbarWidth: "thin" }}>
-              {plan.sessions.map((session, idx) => {
-                const isDone = session.status === "done";
-                const firstPendingIdx = plan.sessions.findIndex(s => s.status !== "done");
-                const isNext = !isDone && firstPendingIdx === idx;
-                const lastDoneIdx = plan.sessions.reduce((acc, s, i) => s.status === "done" ? i : acc, -1);
-                const isLocked = idx > lastDoneIdx + 1;
-                return (
-                  <div
-                    key={session.id}
-                    className={`flex items-center justify-between rounded-xl p-4 transition-opacity ${
-                      isLocked ? "opacity-45 cursor-not-allowed" : isNext ? "bg-secondary/5 ring-1 ring-secondary/20" : "bg-background/60"
-                    }`}
-                  >
-                    <div>
-                      <h4 className={`font-semibold ${isLocked ? "text-muted-foreground" : "text-secondary"}`}>Practice {String(idx + 1).padStart(2, "0")}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {session.durationMinutes} min – {session.exerciseIds.length} exercises
-                      </p>
-                      {isLocked && (
-                        <p className="text-xs text-muted-foreground/70 mt-0.5">Complete Session {String(lastDoneIdx + 2).padStart(2, "0")} to unlock</p>
-                      )}
-                    </div>
-                    <Button
-                      variant={isLocked ? "outline" : "hero"}
-                      size="sm"
-                      className={`rounded-full px-5 text-sm ${isLocked ? "bg-muted text-muted-foreground border-0 cursor-not-allowed hover:bg-muted" : ""}`}
-                      disabled={isLocked}
-                      onClick={() => isDone ? handleRepeat(session.id) : handleStartSession(session.id)}
-                    >
-                      {isDone ? <><RefreshCw size={16} /> Repeat</> : <><Play size={16} /> Start</>}
-                    </Button>
-                  </div>
-                );
-              })}
+            <div className="flex-1 min-h-0 flex flex-col items-center justify-center py-6 space-y-4">
+              <p className="text-sm text-muted-foreground text-center max-w-[260px]">
+                Each session is freshly generated based on your diagnostic profile and progress.
+              </p>
+              <Button variant="hero" size="lg" className="rounded-full px-8" onClick={() => navigate("/workout")}>
+                <Play size={18} /> Start Practice
+              </Button>
             </div>
           </div>
 
