@@ -4,7 +4,9 @@
 // Calls E1 → E2 → E3 pipeline and returns a ready-to-play session.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import type { UserProfile } from './engine1_suitability';
+import type { UserProfile, ActiveAreaProfile } from './engine1_suitability';
+import type { BodyArea, Exercise } from '../data/exercises_v2';
+import { findExercise, EXERCISES_V2 } from '../data/exercises_v2';
 import type {
   SessionRequest,
   ProgressionStage,
@@ -52,6 +54,9 @@ export interface PlayableExercise {
   poseFamily: string;
   movementCategory: string;
   videoId: string | null;
+  clinicalRationale: string;
+  /** Full V2 exercise reference for advanced display needs */
+  exercise: Exercise;
 }
 
 /** Phase summary for UI section headers */
@@ -72,6 +77,121 @@ export interface PlayableSession {
   peakCount: number;
   cumulativeLoad: number;
   loadCeiling: number;
+}
+
+// ─── Area code mapping ───────────────────────────────────────────────────────
+
+/** Maps diagnostic area codes to V2 BodyArea codes */
+const DIAGNOSTIC_TO_V2_AREA: Record<string, BodyArea> = {
+  LB: 'LB',
+  HIP: 'HI',
+  KNEE: 'KN',
+  ANKLE: 'AN',
+  NECK: 'NK',
+  UBACK: 'UB',
+  WRIST: 'WR',
+  SHLDR: 'SH',
+};
+
+// ─── Profile mapping ─────────────────────────────────────────────────────────
+
+/**
+ * Maps the diagnostic result from VinysDiagnostic to the V2 UserProfile format.
+ *
+ * @param diagnosticResult - The result object from the diagnostic flow
+ *   Expected shape: { area: "LB"|"HIP"|..., primary: "FL"|"EX"|..., secondary?: string, irritability?: number }
+ * @returns UserProfile (ActiveAreaProfile[]) for Engine 1
+ */
+export function mapDiagnosticToUserProfile(diagnosticResult: {
+  area: string;
+  primary: string;
+  secondary?: string | null;
+  originalArea?: string | null;
+  crossoverTriggered?: boolean;
+}): UserProfile {
+  const profiles: ActiveAreaProfile[] = [];
+
+  // Primary area
+  const v2Area = DIAGNOSTIC_TO_V2_AREA[diagnosticResult.area];
+  if (v2Area) {
+    profiles.push({
+      area: v2Area,
+      primary: diagnosticResult.primary,
+      secondary: diagnosticResult.secondary || null,
+    });
+  }
+
+  // If crossover was triggered, add the original area as secondary
+  if (diagnosticResult.crossoverTriggered && diagnosticResult.originalArea) {
+    const origV2Area = DIAGNOSTIC_TO_V2_AREA[diagnosticResult.originalArea];
+    if (origV2Area && origV2Area !== v2Area) {
+      profiles.push({
+        area: origV2Area,
+        primary: diagnosticResult.primary,
+        secondary: null,
+      });
+    }
+  }
+
+  return profiles;
+}
+
+/**
+ * Derives progression stage from irritability level.
+ * High irritability → stage 1 (foundation/gentle)
+ * Low irritability → stage 3 (progressed)
+ */
+export function mapIrritabilityToStage(irritability: number): ProgressionStage {
+  if (irritability >= 3) return 1;
+  if (irritability >= 2) return 2;
+  return 3;
+}
+
+/**
+ * Maps the app's energy level to V2 experience level.
+ */
+export function mapEnergyToExperience(energyLevel: string): ExperienceLevel {
+  if (energyLevel === 'low') return 'beginner';
+  if (energyLevel === 'high') return 'advanced';
+  return 'intermediate';
+}
+
+/**
+ * Maps minutes to the nearest valid V2 SessionDuration.
+ */
+export function mapMinutesToDuration(minutes: number): SessionDuration {
+  if (minutes <= 10) return 10;
+  if (minutes <= 20) return 20;
+  if (minutes <= 30) return 30;
+  return 45;
+}
+
+/**
+ * Convenience: build SessionServiceInput from the app profile + diagnostic result.
+ */
+export function buildSessionInput(profile: {
+  diagnosticResult?: any;
+  diagnosticArea?: string;
+  diagnosticProfile?: string;
+  diagnosticIrritability?: number;
+  irritability?: number;
+  energyLevel?: string;
+  minutesPerSession?: number;
+}): SessionServiceInput {
+  const diagnostic = profile.diagnosticResult || {
+    area: profile.diagnosticArea || 'LB',
+    primary: profile.diagnosticProfile || 'ST',
+    secondary: null,
+  };
+
+  const irritability = profile.diagnosticIrritability ?? profile.irritability ?? 0;
+
+  return {
+    userProfile: mapDiagnosticToUserProfile(diagnostic),
+    stage: mapIrritabilityToStage(irritability),
+    experienceLevel: mapEnergyToExperience(profile.energyLevel || 'medium'),
+    durationMinutes: mapMinutesToDuration(profile.minutesPerSession || 20),
+  };
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -96,6 +216,8 @@ function mapSequencedPose(sp: SequencedPose): PlayableExercise {
     poseFamily: ex.pose_family,
     movementCategory: ex.movement_category,
     videoId: ex.video_id,
+    clinicalRationale: ex.clinical_rationale,
+    exercise: ex,
   };
 }
 
