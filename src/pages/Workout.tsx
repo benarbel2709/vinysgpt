@@ -6,6 +6,7 @@ import { useAuthContext } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { createSession, buildSessionInput } from "@/engine/sessionService";
 import type { PlayableExercise, PlayableSession } from "@/engine/sessionService";
+import { MASTER_EXERCISES } from "@/data/masterExercises";
 import { HELPED_MOST_LABELS } from "@/constants/conditions";
 import type { HelpedMost } from "@/constants/conditions";
 import type { Checkin as CheckinType } from "@/types";
