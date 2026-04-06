@@ -560,24 +560,13 @@ export default function OnboardingWizard() {
 
         {/* ═══ STEP 6: Schedule (FIX 6 Step C) ═══ */}
         {step === 6 && (
-          <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
+           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
             <div>
               <h2 className="font-bold text-[21px]" style={{ color: "#888" }}>Sessions per week</h2>
               <div className="flex justify-center" style={{ gap: "10px", marginTop: "16px" }}>
                 {SESSIONS_OPTIONS.map((n) => (
                   <button key={n} onClick={() => { setSessionsPerWeek(n); setSessionsSelected(true); }} className={tagSmall(sessionsPerWeek === n)}>
                     {n}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div style={{ margin: "24px 0", height: "1px", width: "100%", backgroundColor: "hsl(var(--border) / 0.4)" }} />
-            <div>
-              <h2 className="font-bold text-[21px]" style={{ color: "#888" }}>Session length</h2>
-              <div className="flex justify-center" style={{ gap: "10px", marginTop: "16px" }}>
-                {MINUTES_OPTIONS.map((opt) => (
-                  <button key={opt.value} onClick={() => { setMinutesPerSession(opt.value); setDurationSelected(true); }} className={tagSmall(minutesPerSession === opt.value)}>
-                    {opt.label}
                   </button>
                 ))}
               </div>
