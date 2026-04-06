@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/context/AuthContext";
-import { useApp } from "@/context/AppContext";
+import { useAppSafe } from "@/context/AppContext";
 
 /**
  * Shared hook for "Get started" CTA behavior on marketing pages.
@@ -12,7 +12,9 @@ import { useApp } from "@/context/AppContext";
 export function useGetStarted() {
   const navigate = useNavigate();
   const { user, isGuest } = useAuthContext();
-  const { state, resetAll } = useApp();
+  const appCtx = useAppSafe();
+  const state = appCtx?.state;
+  const resetAll = appCtx?.resetAll;
   const isAuthenticated = !!user || isGuest;
   const [showModal, setShowModal] = useState(false);
 
@@ -21,16 +23,16 @@ export function useGetStarted() {
       navigate("/auth?intent=new_program");
       return;
     }
-    if (state.currentPlan) {
+    if (state?.currentPlan) {
       setShowModal(true);
     } else {
       navigate("/onboarding");
     }
-  }, [isAuthenticated, state.currentPlan, navigate]);
+  }, [isAuthenticated, state?.currentPlan, navigate]);
 
   const handleConfirmRestart = useCallback(() => {
     // Full reset and go to onboarding for a fresh setup
-    resetAll();
+    resetAll?.();
     setShowModal(false);
     navigate("/onboarding");
   }, [resetAll, navigate]);
