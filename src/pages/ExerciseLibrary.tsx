@@ -83,14 +83,10 @@ function ExerciseCard({ master, onClick }: { master: MasterExercise; onClick: ()
   const Icon = CAT_ICONS[master.category] || Wind;
 
   return (
-    <motion.button
+    <button
       onClick={onClick}
       className="rounded-2xl overflow-hidden text-left transition-shadow hover:shadow-md w-full"
       style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.25 }}
     >
       <ExerciseAnimationV8 exercise={exercise} />
       <div className="p-4 space-y-2">
