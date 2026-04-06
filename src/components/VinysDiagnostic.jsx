@@ -1278,6 +1278,7 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
   // ==========================================================================
   if (phase === "intake") {
     const q = INTAKE[intakeStep];
+    if (!q) return <Shell><p className="text-center text-muted-foreground pt-12">Loading…</p></Shell>;
     return (
       <Shell>
         <div className="flex items-center justify-between mb-8">
@@ -1325,9 +1326,9 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
   // ==========================================================================
   if (phase === "postures") {
     const posture = activePostures[postureIdx];
-    if (!posture) return null;
+    if (!posture) return <Shell><p className="text-center text-muted-foreground pt-12">Loading…</p></Shell>;
     const q = posture.qs?.[qIdx];
-    if (!q && !showingVideo) return null;
+    if (!q && !showingVideo) return <Shell><p className="text-center text-muted-foreground pt-12">Loading…</p></Shell>;
     const isLastQ = qIdx === posture.qs.length - 1;
     const isLastP = postureIdx === activePostures.length - 1;
     const progressTotal = activePostures.filter((p) => !p.isSummary).length;
@@ -1600,7 +1601,7 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
     ];
 
     const currentQ = CLARIFY_QS[clarifyStep];
-    if (!currentQ) { setPhase("summary"); return null; }
+    if (!currentQ) { setPhase("summary"); return <Shell><p className="text-center text-muted-foreground pt-12">Loading…</p></Shell>; }
 
     return (
       <Shell>
