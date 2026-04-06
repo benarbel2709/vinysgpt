@@ -28,3 +28,8 @@ export function useApp() {
   if (!ctx) throw new Error("useApp must be used within AppProvider");
   return ctx;
 }
+
+/** Safe version that returns null instead of throwing — for components on public pages */
+export function useAppSafe() {
+  return useContext(AppContext);
+}
