@@ -86,9 +86,7 @@ export default function Workout() {
       if (soloRaw && sessionId?.startsWith("solo_")) {
         const solo = JSON.parse(soloRaw);
         if (solo.isSoloExercise && solo.exerciseIds?.[0]) {
-          // Import master exercise data
-          const { MASTER_EXERCISES } = require("@/data/masterExercises");
-          const master = MASTER_EXERCISES.find((m: any) => m.id === solo.exerciseIds[0]);
+          const master = MASTER_EXERCISES.find((m) => m.id === solo.exerciseIds[0]);
           if (master) {
             const playable: PlayableExercise = {
               id: master.id,
