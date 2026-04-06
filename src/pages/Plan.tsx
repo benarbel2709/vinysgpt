@@ -17,6 +17,7 @@ import { CATEGORY_LABELS, EQUIPMENT_LABELS } from "@/constants/conditions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import LibraryModal from "@/components/LibraryModal";
+import StageProgressIndicator from "@/components/StageProgressIndicator";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose,
 } from "@/components/ui/dialog";
@@ -197,6 +198,9 @@ export default function Plan() {
             </div>
           </div>
         )}
+
+        {/* Stage progress indicator */}
+        <StageProgressIndicator />
 
         {/* First-session milestone banner (after first ever session) */}
         {completedCount === 1 && !milestoneDismissed && (
