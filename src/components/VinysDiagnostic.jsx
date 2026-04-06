@@ -1326,7 +1326,8 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
   if (phase === "postures") {
     const posture = activePostures[postureIdx];
     if (!posture) return null;
-    const q = posture.qs[qIdx];
+    const q = posture.qs?.[qIdx];
+    if (!q && !showingVideo) return null;
     const isLastQ = qIdx === posture.qs.length - 1;
     const isLastP = postureIdx === activePostures.length - 1;
     const progressTotal = activePostures.filter((p) => !p.isSummary).length;
