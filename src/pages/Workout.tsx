@@ -196,6 +196,27 @@ export default function Workout() {
   const finishWorkout = async () => {
     stopTTS();
 
+    // V2 progression: increment session_count and check stage transitions
+    const prevCount = state.session_count ?? 0;
+    const newCount = prevCount + 1;
+    const prevStage = state.stage ?? 1;
+    let newStage = prevStage;
+    let justAdvanced = false;
+
+    if (prevStage === 1 && newCount >= 5) {
+      newStage = 2;
+      justAdvanced = true;
+    } else if (prevStage === 2 && newCount >= 12) {
+      newStage = 3;
+      justAdvanced = true;
+    }
+
+    updateState({
+      session_count: newCount,
+      stage: newStage,
+      ...(justAdvanced ? { justAdvancedStage: true } : {}),
+    });
+
     trackEvent("session_completed", { mode: "v2", exercises: exercises.length, duration: sessionDurationMinutes });
 
     if (user) {

@@ -117,6 +117,7 @@ export interface AppState {
   session_count?: number;          // total sessions completed
   experienceLevel?: 'beginner' | 'intermediate' | 'advanced';
   sessionDuration?: number;        // minutes per session
+  justAdvancedStage?: boolean;     // flag for UI celebration on stage transition
 }
 
 export const DEFAULT_APP_STATE: AppState = {
