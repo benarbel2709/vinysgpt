@@ -60,7 +60,7 @@ export default function CheckinPage() {
 
     let plan = state.currentPlan;
     if (plan) {
-      plan = adaptNextSession(plan, sessionId, tooMuch, painAfter - painBefore, state.profile.flareToday, state.profile.minutesPerSession);
+      plan = adaptNextSession(plan, sessionId, tooMuch, painAfter - painBefore, state.profile.flareToday, state.profile.minutesPerSession, state.exerciseLibrary, state.profile.conditions);
     }
 
     updateState({ checkins: [...state.checkins, checkin], currentPlan: plan });
