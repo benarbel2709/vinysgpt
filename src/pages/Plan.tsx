@@ -203,12 +203,9 @@ export default function Plan() {
             <div className="flex items-start gap-3">
               <Sparkles size={20} className="text-primary mt-0.5 shrink-0" />
               <div>
-                <p className="text-foreground font-semibold text-[15px]">Your plan is ready. Practice 01 is waiting for you — it only takes {state.profile.minutesPerSession} minutes.</p>
-                <Button variant="hero" size="sm" className="mt-3 rounded-full px-5" onClick={() => {
-                  const first = plan.sessions[0];
-                  if (first) navigate(`/workout/${first.id}`);
-                }}>
-                  Start Practice 01 →
+                <p className="text-foreground font-semibold text-[15px]">Your practice is ready — it only takes {state.profile.minutesPerSession} minutes.</p>
+                <Button variant="hero" size="sm" className="mt-3 rounded-full px-5" onClick={() => navigate("/workout")}>
+                  Start Practice →
                 </Button>
               </div>
             </div>
