@@ -11,6 +11,8 @@ export interface AuthState {
   isGuest: boolean;
 }
 
+export type SignInWithOtpFn = (email: string) => Promise<{ error: any }>;
+
 export function useAuth() {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
@@ -22,8 +24,12 @@ export function useAuth() {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
         if (session) localStorage.removeItem(GUEST_KEY);
+        // Clean up magic link hash from URL
+        if (event === "SIGNED_IN" && window.location.hash.includes("access_token")) {
+          window.history.replaceState(null, "", window.location.pathname + window.location.search);
+        }
         setAuthState({
           user: session?.user ?? null,
           session,

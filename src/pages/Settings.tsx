@@ -1,10 +1,12 @@
 import { useState, useRef } from "react";
 import { useApp } from "@/context/AppContext";
+import { useAuthContext } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import Layout from "@/components/Layout";
+import SignInModal from "@/components/SignInModal";
 import { readState, writeState } from "@/lib/storage";
-import { RotateCcw, Download, Upload, Settings as SettingsIcon, Info, FileText } from "lucide-react";
+import { RotateCcw, Download, Upload, Settings as SettingsIcon, Info, FileText, UserCircle, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { PracticeTime } from "@/constants/conditions";
 
@@ -24,6 +26,8 @@ const CLOSING_OPTIONS: { value: "savasana" | "meditation" | "body_rest"; label: 
 export default function Settings() {
   const navigate = useNavigate();
   const { state, updateProfile, resetAll } = useApp();
+  const { user, signOut } = useAuthContext();
+  const [showSignIn, setShowSignIn] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
   const [animationsEnabled, setAnimationsEnabled] = useState(
     !readState<boolean>("vinys_disable_animations", false)
@@ -156,6 +160,24 @@ export default function Settings() {
             </div>
           )}
         </div>
+
+        {/* Account section */}
+        <div className="card-premium p-6 space-y-3">
+          <h2 className="text-[15px] font-bold text-foreground flex items-center gap-2"><UserCircle size={16} className="text-accent" />Your account</h2>
+          {user ? (
+            <>
+              <p className="text-sm text-muted-foreground">Signed in as <span className="text-foreground font-medium">{user.email}</span></p>
+              <p className="text-xs text-muted-foreground">Your progress is synced and available on any device.</p>
+              <Button variant="outline-calm" size="sm" onClick={() => signOut()} className="gap-1.5 text-xs"><LogOut size={14} />Sign out</Button>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-muted-foreground">You're using vinys without an account. Your progress is saved on this device only.</p>
+              <Button variant="hero" size="sm" onClick={() => setShowSignIn(true)} className="text-xs">Sign in to save your data</Button>
+            </>
+          )}
+        </div>
+        <SignInModal open={showSignIn} onOpenChange={setShowSignIn} />
 
         <div className="card-premium p-6 space-y-3">
           <h2 className="text-[15px] font-bold text-foreground flex items-center gap-2"><Info size={16} className="text-accent" />About vinys</h2>
