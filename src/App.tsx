@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,33 +8,35 @@ import { HelmetProvider } from "react-helmet-async";
 import { AppProvider, useApp } from "@/context/AppContext";
 import { AuthProvider, useAuthContext } from "@/context/AuthContext";
 import Home from "./pages/Home";
-import Disclaimer from "./pages/Disclaimer";
-import OnboardingWizard from "./pages/onboarding/OnboardingWizard";
-import MedicalStop from "./pages/onboarding/MedicalStop";
-import Plan from "./pages/Plan";
-import Workout from "./pages/Workout";
-import QuickCheckin from "./pages/QuickCheckin";
-import CheckinPage from "./pages/CheckinPage";
-import CompletePage from "./pages/CompletePage";
-import Stop from "./pages/Stop";
-import ExpertReview from "./pages/ExpertReview";
-import AuditExport from "./pages/AuditExport";
-import ClinicalExport from "./pages/ClinicalExport";
-import Library from "./pages/Library";
-import Settings from "./pages/Settings";
-import Auth from "./pages/Auth";
-import ResetPassword from "./pages/ResetPassword";
-import Terms from "./pages/Terms";
-import Privacy from "./pages/Privacy";
-import Admin from "./pages/Admin";
-import NotFound from "./pages/NotFound";
-import DevExportEngineData from "./pages/DevExportEngineData";
-import About from "./pages/About";
-import ExerciseLibrary from "./pages/ExerciseLibrary";
-import Cookies from "./pages/Cookies";
-import Accessibility from "./pages/Accessibility";
 import CookieConsent from "./components/CookieConsent";
 import StageTransitionModal from "./components/StageTransitionModal";
+
+// Lazy-loaded routes
+const Disclaimer = lazy(() => import("./pages/Disclaimer"));
+const OnboardingWizard = lazy(() => import("./pages/onboarding/OnboardingWizard"));
+const MedicalStop = lazy(() => import("./pages/onboarding/MedicalStop"));
+const Plan = lazy(() => import("./pages/Plan"));
+const Workout = lazy(() => import("./pages/Workout"));
+const QuickCheckin = lazy(() => import("./pages/QuickCheckin"));
+const CheckinPage = lazy(() => import("./pages/CheckinPage"));
+const CompletePage = lazy(() => import("./pages/CompletePage"));
+const Stop = lazy(() => import("./pages/Stop"));
+const ExpertReview = lazy(() => import("./pages/ExpertReview"));
+const AuditExport = lazy(() => import("./pages/AuditExport"));
+const ClinicalExport = lazy(() => import("./pages/ClinicalExport"));
+const Library = lazy(() => import("./pages/Library"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Auth = lazy(() => import("./pages/Auth"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Admin = lazy(() => import("./pages/Admin"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const DevExportEngineData = lazy(() => import("./pages/DevExportEngineData"));
+const About = lazy(() => import("./pages/About"));
+const ExerciseLibrary = lazy(() => import("./pages/ExerciseLibrary"));
+const Cookies = lazy(() => import("./pages/Cookies"));
+const Accessibility = lazy(() => import("./pages/Accessibility"));
 
 const queryClient = new QueryClient();
 
@@ -64,40 +67,42 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 
 function AppRoutes() {
   return (
-    <Routes>
-      <Route path="/auth" element={<Auth />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/" element={<Home />} />
-      <Route path="/disclaimer" element={<Disclaimer />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/cookies" element={<Cookies />} />
-      <Route path="/accessibility" element={<Accessibility />} />
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <Routes>
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/disclaimer" element={<Disclaimer />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/cookies" element={<Cookies />} />
+        <Route path="/accessibility" element={<Accessibility />} />
 
-      <Route path="/onboarding" element={<OnboardingRedirectGuard><OnboardingWizard /></OnboardingRedirectGuard>} />
-      <Route path="/onboarding/medical-stop" element={<MedicalStop />} />
+        <Route path="/onboarding" element={<OnboardingRedirectGuard><OnboardingWizard /></OnboardingRedirectGuard>} />
+        <Route path="/onboarding/medical-stop" element={<MedicalStop />} />
 
-      <Route path="/conditions" element={<Navigate to="/onboarding" replace />} />
-      <Route path="/setup" element={<Navigate to="/onboarding" replace />} />
-      <Route path="/questionnaire" element={<Navigate to="/onboarding" replace />} />
+        <Route path="/conditions" element={<Navigate to="/onboarding" replace />} />
+        <Route path="/setup" element={<Navigate to="/onboarding" replace />} />
+        <Route path="/questionnaire" element={<Navigate to="/onboarding" replace />} />
 
-      <Route path="/plan" element={<AuthGuard><OnboardingGuard><Plan /></OnboardingGuard></AuthGuard>} />
-      <Route path="/workout/:sessionId?" element={<AuthGuard><Workout /></AuthGuard>} />
-      <Route path="/checkin/:sessionId" element={<AuthGuard><OnboardingGuard><CheckinPage /></OnboardingGuard></AuthGuard>} />
-      <Route path="/check-in" element={<AuthGuard><QuickCheckin /></AuthGuard>} />
-      <Route path="/complete" element={<AuthGuard><OnboardingGuard><CompletePage /></OnboardingGuard></AuthGuard>} />
-      <Route path="/stop" element={<AuthGuard><Stop /></AuthGuard>} />
-      <Route path="/exercises" element={<ExerciseLibrary />} />
-      <Route path="/library" element={<AuthGuard><Library /></AuthGuard>} />
-      <Route path="/settings" element={<AuthGuard><Settings /></AuthGuard>} />
-      <Route path="/expert-review" element={<AuthGuard><ExpertReview /></AuthGuard>} />
-      <Route path="/audit-export" element={<AuthGuard><AuditExport /></AuthGuard>} />
-      <Route path="/clinical-export" element={<AuthGuard><ClinicalExport /></AuthGuard>} />
-      <Route path="/terms" element={<Terms />} />
-      <Route path="/privacy" element={<Privacy />} />
-      <Route path="/admin" element={<AuthGuard><Admin /></AuthGuard>} />
-      {import.meta.env.DEV && <Route path="/dev/export-engine-data" element={<DevExportEngineData />} />}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        <Route path="/plan" element={<AuthGuard><OnboardingGuard><Plan /></OnboardingGuard></AuthGuard>} />
+        <Route path="/workout/:sessionId?" element={<AuthGuard><Workout /></AuthGuard>} />
+        <Route path="/checkin/:sessionId" element={<AuthGuard><OnboardingGuard><CheckinPage /></OnboardingGuard></AuthGuard>} />
+        <Route path="/check-in" element={<AuthGuard><QuickCheckin /></AuthGuard>} />
+        <Route path="/complete" element={<AuthGuard><OnboardingGuard><CompletePage /></OnboardingGuard></AuthGuard>} />
+        <Route path="/stop" element={<AuthGuard><Stop /></AuthGuard>} />
+        <Route path="/exercises" element={<ExerciseLibrary />} />
+        <Route path="/library" element={<AuthGuard><Library /></AuthGuard>} />
+        <Route path="/settings" element={<AuthGuard><Settings /></AuthGuard>} />
+        <Route path="/expert-review" element={<AuthGuard><ExpertReview /></AuthGuard>} />
+        <Route path="/audit-export" element={<AuthGuard><AuditExport /></AuthGuard>} />
+        <Route path="/clinical-export" element={<AuthGuard><ClinicalExport /></AuthGuard>} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/admin" element={<AuthGuard><Admin /></AuthGuard>} />
+        {import.meta.env.DEV && <Route path="/dev/export-engine-data" element={<DevExportEngineData />} />}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
   );
 }
 
