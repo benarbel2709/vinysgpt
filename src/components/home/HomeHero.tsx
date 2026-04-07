@@ -7,7 +7,7 @@ export default function HomeHero() {
   const { showModal, setShowModal, handleGetStarted, handleConfirmRestart } = useGetStarted();
 
   const handleSecondary = () => {
-    document.getElementById("conditions-section")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("conditions")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
