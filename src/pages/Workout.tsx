@@ -12,6 +12,7 @@ import type { HelpedMost } from "@/constants/conditions";
 import type { Checkin as CheckinType } from "@/types";
 import { useTTS } from "@/hooks/useTTS";
 import { X, Play, Pause, Volume2, VolumeX, Loader2, ChevronLeft, ChevronDown, CheckCircle2, Settings2, RotateCcw, Smartphone, Camera } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import { trackEvent } from "@/lib/analytics";
 import universalVideo from "@/assets/exercises/universal-fallback.mp4";
@@ -156,8 +157,17 @@ export default function Workout() {
   const exercises = playableSession?.exercises || [];
   const sessionDurationMinutes = playableSession?.durationMinutes || state.profile.minutesPerSession || 20;
 
-  const [activeIdx, setActiveIdx] = useState(0);
-  const [showPreview, setShowPreview] = useState(true);
+  // Restore position from sessionStorage if available
+  const savedPos = (() => {
+    try {
+      const v = sessionStorage.getItem("vinys_workout_position");
+      return v ? parseInt(v, 10) : 0;
+    } catch { return 0; }
+  })();
+
+  const [activeIdx, setActiveIdx] = useState(savedPos < exercises.length ? savedPos : 0);
+  const [showPreview, setShowPreview] = useState(savedPos === 0);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [timerDone, setTimerDone] = useState(false);
   const [showClosing, setShowClosing] = useState(false);
@@ -261,6 +271,7 @@ export default function Workout() {
 
   const finishWorkout = async () => {
     stopTTS();
+    try { sessionStorage.removeItem("vinys_workout_position"); } catch {}
 
     // V2 progression: increment session_count and check stage transitions
     const prevCount = state.session_count ?? 0;
@@ -328,7 +339,9 @@ export default function Workout() {
       }
       return;
     }
-    setActiveIdx(prev => prev + 1);
+    const nextIdx = activeIdx + 1;
+    setActiveIdx(nextIdx);
+    try { sessionStorage.setItem("vinys_workout_position", String(nextIdx)); } catch {}
     setIsPlaying(true);
   };
 
@@ -354,7 +367,22 @@ export default function Workout() {
     setEndStep("summary");
   };
 
-  const exitWorkout = () => { stopTTS(); navigate("/plan"); };
+  const exitWorkout = () => {
+    if (!showPreview && !isEnded) {
+      setShowExitConfirm(true);
+      return;
+    }
+    stopTTS();
+    try { sessionStorage.removeItem("vinys_workout_position"); } catch {}
+    navigate("/plan");
+  };
+
+  const confirmExit = () => {
+    stopTTS();
+    try { sessionStorage.removeItem("vinys_workout_position"); } catch {}
+    setShowExitConfirm(false);
+    navigate("/plan");
+  };
 
   // No session generated
   if (!playableSession || exercises.length === 0) {
@@ -381,7 +409,11 @@ export default function Workout() {
     ? `Caution: ${activeExercise.cautionAreas.join(", ")}. ${activeExercise.activeModification}`
     : "";
   const whyText = activeExercise?.userBenefit || activeExercise?.clinicalRationale || "";
-  const equipmentList: string[] = []; // V2 exercises don't have per-exercise equipment display yet
+  const equipmentList: string[] = [];
+  // Look up instructions from master exercises catalog
+  const masterForActive = activeExercise ? MASTER_EXERCISES.find(m => m.id === activeExercise.id) : null;
+  const activeInstructions = masterForActive?.instructions || [];
+  const activeModificationNote = activeExercise?.activeModification || "";
 
   return (
     <>
@@ -467,7 +499,8 @@ export default function Workout() {
           <div className="hidden lg:flex lg:flex-col lg:w-[40%] lg:overflow-y-auto lg:bg-black/90 lg:border-l lg:border-white/10">
             <BelowVideoPanel
               goNext={goNext} isLastExercise={isLastExercise} safetyNote={safetyNote}
-              instructions={[]} whyText={whyText} equipmentList={equipmentList}
+              instructions={activeInstructions} whyText={whyText} equipmentList={equipmentList}
+              modificationNote={activeModificationNote}
               repsText="" rangeText=""
               instructionsOpen={instructionsOpen} setInstructionsOpen={setInstructionsOpen}
               whyOpen={whyOpen} setWhyOpen={setWhyOpen}
@@ -479,7 +512,8 @@ export default function Workout() {
         <div className="flex-1 overflow-y-auto lg:hidden bg-black/95">
           <BelowVideoPanel
             goNext={goNext} isLastExercise={isLastExercise} safetyNote={safetyNote}
-            instructions={[]} whyText={whyText} equipmentList={equipmentList}
+            instructions={activeInstructions} whyText={whyText} equipmentList={equipmentList}
+            modificationNote={activeModificationNote}
             repsText="" rangeText=""
             instructionsOpen={instructionsOpen} setInstructionsOpen={setInstructionsOpen}
             whyOpen={whyOpen} setWhyOpen={setWhyOpen}
@@ -728,6 +762,25 @@ export default function Workout() {
           </div>
         </div>
       )}
+      {/* Exit confirmation dialog */}
+      <AlertDialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
+        <AlertDialogContent className="bg-black/95 border-white/10 max-w-sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">End this session?</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/60">
+              Your current session progress won't be saved.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 border-0">
+              Continue session
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmExit} className="rounded-full bg-white/10 text-white hover:bg-white/20 border-0">
+              End session
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
@@ -735,10 +788,11 @@ export default function Workout() {
 /* ─── Below-Video Panel (shared mobile + desktop) ─── */
 function BelowVideoPanel({
   goNext, isLastExercise, safetyNote, instructions, whyText, equipmentList,
-  repsText, rangeText, instructionsOpen, setInstructionsOpen, whyOpen, setWhyOpen,
+  modificationNote, repsText, rangeText, instructionsOpen, setInstructionsOpen, whyOpen, setWhyOpen,
 }: {
   goNext: () => void; isLastExercise: boolean; safetyNote: string;
   instructions: string[]; whyText: string; equipmentList: string[];
+  modificationNote?: string;
   repsText: string; rangeText: string;
   instructionsOpen: boolean; setInstructionsOpen: (v: boolean) => void;
   whyOpen: boolean; setWhyOpen: (v: boolean) => void;
@@ -758,30 +812,31 @@ function BelowVideoPanel({
         </div>
       )}
 
-      {/* Instructions collapsible */}
+      {/* Instructions — shown directly (not collapsed) */}
       {instructions.length > 0 && (
-        <Collapsible open={instructionsOpen} onOpenChange={setInstructionsOpen}>
-          <CollapsibleTrigger className="flex items-center justify-between w-full py-3 text-white/80 hover:text-white transition-colors text-sm font-medium">
-            <span>Instructions</span>
-            <ChevronDown size={16} className={`transition-transform duration-200 ${instructionsOpen ? "rotate-180" : ""}`} />
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <ol className="space-y-2.5 pb-2">
-              {instructions.map((step, i) => (
-                <li key={i} className="flex gap-2.5">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/60">{i + 1}</span>
-                  <span className="text-white/70 text-sm leading-relaxed">{step}</span>
-                </li>
-              ))}
-              {(repsText || rangeText) && (
-                <li className="flex gap-2 flex-wrap mt-2">
-                  {repsText && <span className="text-xs bg-white/10 text-white/60 rounded-full px-3 py-1">{repsText}</span>}
-                  {rangeText && <span className="text-xs bg-white/10 text-white/60 rounded-full px-3 py-1">{rangeText}</span>}
-                </li>
-              )}
-            </ol>
-          </CollapsibleContent>
-        </Collapsible>
+        <div className="pt-2">
+          <p className="text-white/50 text-xs font-medium uppercase tracking-wider mb-2">Instructions</p>
+          <ol className="space-y-2.5 pb-2">
+            {instructions.map((step, i) => (
+              <li key={i} className="flex gap-2.5">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/60">{i + 1}</span>
+                <span className="text-white/70 text-sm leading-relaxed">{step}</span>
+              </li>
+            ))}
+            {(repsText || rangeText) && (
+              <li className="flex gap-2 flex-wrap mt-2">
+                {repsText && <span className="text-xs bg-white/10 text-white/60 rounded-full px-3 py-1">{repsText}</span>}
+                {rangeText && <span className="text-xs bg-white/10 text-white/60 rounded-full px-3 py-1">{rangeText}</span>}
+              </li>
+            )}
+          </ol>
+          {modificationNote && (
+            <div className="border-l-2 border-teal-400 bg-teal-950/30 px-3 py-2 rounded-r-lg mt-2">
+              <p className="text-[10px] text-teal-300/70 font-medium uppercase tracking-wider mb-0.5">Modification for your profile</p>
+              <p className="text-xs text-teal-200/90">{modificationNote}</p>
+            </div>
+          )}
+        </div>
       )}
 
       {/* Why this exercise collapsible */}
