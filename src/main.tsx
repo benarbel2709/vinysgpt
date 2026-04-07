@@ -1,6 +1,23 @@
 import { createRoot } from "react-dom/client";
+import * as Sentry from "@sentry/react";
 import App from "./App.tsx";
 import "./index.css";
+
+Sentry.init({
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+  environment: import.meta.env.MODE,
+  enabled: import.meta.env.MODE === "production",
+  integrations: [
+    Sentry.browserTracingIntegration(),
+    Sentry.replayIntegration({
+      maskAllText: true,
+      blockAllMedia: true,
+    }),
+  ],
+  tracesSampleRate: 0.1,
+  replaysSessionSampleRate: 0.0,
+  replaysOnErrorSampleRate: 0.5,
+});
 
 // One-time migration of legacy localStorage keys to vinys_* prefix
 (function migrateLegacyStorage() {
