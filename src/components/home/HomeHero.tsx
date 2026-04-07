@@ -51,7 +51,7 @@ export default function HomeHero() {
                 <ArrowRight size={16} />
               </Button>
               <p className="text-xs text-white/50">Free to start — no credit card required.</p>
-              <p className="text-xs text-white/40">Sessions run 15–45 minutes, or however long you choose.</p>
+              <p className="text-xs text-white/40">Sessions run 10–30 minutes, or however long you choose.</p>
               <p className="text-xs text-white/35">No subscription needed to try it.</p>
               <button
                 onClick={handleSecondary}

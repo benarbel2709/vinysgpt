@@ -26,7 +26,7 @@ export default function Settings() {
   const { state, updateProfile, resetAll } = useApp();
   const [confirmReset, setConfirmReset] = useState(false);
   const [animationsEnabled, setAnimationsEnabled] = useState(
-    !readState<boolean>("pranvaDisableAnimations", false)
+    !readState<boolean>("vinys_disable_animations", false)
   );
   const [importConfirm, setImportConfirm] = useState(false);
   const [pendingImport, setPendingImport] = useState<string | null>(null);
@@ -37,7 +37,7 @@ export default function Settings() {
 
   const handleToggleAnimations = (checked: boolean) => {
     setAnimationsEnabled(checked);
-    writeState("pranvaDisableAnimations", !checked);
+    writeState("vinys_disable_animations", !checked);
   };
 
   const handleReset = () => {

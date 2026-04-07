@@ -206,7 +206,7 @@ interface Props {
 }
 
 export default function ExerciseAnimationV8({ exercise, compact = false, large = false }: Props) {
-  const animationsDisabled = readState<boolean>("pranvaDisableAnimations", false) || readState<boolean>("yaelYogaDisableAnimations", false);
+  const animationsDisabled = readState<boolean>("vinys_disable_animations", false) || readState<boolean>("pranvaDisableAnimations", false) || readState<boolean>("yaelYogaDisableAnimations", false);
   const forceAnimate = readState<boolean>("debugForceAnimate", false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [frameIdx, setFrameIdx] = useState(0);
@@ -307,7 +307,7 @@ export default function ExerciseAnimationV8({ exercise, compact = false, large =
 /** Debug info for AboutModal compatibility */
 export function getV8DebugInfo(exercise: Exercise) {
   const poseSet = getPoseSet(exercise);
-  const animationsDisabled = readState<boolean>("pranvaDisableAnimations", false) || readState<boolean>("yaelYogaDisableAnimations", false);
+  const animationsDisabled = readState<boolean>("vinys_disable_animations", false) || readState<boolean>("pranvaDisableAnimations", false) || readState<boolean>("yaelYogaDisableAnimations", false);
   const reducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const forceAnimate = readState<boolean>("debugForceAnimate", false);
   const effective = !animationsDisabled && (!reducedMotion || forceAnimate);

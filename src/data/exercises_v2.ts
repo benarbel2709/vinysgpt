@@ -95,6 +95,8 @@ export interface Exercise {
   profiles: Partial<Record<BodyArea, AreaProfile>>;
   /** Clinical rationale — for human review, not used computationally */
   clinical_rationale: string;
+  /** User-facing benefit explanation — displayed in workout player */
+  user_benefit: string;
   /** Video file ID — null until video production delivers */
   video_id: string | null;
 }
