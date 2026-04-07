@@ -8,7 +8,7 @@ const STEPS = [
 
 export default function HowItWorks() {
   return (
-    <section id="how-section" className="w-full vinys-section" style={{ background: "hsl(var(--surface-soft))" }}>
+    <section id="how-it-works" className="w-full vinys-section" style={{ background: "hsl(var(--surface-soft))" }}>
       <div className="vinys-container">
         <h2 className="font-display font-bold text-foreground text-center mb-8" style={{ fontSize: "clamp(24px, 2.8vw, 32px)" }}>
           How it works

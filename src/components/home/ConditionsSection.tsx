@@ -2,7 +2,7 @@ import ConditionCategoryGrid from "@/components/ConditionCategoryGrid";
 
 export default function ConditionsSection() {
   return (
-    <section id="conditions-section" className="w-full vinys-section">
+    <section id="conditions" className="w-full vinys-section">
       <div className="vinys-container">
         <h2 className="font-display font-bold text-foreground text-center mb-2" style={{ fontSize: "clamp(24px, 2.8vw, 32px)" }}>
           Physical Conditions
