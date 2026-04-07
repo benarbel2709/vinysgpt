@@ -499,7 +499,8 @@ export default function Workout() {
           <div className="hidden lg:flex lg:flex-col lg:w-[40%] lg:overflow-y-auto lg:bg-black/90 lg:border-l lg:border-white/10">
             <BelowVideoPanel
               goNext={goNext} isLastExercise={isLastExercise} safetyNote={safetyNote}
-              instructions={[]} whyText={whyText} equipmentList={equipmentList}
+              instructions={activeInstructions} whyText={whyText} equipmentList={equipmentList}
+              modificationNote={activeModificationNote}
               repsText="" rangeText=""
               instructionsOpen={instructionsOpen} setInstructionsOpen={setInstructionsOpen}
               whyOpen={whyOpen} setWhyOpen={setWhyOpen}
@@ -511,7 +512,8 @@ export default function Workout() {
         <div className="flex-1 overflow-y-auto lg:hidden bg-black/95">
           <BelowVideoPanel
             goNext={goNext} isLastExercise={isLastExercise} safetyNote={safetyNote}
-            instructions={[]} whyText={whyText} equipmentList={equipmentList}
+            instructions={activeInstructions} whyText={whyText} equipmentList={equipmentList}
+            modificationNote={activeModificationNote}
             repsText="" rangeText=""
             instructionsOpen={instructionsOpen} setInstructionsOpen={setInstructionsOpen}
             whyOpen={whyOpen} setWhyOpen={setWhyOpen}
