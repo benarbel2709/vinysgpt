@@ -1,9 +1,10 @@
 import { useApp } from "@/context/AppContext";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const STAGES = [
-  { label: "Stage 1", threshold: 5 },
-  { label: "Stage 2", threshold: 12 },
-  { label: "Stage 3", threshold: null },
+  { label: "Stage 1", threshold: 5, tooltip: "Foundation — building safe movement patterns" },
+  { label: "Stage 2", threshold: 12, tooltip: "Unlocks at session 5 — more varied exercise selection" },
+  { label: "Stage 3", threshold: null, tooltip: "Unlocks at session 12 — full exercise complexity available" },
 ];
 
 export default function StageProgressIndicator() {
@@ -12,25 +13,18 @@ export default function StageProgressIndicator() {
   const count = state.session_count ?? 0;
 
   // Progress within current stage
-  let stageStart: number;
   let stageEnd: number;
-  let sessionsInStage: number;
   let progressInStage: number;
 
   if (stage === 1) {
-    stageStart = 0;
     stageEnd = 5;
-    sessionsInStage = count;
     progressInStage = Math.min(count / 5, 1);
   } else if (stage === 2) {
-    stageStart = 5;
     stageEnd = 12;
-    sessionsInStage = count - 5;
+    const sessionsInStage = count - 5;
     progressInStage = Math.min(sessionsInStage / 7, 1);
   } else {
-    stageStart = 12;
     stageEnd = 0;
-    sessionsInStage = count - 12;
     progressInStage = 1;
   }
 
@@ -38,6 +32,13 @@ export default function StageProgressIndicator() {
     stage === 3
       ? `Session ${count} — Stage 3`
       : `Session ${count} of ${stageEnd} — Stage ${stage}`;
+
+  const milestoneHint =
+    stage === 1
+      ? `Complete ${Math.max(5 - count, 0)} more session${5 - count === 1 ? "" : "s"} to unlock Stage 2`
+      : stage === 2
+      ? `Complete ${Math.max(12 - count, 0)} more session${12 - count === 1 ? "" : "s"} to unlock Stage 3`
+      : null;
 
   return (
     <div className="w-full">
@@ -47,10 +48,10 @@ export default function StageProgressIndicator() {
           const stageNum = i + 1;
           const isCurrent = stage === stageNum;
           const isCompleted = stage > stageNum;
+          const isLocked = stage < stageNum;
 
-          return (
+          const pill = (
             <div
-              key={stageNum}
               className="flex-1 text-center py-1.5 rounded-full text-xs font-semibold transition-all"
               style={
                 isCurrent
@@ -63,11 +64,27 @@ export default function StageProgressIndicator() {
               {s.label}
             </div>
           );
+
+          if (isLocked) {
+            return (
+              <Tooltip key={stageNum}>
+                <TooltipTrigger asChild>{pill}</TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs max-w-[200px]">
+                  {s.tooltip}
+                </TooltipContent>
+              </Tooltip>
+            );
+          }
+
+          return <div key={stageNum} className="flex-1">{pill}</div>;
         })}
       </div>
 
       {/* Progress text */}
-      <p className="text-xs text-muted-foreground text-center mb-2">{progressLabel}</p>
+      <p className="text-xs text-muted-foreground text-center mb-1">{progressLabel}</p>
+      {milestoneHint && (
+        <p className="text-[11px] text-muted-foreground/60 text-center mb-2">{milestoneHint}</p>
+      )}
 
       {/* Progress bar */}
       <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "hsl(var(--muted))" }}>
