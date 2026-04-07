@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import SignInModal from "@/components/SignInModal";
 import { useNavigate } from "react-router-dom";
 import { useLatestCheckin } from "@/hooks/useLatestCheckin";
 import { useWeeklyProgress } from "@/hooks/useWeeklyProgress";
@@ -44,6 +45,8 @@ export default function Plan() {
   const [pendingConditions, setPendingConditions] = useState<ConditionKey[]>([]);
   const [showWeeklyDone, setShowWeeklyDone] = useState(false);
   const [milestoneDismissed, setMilestoneDismissed] = useState(() => localStorage.getItem("vinys_milestone_first_done") === "1");
+  const [showSignIn, setShowSignIn] = useState(false);
+  const [bannerDismissed, setBannerDismissed] = useState(() => sessionStorage.getItem("vinys_banner_dismissed") === "true");
 
   // Setup edit temp state
   const [tempMinutes, setTempMinutes] = useState(state.profile.minutesPerSession);
@@ -183,6 +186,26 @@ export default function Plan() {
       <div className="px-6 py-8 max-w-5xl mx-auto space-y-8">
         {/* 2) GREETING */}
         <GreetingBlock greeting={greetingDisplay} greetingSuffix={greetingSuffix} user={user} showAccount={showAccount} setShowAccount={setShowAccount} firstName={firstName} setFirstName={setFirstName} />
+
+        {/* Guest save-progress banner */}
+        {!user && !bannerDismissed && state.onboardingCompleted && (
+          <div className="rounded-xl px-4 py-3 flex items-center gap-3 bg-muted/50 border border-border">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-foreground font-medium">Your progress is saved on this device only.</p>
+              <p className="text-xs text-muted-foreground">Sign in to back up your data and access it on any device.</p>
+            </div>
+            <Button variant="outline-calm" size="sm" className="shrink-0 text-xs" onClick={() => setShowSignIn(true)}>Sign in</Button>
+            <button
+              aria-label="Dismiss"
+              className="text-muted-foreground hover:text-foreground shrink-0"
+              onClick={() => { setBannerDismissed(true); sessionStorage.setItem("vinys_banner_dismissed", "true"); }}
+            >
+              <X size={16} />
+            </button>
+          </div>
+        )}
+
+        <SignInModal open={showSignIn} onOpenChange={setShowSignIn} />
 
         {/* First-session welcome banner (before any sessions done) */}
         {completedCount === 0 && (

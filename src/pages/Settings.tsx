@@ -1,10 +1,12 @@
 import { useState, useRef } from "react";
 import { useApp } from "@/context/AppContext";
+import { useAuthContext } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import Layout from "@/components/Layout";
+import SignInModal from "@/components/SignInModal";
 import { readState, writeState } from "@/lib/storage";
-import { RotateCcw, Download, Upload, Settings as SettingsIcon, Info, FileText } from "lucide-react";
+import { RotateCcw, Download, Upload, Settings as SettingsIcon, Info, FileText, UserCircle, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { PracticeTime } from "@/constants/conditions";
 
@@ -24,6 +26,8 @@ const CLOSING_OPTIONS: { value: "savasana" | "meditation" | "body_rest"; label: 
 export default function Settings() {
   const navigate = useNavigate();
   const { state, updateProfile, resetAll } = useApp();
+  const { user, signOut } = useAuthContext();
+  const [showSignIn, setShowSignIn] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
   const [animationsEnabled, setAnimationsEnabled] = useState(
     !readState<boolean>("vinys_disable_animations", false)
