@@ -36,7 +36,7 @@ function getRelevance(master: MasterExercise): RelevanceScores {
 // ═══════════════════════════════════
 // SESSION HASH — deterministic variety
 // ═══════════════════════════════════
-const STORAGE_KEY_RECENT = "pranvaRecentExercises";
+const STORAGE_KEY_RECENT = "vinys_recent_exercises";
 
 function getSessionSeed(conditions: ConditionKey[]): number {
   const now = new Date();

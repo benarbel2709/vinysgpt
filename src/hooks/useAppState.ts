@@ -1,6 +1,6 @@
 /**
  * localStorage migration: converts old Hebrew-keyed state to English ConditionKey.
- * Also migrates from old "yaelYogaAppState" key to "pranvaAppState".
+ * Also migrates from old "yaelYogaAppState" / "pranvaAppState" keys to "vinys_app_state".
  */
 import { useState, useCallback, useEffect } from "react";
 import { AppState, DEFAULT_APP_STATE } from "@/types";
@@ -9,8 +9,9 @@ import { readState, writeState } from "@/lib/storage";
 import type { ConditionKey, EnergyLevel, PracticeTime } from "@/constants/conditions";
 import { HEBREW_TO_CONDITION, HEBREW_TO_ENERGY, HEBREW_TO_PRACTICE_TIME } from "@/constants/conditions";
 
-const STORAGE_KEY = "pranvaAppState";
+const STORAGE_KEY = "vinys_app_state";
 const OLD_STORAGE_KEY = "yaelYogaAppState";
+const PRANVA_STORAGE_KEY = "pranvaAppState";
 const ALL_EXERCISES = generateExerciseLibrary();
 
 function migrateProfile(profile: any): AppState["profile"] {
@@ -54,16 +55,24 @@ function loadState(): AppState {
   // Try new key first
   let stored = readState<AppState | null>(STORAGE_KEY, null);
   
-  // Migrate from old key if needed
+  // Migrate from pranva key if needed
+  if (!stored) {
+    stored = readState<AppState | null>(PRANVA_STORAGE_KEY, null);
+    if (stored) {
+      writeState(STORAGE_KEY, stored);
+      try { localStorage.removeItem(PRANVA_STORAGE_KEY); } catch {}
+    }
+  }
+  
+  // Migrate from old yaelYoga key if needed
   if (!stored) {
     stored = readState<AppState | null>(OLD_STORAGE_KEY, null);
     if (stored) {
       // Migrate old animations key too
       const oldAnimDisabled = readState<boolean>("yaelYogaDisableAnimations", false);
       if (oldAnimDisabled) {
-        writeState("pranvaDisableAnimations", true);
+        writeState("vinys_disable_animations", true);
       }
-      // Write to new key and clean up old
       writeState(STORAGE_KEY, stored);
     }
   }

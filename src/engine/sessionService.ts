@@ -217,6 +217,7 @@ function mapSequencedPose(sp: SequencedPose): PlayableExercise {
     movementCategory: ex.movement_category,
     videoId: ex.video_id,
     clinicalRationale: ex.clinical_rationale,
+    userBenefit: ex.user_benefit || "",
     exercise: ex,
   };
 }

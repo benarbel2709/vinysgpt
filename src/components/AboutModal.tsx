@@ -13,7 +13,7 @@ interface Props { open: boolean; onClose: () => void; }
 export default function AboutModal({ open, onClose }: Props) {
   const { resetAll } = useApp();
   const [confirmReset, setConfirmReset] = useState(false);
-  const [animationsEnabled, setAnimationsEnabled] = useState(!readState<boolean>("pranvaDisableAnimations", false));
+  const [animationsEnabled, setAnimationsEnabled] = useState(!readState<boolean>("vinys_disable_animations", false));
   const [forceAnimate, setForceAnimate] = useState(readState<boolean>("debugForceAnimate", false));
   const [importConfirm, setImportConfirm] = useState(false);
   const [pendingImport, setPendingImport] = useState<string | null>(null);
@@ -24,7 +24,7 @@ export default function AboutModal({ open, onClose }: Props) {
   );
   const reducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const handleToggleAnimations = (checked: boolean) => { setAnimationsEnabled(checked); writeState("pranvaDisableAnimations", !checked); };
+  const handleToggleAnimations = (checked: boolean) => { setAnimationsEnabled(checked); writeState("vinys_disable_animations", !checked); };
   const handleReset = () => { resetAll(); setConfirmReset(false); onClose(); window.location.href = "/"; };
 
   const handleExportData = () => {

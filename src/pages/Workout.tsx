@@ -104,6 +104,7 @@ export default function Workout() {
               movementCategory: master.category,
               videoId: null,
               clinicalRationale: master.why || "",
+              userBenefit: "",
               exercise: {
                 id: master.id,
                 name: master.title,
@@ -378,7 +379,7 @@ export default function Workout() {
   const safetyNote = activeExercise?.cautionFlag
     ? `Caution: ${activeExercise.cautionAreas.join(", ")}. ${activeExercise.activeModification}`
     : "";
-  const whyText = activeExercise?.clinicalRationale || "";
+  const whyText = activeExercise?.userBenefit || activeExercise?.clinicalRationale || "";
   const equipmentList: string[] = []; // V2 exercises don't have per-exercise equipment display yet
 
   return (

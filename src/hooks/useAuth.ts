@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
-const GUEST_KEY = "pranvaGuestMode";
+const GUEST_KEY = "vinys_guest_mode";
 
 export interface AuthState {
   user: User | null;

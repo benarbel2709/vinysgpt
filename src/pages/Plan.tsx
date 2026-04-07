@@ -142,7 +142,7 @@ export default function Plan() {
   const greetingSuffix = practiceTime === "morning"
     ? "your morning practice is ready."
     : practiceTime === "afternoon"
-    ? "time for today's practice."
+    ? "Time for today's practice."
     : practiceTime === "evening"
     ? "your evening practice is waiting."
     : null;
