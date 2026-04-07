@@ -15,13 +15,7 @@ export default function MarketingNav() {
   const isMobile = useIsMobile();
   const isHomepage = location.pathname === "/";
 
-  const scrollOrNavigate = (id: string) => {
-    if (isHomepage) {
-      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-    } else {
-      navigate(`/#${id}`);
-    }
-  };
+
 
   const handleGetStarted = () => {
     if (!isAuthenticated) {
