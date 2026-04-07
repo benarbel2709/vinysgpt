@@ -44,18 +44,22 @@ export default function MarketingNav() {
           {!isMobile && (
             <nav className="flex items-center gap-1">
               {[
-                { label: "Conditions", id: "conditions-section" },
-                { label: "How it works", id: "how-section" },
+                { label: "Conditions", id: "conditions" },
+                { label: "How it works", id: "how-it-works" },
               ].map((link) => (
-                <button
+                <a
                   key={link.id}
-                  type="button"
-                  onClick={() => scrollOrNavigate(link.id)}
-                  aria-label={`Scroll to ${link.label} section`}
+                  href={`/#${link.id}`}
+                  onClick={(e) => {
+                    if (isHomepage) {
+                      e.preventDefault();
+                      document.getElementById(link.id)?.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }}
                   className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-full hover:bg-foreground/5"
                 >
                   {link.label}
-                </button>
+                </a>
               ))}
               <a
                 href="/exercises"

@@ -151,7 +151,7 @@ function ExerciseDetailSheet({ master, onClose }: { master: MasterExercise; onCl
           <div className="w-10 h-1 rounded-full bg-muted-foreground/25" />
         </div>
 
-        <button onClick={onClose} className="absolute top-3 right-3 p-2 rounded-full hover:bg-foreground/5 text-muted-foreground z-10">
+        <button onClick={onClose} className="absolute top-3 right-3 p-2 rounded-full hover:bg-foreground/5 text-muted-foreground z-10" aria-label="Close">
           <X size={18} />
         </button>
 
@@ -271,7 +271,7 @@ export default function ExerciseLibrary() {
         borderBottom: "1px solid hsl(var(--border))",
       }}>
         <div className="vinys-container flex items-center h-14 gap-3">
-          <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full hover:bg-foreground/5 text-muted-foreground">
+          <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full hover:bg-foreground/5 text-muted-foreground" aria-label="Back">
             <ArrowLeft size={20} />
           </button>
           <h1 className="font-display font-bold text-foreground text-lg">Exercises</h1>
