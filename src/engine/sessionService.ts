@@ -55,6 +55,7 @@ export interface PlayableExercise {
   movementCategory: string;
   videoId: string | null;
   clinicalRationale: string;
+  userBenefit: string;
   /** Full V2 exercise reference for advanced display needs */
   exercise: Exercise;
 }
