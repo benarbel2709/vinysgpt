@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import * as Sentry from "@sentry/react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -65,10 +66,12 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
+
 function AppRoutes() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <Routes>
+      <SentryRoutes>
         <Route path="/auth" element={<Auth />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/" element={<Home />} />
@@ -101,7 +104,7 @@ function AppRoutes() {
         <Route path="/admin" element={<AuthGuard><Admin /></AuthGuard>} />
         {import.meta.env.DEV && <Route path="/dev/export-engine-data" element={<DevExportEngineData />} />}
         <Route path="*" element={<NotFound />} />
-      </Routes>
+      </SentryRoutes>
     </Suspense>
   );
 }

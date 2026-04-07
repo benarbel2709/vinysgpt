@@ -1,6 +1,23 @@
 import { createRoot } from "react-dom/client";
+import * as Sentry from "@sentry/react";
 import App from "./App.tsx";
 import "./index.css";
+
+Sentry.init({
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+  environment: import.meta.env.MODE,
+  enabled: import.meta.env.MODE === "production",
+  integrations: [
+    Sentry.browserTracingIntegration(),
+    Sentry.replayIntegration({
+      maskAllText: true,
+      blockAllMedia: true,
+    }),
+  ],
+  tracesSampleRate: 0.1,
+  replaysSessionSampleRate: 0.0,
+  replaysOnErrorSampleRate: 0.5,
+});
 
 // One-time migration of legacy localStorage keys to vinys_* prefix
 (function migrateLegacyStorage() {
@@ -21,4 +38,23 @@ import "./index.css";
   });
 })();
 
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")!).render(
+  <Sentry.ErrorBoundary
+    fallback={
+      <div className="min-h-screen flex items-center justify-center bg-background p-6">
+        <div className="text-center space-y-4 max-w-md">
+          <h1 className="text-2xl font-semibold text-foreground">Something went wrong</h1>
+          <p className="text-muted-foreground">We've been notified and are looking into it. Please refresh the page.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md"
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+    }
+  >
+    <App />
+  </Sentry.ErrorBoundary>
+);
