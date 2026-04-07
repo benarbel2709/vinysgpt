@@ -762,6 +762,25 @@ export default function Workout() {
           </div>
         </div>
       )}
+      {/* Exit confirmation dialog */}
+      <AlertDialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
+        <AlertDialogContent className="bg-black/95 border-white/10 max-w-sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">End this session?</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/60">
+              Your current session progress won't be saved.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 border-0">
+              Continue session
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmExit} className="rounded-full bg-white/10 text-white hover:bg-white/20 border-0">
+              End session
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
