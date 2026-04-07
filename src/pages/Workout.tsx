@@ -12,6 +12,7 @@ import type { HelpedMost } from "@/constants/conditions";
 import type { Checkin as CheckinType } from "@/types";
 import { useTTS } from "@/hooks/useTTS";
 import { X, Play, Pause, Volume2, VolumeX, Loader2, ChevronLeft, ChevronDown, CheckCircle2, Settings2, RotateCcw, Smartphone, Camera } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import { trackEvent } from "@/lib/analytics";
 import universalVideo from "@/assets/exercises/universal-fallback.mp4";
@@ -156,8 +157,17 @@ export default function Workout() {
   const exercises = playableSession?.exercises || [];
   const sessionDurationMinutes = playableSession?.durationMinutes || state.profile.minutesPerSession || 20;
 
-  const [activeIdx, setActiveIdx] = useState(0);
-  const [showPreview, setShowPreview] = useState(true);
+  // Restore position from sessionStorage if available
+  const savedPos = (() => {
+    try {
+      const v = sessionStorage.getItem("vinys_workout_position");
+      return v ? parseInt(v, 10) : 0;
+    } catch { return 0; }
+  })();
+
+  const [activeIdx, setActiveIdx] = useState(savedPos < exercises.length ? savedPos : 0);
+  const [showPreview, setShowPreview] = useState(savedPos === 0);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [timerDone, setTimerDone] = useState(false);
   const [showClosing, setShowClosing] = useState(false);
@@ -261,6 +271,7 @@ export default function Workout() {
 
   const finishWorkout = async () => {
     stopTTS();
+    try { sessionStorage.removeItem("vinys_workout_position"); } catch {}
 
     // V2 progression: increment session_count and check stage transitions
     const prevCount = state.session_count ?? 0;
@@ -328,7 +339,9 @@ export default function Workout() {
       }
       return;
     }
-    setActiveIdx(prev => prev + 1);
+    const nextIdx = activeIdx + 1;
+    setActiveIdx(nextIdx);
+    try { sessionStorage.setItem("vinys_workout_position", String(nextIdx)); } catch {}
     setIsPlaying(true);
   };
 
@@ -354,7 +367,22 @@ export default function Workout() {
     setEndStep("summary");
   };
 
-  const exitWorkout = () => { stopTTS(); navigate("/plan"); };
+  const exitWorkout = () => {
+    if (!showPreview && !isEnded) {
+      setShowExitConfirm(true);
+      return;
+    }
+    stopTTS();
+    try { sessionStorage.removeItem("vinys_workout_position"); } catch {}
+    navigate("/plan");
+  };
+
+  const confirmExit = () => {
+    stopTTS();
+    try { sessionStorage.removeItem("vinys_workout_position"); } catch {}
+    setShowExitConfirm(false);
+    navigate("/plan");
+  };
 
   // No session generated
   if (!playableSession || exercises.length === 0) {
