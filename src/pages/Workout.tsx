@@ -409,7 +409,11 @@ export default function Workout() {
     ? `Caution: ${activeExercise.cautionAreas.join(", ")}. ${activeExercise.activeModification}`
     : "";
   const whyText = activeExercise?.userBenefit || activeExercise?.clinicalRationale || "";
-  const equipmentList: string[] = []; // V2 exercises don't have per-exercise equipment display yet
+  const equipmentList: string[] = [];
+  // Look up instructions from master exercises catalog
+  const masterForActive = activeExercise ? MASTER_EXERCISES.find(m => m.id === activeExercise.id) : null;
+  const activeInstructions = masterForActive?.instructions || [];
+  const activeModificationNote = activeExercise?.activeModification || "";
 
   return (
     <>
