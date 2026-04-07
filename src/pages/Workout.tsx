@@ -769,10 +769,11 @@ export default function Workout() {
 /* ─── Below-Video Panel (shared mobile + desktop) ─── */
 function BelowVideoPanel({
   goNext, isLastExercise, safetyNote, instructions, whyText, equipmentList,
-  repsText, rangeText, instructionsOpen, setInstructionsOpen, whyOpen, setWhyOpen,
+  modificationNote, repsText, rangeText, instructionsOpen, setInstructionsOpen, whyOpen, setWhyOpen,
 }: {
   goNext: () => void; isLastExercise: boolean; safetyNote: string;
   instructions: string[]; whyText: string; equipmentList: string[];
+  modificationNote?: string;
   repsText: string; rangeText: string;
   instructionsOpen: boolean; setInstructionsOpen: (v: boolean) => void;
   whyOpen: boolean; setWhyOpen: (v: boolean) => void;
@@ -792,30 +793,31 @@ function BelowVideoPanel({
         </div>
       )}
 
-      {/* Instructions collapsible */}
+      {/* Instructions — shown directly (not collapsed) */}
       {instructions.length > 0 && (
-        <Collapsible open={instructionsOpen} onOpenChange={setInstructionsOpen}>
-          <CollapsibleTrigger className="flex items-center justify-between w-full py-3 text-white/80 hover:text-white transition-colors text-sm font-medium">
-            <span>Instructions</span>
-            <ChevronDown size={16} className={`transition-transform duration-200 ${instructionsOpen ? "rotate-180" : ""}`} />
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <ol className="space-y-2.5 pb-2">
-              {instructions.map((step, i) => (
-                <li key={i} className="flex gap-2.5">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/60">{i + 1}</span>
-                  <span className="text-white/70 text-sm leading-relaxed">{step}</span>
-                </li>
-              ))}
-              {(repsText || rangeText) && (
-                <li className="flex gap-2 flex-wrap mt-2">
-                  {repsText && <span className="text-xs bg-white/10 text-white/60 rounded-full px-3 py-1">{repsText}</span>}
-                  {rangeText && <span className="text-xs bg-white/10 text-white/60 rounded-full px-3 py-1">{rangeText}</span>}
-                </li>
-              )}
-            </ol>
-          </CollapsibleContent>
-        </Collapsible>
+        <div className="pt-2">
+          <p className="text-white/50 text-xs font-medium uppercase tracking-wider mb-2">Instructions</p>
+          <ol className="space-y-2.5 pb-2">
+            {instructions.map((step, i) => (
+              <li key={i} className="flex gap-2.5">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/60">{i + 1}</span>
+                <span className="text-white/70 text-sm leading-relaxed">{step}</span>
+              </li>
+            ))}
+            {(repsText || rangeText) && (
+              <li className="flex gap-2 flex-wrap mt-2">
+                {repsText && <span className="text-xs bg-white/10 text-white/60 rounded-full px-3 py-1">{repsText}</span>}
+                {rangeText && <span className="text-xs bg-white/10 text-white/60 rounded-full px-3 py-1">{rangeText}</span>}
+              </li>
+            )}
+          </ol>
+          {modificationNote && (
+            <div className="border-l-2 border-teal-400 bg-teal-950/30 px-3 py-2 rounded-r-lg mt-2">
+              <p className="text-[10px] text-teal-300/70 font-medium uppercase tracking-wider mb-0.5">Modification for your profile</p>
+              <p className="text-xs text-teal-200/90">{modificationNote}</p>
+            </div>
+          )}
+        </div>
       )}
 
       {/* Why this exercise collapsible */}
