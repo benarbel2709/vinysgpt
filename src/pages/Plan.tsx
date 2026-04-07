@@ -233,7 +233,7 @@ export default function Plan() {
                 const totalMin = plan?.sessions.filter(s => s.status === "done").reduce((sum, s) => sum + s.durationMinutes, 0) || 0;
                 const h = Math.floor(totalMin / 60);
                 const m = totalMin % 60;
-                return h > 0 ? `${h}h ${m}m` : `${m}m`;
+                return h > 0 ? `${h}h ${m} min` : `${m} min`;
               })()}
             </span>
           </div>

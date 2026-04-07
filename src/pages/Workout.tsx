@@ -154,6 +154,7 @@ export default function Workout() {
     }
   }, []); // Only generate once on mount
 
+  const isSoloSession = sessionId?.startsWith("solo_") ?? false;
   const exercises = playableSession?.exercises || [];
   const sessionDurationMinutes = playableSession?.durationMinutes || state.profile.minutesPerSession || 20;
 
@@ -474,6 +475,21 @@ export default function Workout() {
                     aria-label={isMuted ? "Unmute" : "Mute"}>
                     {isTTSLoading ? <Loader2 size={16} className="animate-spin" /> : isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
                   </button>
+                </div>
+              </div>
+            )}
+
+            {/* Solo mode info banner */}
+            {isSoloSession && !isEnded && !showClosing && (
+              <div className="absolute bottom-[100px] left-0 right-0 z-10 px-4">
+                <div className="rounded-lg bg-white/10 backdrop-blur-md px-3 py-2 text-center">
+                  <p className="text-white/70 text-[11px] leading-relaxed">
+                    Solo mode — this exercise has not been filtered against your movement profile.{" "}
+                    <button onClick={() => navigate("/plan")} className="underline text-white/90 hover:text-white">
+                      Return to Your Plan
+                    </button>{" "}
+                    for a fully personalised session.
+                  </p>
                 </div>
               </div>
             )}
