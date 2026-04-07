@@ -11,6 +11,8 @@ export interface AuthState {
   isGuest: boolean;
 }
 
+export type SignInWithOtpFn = (email: string) => Promise<{ error: any }>;
+
 export function useAuth() {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
