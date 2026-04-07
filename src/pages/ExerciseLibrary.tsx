@@ -164,7 +164,7 @@ function ExerciseDetailSheet({ master, onClose }: { master: MasterExercise; onCl
               <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${CAT_COLORS[master.category]}`}>
                 {CAT_LABELS[master.category]}
               </span>
-              <span className="text-xs text-muted-foreground">{master.durationMin} min · {master.intensityTarget}</span>
+              <span className="text-xs text-muted-foreground">{master.durationMin} min</span>
             </div>
           </div>
 

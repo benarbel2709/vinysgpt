@@ -6,19 +6,19 @@ const TESTIMONIALS = [
     quote: "I've had fibromyalgia for six years. This is the first yoga practice I've actually stuck with for more than two weeks. It knows when I'm having a bad day.",
     name: "Sarah M.",
     condition: "Fibromyalgia",
-    duration: "Verified member · 4 months",
+    duration: "Member · 4 months",
   },
   {
     quote: "After my back surgery I was terrified of moving again. Vinys filtered out what I couldn't do and slowly rebuilt my confidence.",
     name: "James R.",
     condition: "Post-surgical recovery",
-    duration: "Verified member · 3 months",
+    duration: "Member · 3 months",
   },
   {
     quote: "Perimenopause wrecked my energy and my sleep. Having a practice that adjusts to how I feel each day changed everything.",
     name: "Donna K.",
     condition: "Perimenopause & hormonal fatigue",
-    duration: "Verified member · 5 months",
+    duration: "Member · 5 months",
   },
 ];
 
