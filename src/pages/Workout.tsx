@@ -154,6 +154,7 @@ export default function Workout() {
     }
   }, []); // Only generate once on mount
 
+  const isSoloSession = sessionId?.startsWith("solo_") ?? false;
   const exercises = playableSession?.exercises || [];
   const sessionDurationMinutes = playableSession?.durationMinutes || state.profile.minutesPerSession || 20;
 
