@@ -121,6 +121,7 @@ export default function Workout() {
                 simpler_alternative: null,
                 profiles: {},
                 clinical_rationale: master.why || "",
+                user_benefit: "",
                 video_id: null,
               },
             };
