@@ -209,7 +209,8 @@ export type ConditionIdV2 =
   | "hormonal_fatigue"
   | "trauma_recovery"
   | "scoliosis"
-  | "post_illness";
+  | "post_illness"
+  | "osteoporosis";
 
 export interface ConditionProfileV2 {
   id: ConditionIdV2;

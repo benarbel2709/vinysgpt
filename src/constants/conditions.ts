@@ -45,7 +45,11 @@ export type ConditionKey =
   // ── New area-based conditions ──
   | "ankle_pain"
   | "upper_back_pain"
-  | "wrist_pain";
+  | "wrist_pain"
+  // ── Clinical modifier conditions ──
+  | "osteoporosis"
+  | "dysautonomia_pots"
+  | "endometriosis";
 
 export type ExerciseCategory = "breath" | "mobility" | "stability" | "release";
 
@@ -81,6 +85,7 @@ export const CONDITIONS: ConditionInfo[] = [
   { key: "sciatica", label: "Sciatica", description: "Nerve-safe stretching" },
   { key: "scoliosis", label: "Scoliosis", description: "Spinal asymmetry support" },
   { key: "osteoarthritis", label: "Osteoarthritis", description: "Joint-friendly movement" },
+  { key: "osteoporosis", label: "Osteoporosis", description: "Bone-protective, low-impact movement" },
   // ── Mind, Stress & Sleep ──
   { key: "stress_anxiety", label: "Stress & Anxiety", description: "Calming breath and movement" },
   { key: "sleep_issues", label: "Sleep Issues", description: "Evening wind-down routines" },
@@ -91,6 +96,7 @@ export const CONDITIONS: ConditionInfo[] = [
   { key: "fibromyalgia", label: "Fibromyalgia", description: "Whole-body sensitivity support" },
   { key: "chronic_fatigue_syndrome", label: "Chronic Fatigue Syndrome", description: "Paced, low-intensity movement" },
   { key: "long_covid", label: "Long COVID Recovery", description: "Gradual reconditioning after COVID" },
+  { key: "dysautonomia_pots", label: "Dysautonomia / POTS", description: "Autonomic nervous system support" },
   { key: "low_energy", label: "Low Energy Phases", description: "Gentle movement for low-energy days" },
   { key: "post_illness", label: "Post-Illness Deconditioning", description: "Rebuilding capacity after illness" },
   // ── Women's Health & Hormonal ──
@@ -100,6 +106,7 @@ export const CONDITIONS: ConditionInfo[] = [
   { key: "perimenopause", label: "Perimenopause", description: "Early hormonal transition support" },
   { key: "hormonal_fatigue", label: "Hormonal Fatigue", description: "Low-intensity hormonal balance support" },
   { key: "thyroid_conditions", label: "Thyroid Conditions", description: "Gentle movement for thyroid support" },
+  { key: "endometriosis", label: "Endometriosis", description: "Gentle pelvic and hormonal support" },
   // ── Posture & Functional ──
   { key: "postural_fatigue", label: "Postural Fatigue", description: "Relieving posture-related strain" },
   { key: "desk_tension", label: "Desk-Related Tension", description: "Counteracting prolonged sitting" },
@@ -235,6 +242,9 @@ export const CONDITION_RELEVANCE_KEY: Record<ConditionKey, string> = {
   ankle_pain: "kneeHip",
   upper_back_pain: "neckShoulder",
   wrist_pain: "neckShoulder",
+  osteoporosis: "backPain",
+  dysautonomia_pots: "fibro",
+  endometriosis: "fibro",
 };
 
 /** Condition → safety tag mapping */
@@ -279,6 +289,9 @@ export const CONDITION_SAFETY_TAG: Record<ConditionKey, string> = {
   ankle_pain: "kneeSafe",
   upper_back_pain: "universalSafe",
   wrist_pain: "universalSafe",
+  osteoporosis: "universalSafe",
+  dysautonomia_pots: "universalSafe",
+  endometriosis: "universalSafe",
 };
 
 /** Condition weights for scoring */
@@ -323,6 +336,9 @@ export const CONDITION_WEIGHT: Record<ConditionKey, number> = {
   ankle_pain: 1.1,
   upper_back_pain: 1.1,
   wrist_pain: 1.1,
+  osteoporosis: 1.2,
+  dysautonomia_pots: 1.2,
+  endometriosis: 1.15,
 };
 
 /** Condition → adapter prefix for exercise ID generation */
@@ -367,6 +383,9 @@ export const CONDITION_PREFIX: Record<ConditionKey, string> = {
   ankle_pain: "ankle_",
   upper_back_pain: "uback_",
   wrist_pain: "wrist_",
+  osteoporosis: "osteo_",
+  dysautonomia_pots: "pots_",
+  endometriosis: "endo_",
 };
 
 // ═══════════════════════════════════
@@ -521,4 +540,7 @@ export const CONDITION_TIPS: Record<ConditionKey, string> = {
   ankle_pain: "Strengthening ankle stability, improving balance and addressing foot mechanics.",
   upper_back_pain: "Thoracic mobility, scapular strength and postural relief.",
   wrist_pain: "Wrist and hand care — mobility, strength and nerve health.",
+  osteoporosis: "Bone-protective practice — weight-bearing movement without spinal flexion risk.",
+  dysautonomia_pots: "Autonomic support — reclined and seated work with gradual postural transitions.",
+  endometriosis: "Gentle pelvic and hormonal support — breath-first pacing with careful intensity.",
 };

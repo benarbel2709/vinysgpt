@@ -1564,7 +1564,10 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
           <p className="mt-4 text-center text-[13px] text-muted-foreground italic">
             {postureIdx === totalPostures - 1
               ? AFFIRMATIONS[AFFIRMATIONS.length - 1]
-              : AFFIRMATIONS[Math.min(postureIdx - 1, AFFIRMATIONS.length - 2)]}
+              : AFFIRMATIONS[Math.min(
+                  Math.floor((postureIdx - 1) / Math.max(totalPostures - 2, 1) * (AFFIRMATIONS.length - 1)),
+                  AFFIRMATIONS.length - 2
+                )]}
           </p>
         )}
       </Shell>

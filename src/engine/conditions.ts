@@ -52,6 +52,10 @@ export const LEGACY_CONDITION_MAP: Record<ConditionKey, ConditionIdV2> = {
   ankle_pain: "knees",
   upper_back_pain: "neck_shoulder",
   wrist_pain: "neck_shoulder",
+  // ── Clinical modifier conditions ──
+  osteoporosis: "osteoporosis",
+  dysautonomia_pots: "long_covid",
+  endometriosis: "hormonal_fatigue",
 };
 
 // ═══════════════════════════════════
@@ -215,5 +219,14 @@ export const CONDITION_PROFILES: Record<ConditionIdV2, ConditionProfileV2> = {
     contraRules: {},
     notes: "Post-illness deconditioning. Gentle standing penalty.",
     standingScorePenalty: -1,
+  },
+  osteoporosis: {
+    id: "osteoporosis",
+    relevanceKey: "backPain",
+    requiredTags: ["universalSafe"],
+    excludedPoseSets: [],
+    contraRules: { avoidFlexion: true },
+    notes: "Bone fragility. Exclude high-impact and spinal flexion. Prioritise weight-bearing for bone density.",
+    boneLoadingBonus: 2,
   },
 };
