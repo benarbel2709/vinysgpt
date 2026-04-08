@@ -96,6 +96,7 @@ export const CONDITIONS: ConditionInfo[] = [
   { key: "fibromyalgia", label: "Fibromyalgia", description: "Whole-body sensitivity support" },
   { key: "chronic_fatigue_syndrome", label: "Chronic Fatigue Syndrome", description: "Paced, low-intensity movement" },
   { key: "long_covid", label: "Long COVID Recovery", description: "Gradual reconditioning after COVID" },
+  { key: "dysautonomia_pots", label: "Dysautonomia / POTS", description: "Autonomic nervous system support" },
   { key: "low_energy", label: "Low Energy Phases", description: "Gentle movement for low-energy days" },
   { key: "post_illness", label: "Post-Illness Deconditioning", description: "Rebuilding capacity after illness" },
   // ── Women's Health & Hormonal ──
@@ -105,6 +106,7 @@ export const CONDITIONS: ConditionInfo[] = [
   { key: "perimenopause", label: "Perimenopause", description: "Early hormonal transition support" },
   { key: "hormonal_fatigue", label: "Hormonal Fatigue", description: "Low-intensity hormonal balance support" },
   { key: "thyroid_conditions", label: "Thyroid Conditions", description: "Gentle movement for thyroid support" },
+  { key: "endometriosis", label: "Endometriosis", description: "Gentle pelvic and hormonal support" },
   // ── Posture & Functional ──
   { key: "postural_fatigue", label: "Postural Fatigue", description: "Relieving posture-related strain" },
   { key: "desk_tension", label: "Desk-Related Tension", description: "Counteracting prolonged sitting" },
