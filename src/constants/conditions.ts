@@ -45,7 +45,11 @@ export type ConditionKey =
   // ── New area-based conditions ──
   | "ankle_pain"
   | "upper_back_pain"
-  | "wrist_pain";
+  | "wrist_pain"
+  // ── Clinical modifier conditions ──
+  | "osteoporosis"
+  | "dysautonomia_pots"
+  | "endometriosis";
 
 export type ExerciseCategory = "breath" | "mobility" | "stability" | "release";
 
