@@ -85,6 +85,7 @@ export const CONDITIONS: ConditionInfo[] = [
   { key: "sciatica", label: "Sciatica", description: "Nerve-safe stretching" },
   { key: "scoliosis", label: "Scoliosis", description: "Spinal asymmetry support" },
   { key: "osteoarthritis", label: "Osteoarthritis", description: "Joint-friendly movement" },
+  { key: "osteoporosis", label: "Osteoporosis", description: "Bone-protective, low-impact movement" },
   // ── Mind, Stress & Sleep ──
   { key: "stress_anxiety", label: "Stress & Anxiety", description: "Calming breath and movement" },
   { key: "sleep_issues", label: "Sleep Issues", description: "Evening wind-down routines" },
