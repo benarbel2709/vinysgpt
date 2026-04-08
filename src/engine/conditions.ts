@@ -220,4 +220,13 @@ export const CONDITION_PROFILES: Record<ConditionIdV2, ConditionProfileV2> = {
     notes: "Post-illness deconditioning. Gentle standing penalty.",
     standingScorePenalty: -1,
   },
+  osteoporosis: {
+    id: "osteoporosis",
+    relevanceKey: "backPain",
+    requiredTags: ["universalSafe"],
+    excludedPoseSets: ["highImpact"],
+    contraRules: { avoidSpinalFlexion: true, avoidHighImpact: true },
+    notes: "Bone fragility. Exclude high-impact and spinal flexion. Prioritise weight-bearing for bone density.",
+    boneLoadingBonus: 2,
+  },
 };
