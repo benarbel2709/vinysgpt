@@ -239,6 +239,9 @@ export const CONDITION_RELEVANCE_KEY: Record<ConditionKey, string> = {
   ankle_pain: "kneeHip",
   upper_back_pain: "neckShoulder",
   wrist_pain: "neckShoulder",
+  osteoporosis: "backPain",
+  dysautonomia_pots: "fibro",
+  endometriosis: "fibro",
 };
 
 /** Condition → safety tag mapping */
@@ -283,6 +286,9 @@ export const CONDITION_SAFETY_TAG: Record<ConditionKey, string> = {
   ankle_pain: "kneeSafe",
   upper_back_pain: "universalSafe",
   wrist_pain: "universalSafe",
+  osteoporosis: "universalSafe",
+  dysautonomia_pots: "universalSafe",
+  endometriosis: "universalSafe",
 };
 
 /** Condition weights for scoring */
@@ -327,6 +333,9 @@ export const CONDITION_WEIGHT: Record<ConditionKey, number> = {
   ankle_pain: 1.1,
   upper_back_pain: 1.1,
   wrist_pain: 1.1,
+  osteoporosis: 1.2,
+  dysautonomia_pots: 1.2,
+  endometriosis: 1.15,
 };
 
 /** Condition → adapter prefix for exercise ID generation */
@@ -371,6 +380,9 @@ export const CONDITION_PREFIX: Record<ConditionKey, string> = {
   ankle_pain: "ankle_",
   upper_back_pain: "uback_",
   wrist_pain: "wrist_",
+  osteoporosis: "osteo_",
+  dysautonomia_pots: "pots_",
+  endometriosis: "endo_",
 };
 
 // ═══════════════════════════════════
