@@ -52,6 +52,10 @@ export const LEGACY_CONDITION_MAP: Record<ConditionKey, ConditionIdV2> = {
   ankle_pain: "knees",
   upper_back_pain: "neck_shoulder",
   wrist_pain: "neck_shoulder",
+  // ── Clinical modifier conditions ──
+  osteoporosis: "osteoporosis",
+  dysautonomia_pots: "long_covid",
+  endometriosis: "hormonal_fatigue",
 };
 
 // ═══════════════════════════════════

@@ -537,4 +537,7 @@ export const CONDITION_TIPS: Record<ConditionKey, string> = {
   ankle_pain: "Strengthening ankle stability, improving balance and addressing foot mechanics.",
   upper_back_pain: "Thoracic mobility, scapular strength and postural relief.",
   wrist_pain: "Wrist and hand care — mobility, strength and nerve health.",
+  osteoporosis: "Bone-protective practice — weight-bearing movement without spinal flexion risk.",
+  dysautonomia_pots: "Autonomic support — reclined and seated work with gradual postural transitions.",
+  endometriosis: "Gentle pelvic and hormonal support — breath-first pacing with careful intensity.",
 };
