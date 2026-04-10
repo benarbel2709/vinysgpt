@@ -14,6 +14,8 @@ export interface SessionRequest {
   experience_level: ExperienceLevel;
   duration_minutes: SessionDuration;
   target_size_override?: number;
+  /** Irritability score 0–5 from onboarding diagnostic */
+  irritability?: number;
 }
 
 export interface SelectedPose {
@@ -147,14 +149,28 @@ function findGuaranteedPose(category: MovementCategory, pool: SuitedPose[], sele
 }
 
 export function buildSession(request: SessionRequest): E2Result {
-  const { user_profile, stage, experience_level, duration_minutes, target_size_override } = request;
-  const target     = targetSize(duration_minutes, target_size_override);
+  const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0 } = request;
+  let target       = targetSize(duration_minutes, target_size_override);
   const vr_ceiling = VAR_RANK_CEILING[stage][experience_level];
-  const load_ceil  = target * LOAD_CEILING_MULTIPLIER[experience_level];
+  let load_ceil    = target * LOAD_CEILING_MULTIPLIER[experience_level];
+
+  // ── Irritability adjustments (applied as final layer) ──────────────
+  if (irritability >= 3) {
+    load_ceil = Math.floor(load_ceil * 0.75); // reduce load ceiling by 25%
+  }
+  if (irritability >= 4) {
+    target = Math.max(3, target - 1); // remove one exercise from session
+  }
+
   const pool_size  = target * 3;
 
   const e1 = runEngine1(user_profile);
-  const candidate_pool = filterByVarRankCeiling(e1.eligible_pool, vr_ceiling).slice(0, pool_size);
+  // When irritability >= 3, bias toward simpler exercises by preferring lower var_rank
+  let candidate_pool = filterByVarRankCeiling(e1.eligible_pool, vr_ceiling).slice(0, pool_size);
+  if (irritability >= 3) {
+    candidate_pool.sort((a, b) => ((a.exercise.var_rank ?? 0) - (b.exercise.var_rank ?? 0)) || (b.clinical_score - a.clinical_score));
+  }
+
   const selected: SelectedPose[] = [];
   const selected_ids = new Set<string>();
   const diversity = emptyDiversity();

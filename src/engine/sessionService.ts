@@ -36,6 +36,8 @@ export interface SessionServiceInput {
   durationMinutes: SessionDuration;
   /** Override target pose count (optional) */
   targetSizeOverride?: number;
+  /** Irritability score 0–5 from onboarding diagnostic */
+  irritability?: number;
 }
 
 /** A single exercise ready for the workout player */
@@ -192,6 +194,7 @@ export function buildSessionInput(profile: {
     stage: mapIrritabilityToStage(irritability),
     experienceLevel: mapEnergyToExperience(profile.energyLevel || 'medium'),
     durationMinutes: mapMinutesToDuration(profile.minutesPerSession || 20),
+    irritability,
   };
 }
 
@@ -238,6 +241,7 @@ export function createSession(input: SessionServiceInput): PlayableSession {
     experience_level: input.experienceLevel,
     duration_minutes: input.durationMinutes,
     target_size_override: input.targetSizeOverride,
+    irritability: input.irritability,
   };
 
   const result: FullSessionResult = generateSession(request);
