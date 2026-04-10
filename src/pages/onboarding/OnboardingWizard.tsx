@@ -203,7 +203,8 @@ export default function OnboardingWizard() {
       practiceTime,
       closingPreference: closingPref as "savasana" | "meditation" | "body_rest",
       availableEquipment: finalEquipment,
-      restrictions: restrictions.filter(r => r !== "None of the above"),
+      restrictions: restrictions.filter(r => r !== NONE_OPTION),
+      diagnoses: selectedDiagnoses,
     } as any);
 
     const assessmentId = `assessment_${Date.now()}`;
