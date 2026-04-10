@@ -1750,9 +1750,24 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
             Your movement profile
           </h2>
 
-          <div className="text-[28px] sm:text-[34px] font-extrabold text-primary leading-tight mb-4">
+          <div className="mb-1">
+            <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Primary</span>
+          </div>
+          <div className="text-[28px] sm:text-[34px] font-extrabold text-primary leading-tight mb-2">
             {displayInfo.name}
           </div>
+
+          {diagnosticOutput.secondaryProfile && (() => {
+            const secDisplay = PROFILE_DISPLAY[diagnosticOutput.secondaryProfile] || { name: diagnosticOutput.secondaryProfile };
+            return (
+              <div className="mb-4">
+                <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Secondary</span>
+                <div className="text-[20px] sm:text-[24px] font-bold text-secondary leading-tight mt-0.5">
+                  {secDisplay.name}
+                </div>
+              </div>
+            );
+          })()}
 
           <span className={`inline-block px-3 py-1 rounded-full text-[12px] font-bold ${confBadgeClass} mb-6`}>
             {confidence === "High" ? "High confidence profile" : confidence === "Medium" ? "Good confidence — may refine over first sessions" : "Initial profile — will refine over your first sessions"}

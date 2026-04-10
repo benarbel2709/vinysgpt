@@ -69,6 +69,8 @@ function isHardExcluded(exercise: Exercise, user_profile: UserProfile): boolean 
     const area_data = exercise.profiles[ap.area];
     if (!area_data) continue;
     if (area_data.avoid.includes(ap.primary)) return true;
+    // Secondary profile exclusion: union of both profiles' avoided poses
+    if (ap.secondary && area_data.avoid.includes(ap.secondary)) return true;
   }
   return false;
 }

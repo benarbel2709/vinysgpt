@@ -469,6 +469,7 @@ export default function OnboardingWizard() {
                   diagnosticResult: result,
                   diagnosticArea: result.area,
                   diagnosticProfile: result.primary,
+                  diagnosticSecondaryProfile: result.secondaryProfile || null,
                   diagnosticIrritability: result.irritability ?? 0,
                   irritability: result.irritability ?? 0,
                   acuity: result.acuity ?? "unknown",
