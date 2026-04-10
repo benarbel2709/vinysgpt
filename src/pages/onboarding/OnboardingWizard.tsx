@@ -44,7 +44,6 @@ const RESTRICTION_OPTIONS = [
   "Currently pregnant",
   "Recent surgery (within 6 months)",
   "Currently under physiotherapy or medical care",
-  "Osteoporosis or bone density concerns",
   "Balance issues or fall risk",
 ];
 
@@ -68,6 +67,17 @@ const DIAGNOSIS_OPTIONS: { label: string; key: string }[] = [
   { label: "Post-surgical recovery (spine or joint)", key: "post_surgical" },
   { label: "Anxiety or PTSD", key: "anxiety_ptsd" },
   { label: "Depression", key: "depression" },
+  { label: "Osteoporosis or low bone density", key: "osteoporosis" },
+  { label: "Menopause or perimenopause", key: "menopause" },
+  { label: "PCOS (polycystic ovary syndrome)", key: "pcos" },
+  { label: "Long COVID or post-viral fatigue", key: "long_covid" },
+];
+
+const AGE_GROUP_OPTIONS = [
+  { value: "under_40", label: "Under 40" },
+  { value: "40_59", label: "40–59" },
+  { value: "60_69", label: "60–69" },
+  { value: "70_plus", label: "70+" },
 ];
 
 const NONE_OPTION = "None of the above";
@@ -114,6 +124,7 @@ export default function OnboardingWizard() {
   const [diagnosticResult, setDiagnosticResult] = useState<any>(null);
   const [restrictions, setRestrictions] = useState<string[]>([]);
   const [selectedDiagnoses, setSelectedDiagnoses] = useState<string[]>([]);
+  const [ageGroup, setAgeGroup] = useState<string>("");
   const [restrictionOther, setRestrictionOther] = useState("");
   const [practiceTime, setPracticeTime] = useState<PracticeTime>(profile.practiceTime || "morning");
   const [minutesPerSession, setMinutesPerSession] = useState(profile.minutesPerSession || 20);
@@ -147,6 +158,7 @@ export default function OnboardingWizard() {
       // Clear everything
       setRestrictions([]);
       setSelectedDiagnoses([]);
+      setAgeGroup("");
       return;
     }
     setRestrictions(prev => prev.includes(r) ? prev.filter(x => x !== r) : [...prev, r]);
@@ -205,6 +217,7 @@ export default function OnboardingWizard() {
       availableEquipment: finalEquipment,
       restrictions: restrictions.filter(r => r !== NONE_OPTION),
       diagnoses: selectedDiagnoses,
+      ageGroup: ageGroup || undefined,
     } as any);
 
     const assessmentId = `assessment_${Date.now()}`;
