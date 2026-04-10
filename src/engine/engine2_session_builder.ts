@@ -18,6 +18,8 @@ export interface SessionRequest {
   irritability?: number;
   /** Age group from onboarding */
   ageGroup?: string;
+  /** Condition keys — drives scoring for systemic flows (empty user_profile) */
+  conditions?: string[];
 }
 
 export interface SelectedPose {
@@ -150,8 +152,85 @@ function findGuaranteedPose(category: MovementCategory, pool: SuitedPose[], sele
   return pool.find(p => p.exercise.movement_category === category && !selected_ids.has(p.exercise.id) && !p.has_modification_gap) || null;
 }
 
+// ── Systemic condition scoring (for flows without body-area diagnostic) ──────
+
+interface SystemicModifiers {
+  loadCeilingMultiplier: number;
+  maxComplexity: number;
+  preferredCategories: Set<MovementCategory>;
+  penalizedCategories: Set<MovementCategory>;
+  preferLowVarRank: boolean;
+}
+
+/**
+ * Maps condition keys to engine-level modifiers using V2 exercise properties.
+ * Merges multiple conditions — takes the most conservative value for each modifier.
+ */
+function resolveSystemicModifiers(conditions: string[]): SystemicModifiers {
+  const PRESETS: Record<string, Partial<SystemicModifiers>> = {
+    menopause:              { loadCeilingMultiplier: 0.85, maxComplexity: 3, preferLowVarRank: true },
+    perimenopause:          { loadCeilingMultiplier: 0.85, maxComplexity: 3, preferLowVarRank: true },
+    pcos:                   { loadCeilingMultiplier: 0.85, maxComplexity: 3, preferLowVarRank: true },
+    hormonal_fatigue:       { loadCeilingMultiplier: 0.85, maxComplexity: 3, preferLowVarRank: true },
+    endometriosis:          { loadCeilingMultiplier: 0.85, maxComplexity: 3, preferLowVarRank: true },
+    long_covid:             { loadCeilingMultiplier: 0.70, maxComplexity: 2, preferLowVarRank: true },
+    post_illness:           { loadCeilingMultiplier: 0.75, maxComplexity: 2, preferLowVarRank: true },
+    fibromyalgia:           { loadCeilingMultiplier: 0.75, maxComplexity: 3, preferLowVarRank: true },
+    chronic_fatigue_syndrome: { loadCeilingMultiplier: 0.70, maxComplexity: 2, preferLowVarRank: true },
+    stress_anxiety:         { loadCeilingMultiplier: 0.90, maxComplexity: 3, preferLowVarRank: false },
+    burnout:                { loadCeilingMultiplier: 0.85, maxComplexity: 3, preferLowVarRank: true },
+  };
+
+  const preferred: Set<MovementCategory> = new Set(['Restorative', 'Breath']);
+  let loadMul = 1;
+  let maxComp = 4;
+  let preferLow = false;
+
+  for (const cond of conditions) {
+    const preset = PRESETS[cond];
+    if (!preset) continue;
+    if (preset.loadCeilingMultiplier != null) loadMul = Math.min(loadMul, preset.loadCeilingMultiplier);
+    if (preset.maxComplexity != null) maxComp = Math.min(maxComp, preset.maxComplexity);
+    if (preset.preferLowVarRank) preferLow = true;
+  }
+
+  return {
+    loadCeilingMultiplier: loadMul,
+    maxComplexity: maxComp as 1 | 2 | 3 | 4,
+    preferredCategories: preferred,
+    penalizedCategories: new Set(['Upper Limb Weight Bearing']),
+    preferLowVarRank: preferLow,
+  };
+}
+
+/**
+ * Re-scores the E1 pool for systemic conditions:
+ * - Filters out exercises exceeding complexity cap
+ * - Boosts preferred categories (Restorative, Breath) by +2
+ * - Penalizes high-demand categories by -1
+ * - Sorts by adjusted score, then var_rank ascending
+ */
+function applySystemicScoring(pool: SuitedPose[], mods: SystemicModifiers): SuitedPose[] {
+  const rescored = pool
+    .filter(p => p.exercise.complexity <= mods.maxComplexity)
+    .map(p => {
+      let bonus = 0;
+      if (mods.preferredCategories.has(p.exercise.movement_category)) bonus += 2;
+      if (mods.penalizedCategories.has(p.exercise.movement_category)) bonus -= 1;
+      return { ...p, clinical_score: p.clinical_score + bonus };
+    });
+
+  rescored.sort((a, b) => {
+    if (b.clinical_score !== a.clinical_score) return b.clinical_score - a.clinical_score;
+    if (mods.preferLowVarRank) return ((a.exercise.var_rank ?? 0) - (b.exercise.var_rank ?? 0));
+    return (a.var_rank ?? 99) - (b.var_rank ?? 99);
+  });
+
+  return rescored;
+}
+
 export function buildSession(request: SessionRequest): E2Result {
-  const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0, ageGroup } = request;
+  const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0, ageGroup, conditions = [] } = request;
   let target       = targetSize(duration_minutes, target_size_override);
   const vr_ceiling = VAR_RANK_CEILING[stage][experience_level];
   let load_ceil    = target * LOAD_CEILING_MULTIPLIER[experience_level];
@@ -179,11 +258,25 @@ export function buildSession(request: SessionRequest): E2Result {
     load_ceil = Math.floor(load_ceil * 0.90); // reduce by 10%
   }
 
+  // ── Systemic condition modifiers (only when no body-area profile) ──
+  const isSystemicFlow = user_profile.length === 0 && conditions.length > 0;
+  const systemicMods = isSystemicFlow ? resolveSystemicModifiers(conditions) : null;
+  if (systemicMods) {
+    load_ceil = Math.floor(load_ceil * systemicMods.loadCeilingMultiplier);
+  }
+
   const pool_size  = target * 3;
 
   const e1 = runEngine1(user_profile);
+
+  // For systemic flows, re-score the pool using condition-aware heuristics
+  let candidate_pool = filterByVarRankCeiling(e1.eligible_pool, vr_ceiling);
+  if (isSystemicFlow && systemicMods) {
+    candidate_pool = applySystemicScoring(candidate_pool, systemicMods);
+  }
+  candidate_pool = candidate_pool.slice(0, pool_size);
+
   // When irritability >= 3 OR older adult, bias toward simpler exercises by preferring lower var_rank
-  let candidate_pool = filterByVarRankCeiling(e1.eligible_pool, vr_ceiling).slice(0, pool_size);
   if (useIrritabilityBias || isOlderAdult) {
     candidate_pool.sort((a, b) => ((a.exercise.var_rank ?? 0) - (b.exercise.var_rank ?? 0)) || (b.clinical_score - a.clinical_score));
   }
