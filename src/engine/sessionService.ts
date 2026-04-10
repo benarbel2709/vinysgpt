@@ -109,10 +109,16 @@ export function mapDiagnosticToUserProfile(diagnosticResult: {
   area: string;
   primary: string;
   secondary?: string | null;
+  secondaryProfile?: string | null;
   originalArea?: string | null;
   crossoverTriggered?: boolean;
 }): UserProfile {
   const profiles: ActiveAreaProfile[] = [];
+
+  // Use user-confirmed secondaryProfile if available, else fall back to score-based secondary
+  const effectiveSecondary = diagnosticResult.secondaryProfile !== undefined
+    ? diagnosticResult.secondaryProfile
+    : (diagnosticResult.secondary || null);
 
   // Primary area
   const v2Area = DIAGNOSTIC_TO_V2_AREA[diagnosticResult.area];
@@ -120,7 +126,7 @@ export function mapDiagnosticToUserProfile(diagnosticResult: {
     profiles.push({
       area: v2Area,
       primary: diagnosticResult.primary,
-      secondary: diagnosticResult.secondary || null,
+      secondary: effectiveSecondary,
     });
   }
 
