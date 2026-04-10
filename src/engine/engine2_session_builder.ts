@@ -18,6 +18,8 @@ export interface SessionRequest {
   irritability?: number;
   /** Age group from onboarding */
   ageGroup?: string;
+  /** Condition keys — drives scoring for systemic flows (empty user_profile) */
+  conditions?: string[];
 }
 
 export interface SelectedPose {

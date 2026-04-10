@@ -40,6 +40,8 @@ export interface SessionServiceInput {
   irritability?: number;
   /** Age group from onboarding */
   ageGroup?: string;
+  /** Condition keys from profile — used for systemic flow scoring */
+  conditions?: string[];
 }
 
 /** A single exercise ready for the workout player */
