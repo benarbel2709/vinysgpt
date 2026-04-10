@@ -1385,17 +1385,20 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
           redFlagsPassed: true,
         };
         setDiagnosticOutput(result);
-        
-        // Determine if clarification is needed based on confidence
-        if (result.confidence === "High") {
+
+        // Check for secondary profile confirmation
+        const resultScores = result.scores || {};
+        const ranked = Object.entries(resultScores).sort(([, a], [, b]) => b - a);
+        const primaryScore = resultScores[result.primary] || 0;
+        const secondEntry = ranked.find(([p]) => p !== result.primary && resultScores[p] > 0);
+        const secondScore = secondEntry ? secondEntry[1] : 0;
+        const shouldAskSecondary = secondEntry && secondScore > 0 && secondScore < primaryScore;
+
+        if (shouldAskSecondary) {
+          setPhase("secondary_confirm");
+        } else if (result.confidence === "High") {
           setPhase("summary");
-        } else if (result.confidence === "Medium") {
-          setClarifyStep(0);
-          setClarifyAnswers({});
-          setSelected(null);
-          setPhase("clarify");
         } else {
-          // Low confidence — 2 questions
           setClarifyStep(0);
           setClarifyAnswers({});
           setSelected(null);
@@ -1575,6 +1578,61 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
   }
 
   // ==========================================================================
+  // PHASE: SECONDARY PROFILE CONFIRMATION
+  // ==========================================================================
+  if (phase === "secondary_confirm" && diagnosticOutput) {
+    const resultScores = diagnosticOutput.scores || {};
+    const ranked = Object.entries(resultScores).sort(([, a], [, b]) => b - a);
+    const secondEntry = ranked.find(([p]) => p !== diagnosticOutput.primary && resultScores[p] > 0);
+    const secondCode = secondEntry ? secondEntry[0] : null;
+    const secondDisplay = secondCode ? (PROFILE_DISPLAY[secondCode] || { name: secondCode, description: "" }) : null;
+
+    const proceedAfterSecondary = () => {
+      if (diagnosticOutput.confidence === "High") {
+        setPhase("summary");
+      } else {
+        setClarifyStep(0);
+        setClarifyAnswers({});
+        setSelected(null);
+        setPhase("clarify");
+      }
+    };
+
+    return (
+      <Shell>
+        <div className="mb-8">
+          <h2 className="text-[22px] font-bold text-foreground leading-snug mb-2">We noticed a second movement pattern</h2>
+          <p className="text-[16px] text-foreground leading-[1.65] font-medium mb-1">Does this also affect you?</p>
+        </div>
+
+        {secondDisplay && (
+          <div className="p-5 rounded-2xl bg-card border border-border shadow-calm mb-6">
+            <span className="text-[15px] font-bold text-secondary block mb-1">{secondDisplay.name}</span>
+            <span className="text-[14px] text-muted-foreground leading-relaxed">{secondDisplay.description}</span>
+          </div>
+        )}
+
+        <div className="space-y-3">
+          <PrimaryButton
+            label="Yes, this also affects me"
+            onClick={() => {
+              setDiagnosticOutput(prev => ({ ...prev, secondaryProfile: secondCode }));
+              proceedAfterSecondary();
+            }}
+          />
+          <SecondaryButton
+            label="No, just the first"
+            onClick={() => {
+              setDiagnosticOutput(prev => ({ ...prev, secondaryProfile: null }));
+              proceedAfterSecondary();
+            }}
+          />
+        </div>
+      </Shell>
+    );
+  }
+
+  // ==========================================================================
   // PHASE: CLARIFICATION QUESTIONS (FIX 8)
   // ==========================================================================
   if (phase === "clarify" && diagnosticOutput) {
@@ -1692,9 +1750,24 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
             Your movement profile
           </h2>
 
-          <div className="text-[28px] sm:text-[34px] font-extrabold text-primary leading-tight mb-4">
+          <div className="mb-1">
+            <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Primary</span>
+          </div>
+          <div className="text-[28px] sm:text-[34px] font-extrabold text-primary leading-tight mb-2">
             {displayInfo.name}
           </div>
+
+          {diagnosticOutput.secondaryProfile && (() => {
+            const secDisplay = PROFILE_DISPLAY[diagnosticOutput.secondaryProfile] || { name: diagnosticOutput.secondaryProfile };
+            return (
+              <div className="mb-4">
+                <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Secondary</span>
+                <div className="text-[20px] sm:text-[24px] font-bold text-secondary leading-tight mt-0.5">
+                  {secDisplay.name}
+                </div>
+              </div>
+            );
+          })()}
 
           <span className={`inline-block px-3 py-1 rounded-full text-[12px] font-bold ${confBadgeClass} mb-6`}>
             {confidence === "High" ? "High confidence profile" : confidence === "Medium" ? "Good confidence — may refine over first sessions" : "Initial profile — will refine over your first sessions"}

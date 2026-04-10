@@ -35,8 +35,9 @@ const FORCED_PHASE: Partial<Record<MovementCategory, SessionPhase[]>> = {
   'Restorative': ['closure'],
 };
 
-function maxPeakPoses(duration_minutes: SessionDuration, irritability: number = 0): number {
-  if (irritability >= 3) return 1; // cap peak to 1 when irritability is high
+function maxPeakPoses(duration_minutes: SessionDuration, irritability: number = 0, hasSecondaryProfile: boolean = false): number {
+  if (irritability >= 3) return 1;
+  if (hasSecondaryProfile) return 1; // stricter phase limits with secondary profile
   return duration_minutes <= 20 ? 1 : 2;
 }
 
@@ -96,9 +97,9 @@ function calculatePhaseLimits(session_size: number, max_peaks: number): Record<S
   return { arrival, preparation, main_build, peak, closure };
 }
 
-export function sequenceSession(selected_poses: SelectedPose[], duration_minutes: SessionDuration, irritability: number = 0): E3Result {
+export function sequenceSession(selected_poses: SelectedPose[], duration_minutes: SessionDuration, irritability: number = 0, hasSecondaryProfile: boolean = false): E3Result {
   const session_size = selected_poses.length;
-  const max_peaks    = maxPeakPoses(duration_minutes, irritability);
+  const max_peaks    = maxPeakPoses(duration_minutes, irritability, hasSecondaryProfile);
   const phase_limits = calculatePhaseLimits(session_size, max_peaks);
   const phase_counts: Record<SessionPhase, number> = { arrival: 0, preparation: 0, main_build: 0, peak: 0, closure: 0 };
 
@@ -148,6 +149,7 @@ export interface FullSessionResult {
 
 export function generateSession(request: SessionRequest): FullSessionResult {
   const e2 = buildSession(request);
-  const e3 = sequenceSession(e2.selected_poses, request.duration_minutes, request.irritability);
+  const hasSecondary = request.user_profile.some(ap => ap.secondary != null);
+  const e3 = sequenceSession(e2.selected_poses, request.duration_minutes, request.irritability, hasSecondary);
   return { e2, e3 };
 }

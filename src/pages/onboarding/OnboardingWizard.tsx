@@ -469,6 +469,7 @@ export default function OnboardingWizard() {
                   diagnosticResult: result,
                   diagnosticArea: result.area,
                   diagnosticProfile: result.primary,
+                  diagnosticSecondaryProfile: result.secondaryProfile || null,
                   diagnosticIrritability: result.irritability ?? 0,
                   irritability: result.irritability ?? 0,
                   acuity: result.acuity ?? "unknown",
@@ -515,6 +516,21 @@ export default function OnboardingWizard() {
                     <span className="text-xs text-muted-foreground">{profileInfo.desc}</span>
                   </div>
                 </div>
+                {diagnosticResult.secondaryProfile && (() => {
+                  const secInfo = PROFILE_LABELS[diagnosticResult.secondaryProfile] || { label: diagnosticResult.secondaryProfile, desc: "" };
+                  return (
+                    <>
+                      <hr className="border-border" />
+                      <div className="flex items-start justify-between gap-3">
+                        <span className="text-muted-foreground text-sm shrink-0">Secondary Profile</span>
+                        <div className="text-right">
+                          <span className="font-semibold text-secondary/70 block">{secInfo.label}</span>
+                          <span className="text-xs text-muted-foreground">{secInfo.desc}</span>
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
                 <hr className="border-border" />
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground text-sm">Sensitivity</span>
