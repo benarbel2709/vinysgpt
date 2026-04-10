@@ -246,6 +246,7 @@ export const CONDITION_RELEVANCE_KEY: Record<ConditionKey, string> = {
   osteoporosis: "backPain",
   dysautonomia_pots: "fibro",
   endometriosis: "fibro",
+  pcos: "fibro",
 };
 
 /** Condition → safety tag mapping */
@@ -293,6 +294,7 @@ export const CONDITION_SAFETY_TAG: Record<ConditionKey, string> = {
   osteoporosis: "universalSafe",
   dysautonomia_pots: "universalSafe",
   endometriosis: "universalSafe",
+  pcos: "universalSafe",
 };
 
 /** Condition weights for scoring */
@@ -340,6 +342,7 @@ export const CONDITION_WEIGHT: Record<ConditionKey, number> = {
   osteoporosis: 1.2,
   dysautonomia_pots: 1.2,
   endometriosis: 1.15,
+  pcos: 1.15,
 };
 
 /** Condition → adapter prefix for exercise ID generation */
@@ -387,6 +390,7 @@ export const CONDITION_PREFIX: Record<ConditionKey, string> = {
   osteoporosis: "osteo_",
   dysautonomia_pots: "pots_",
   endometriosis: "endo_",
+  pcos: "pcos_",
 };
 
 // ═══════════════════════════════════
@@ -544,4 +548,5 @@ export const CONDITION_TIPS: Record<ConditionKey, string> = {
   osteoporosis: "Bone-protective practice — weight-bearing movement without spinal flexion risk.",
   dysautonomia_pots: "Autonomic support — reclined and seated work with gradual postural transitions.",
   endometriosis: "Gentle pelvic and hormonal support — breath-first pacing with careful intensity.",
+  pcos: "Hormonal balance support — gentle movement, stress reduction and energy-aware pacing.",
 };
