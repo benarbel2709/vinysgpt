@@ -49,7 +49,8 @@ export type ConditionKey =
   // ── Clinical modifier conditions ──
   | "osteoporosis"
   | "dysautonomia_pots"
-  | "endometriosis";
+  | "endometriosis"
+  | "pcos";
 
 export type ExerciseCategory = "breath" | "mobility" | "stability" | "release";
 

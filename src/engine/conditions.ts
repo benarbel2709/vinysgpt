@@ -56,6 +56,7 @@ export const LEGACY_CONDITION_MAP: Record<ConditionKey, ConditionIdV2> = {
   osteoporosis: "osteoporosis",
   dysautonomia_pots: "long_covid",
   endometriosis: "hormonal_fatigue",
+  pcos: "hormonal_fatigue",
 };
 
 // ═══════════════════════════════════
