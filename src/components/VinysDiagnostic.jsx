@@ -1385,17 +1385,20 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
           redFlagsPassed: true,
         };
         setDiagnosticOutput(result);
-        
-        // Determine if clarification is needed based on confidence
-        if (result.confidence === "High") {
+
+        // Check for secondary profile confirmation
+        const resultScores = result.scores || {};
+        const ranked = Object.entries(resultScores).sort(([, a], [, b]) => b - a);
+        const primaryScore = resultScores[result.primary] || 0;
+        const secondEntry = ranked.find(([p]) => p !== result.primary && resultScores[p] > 0);
+        const secondScore = secondEntry ? secondEntry[1] : 0;
+        const shouldAskSecondary = secondEntry && secondScore > 0 && secondScore < primaryScore;
+
+        if (shouldAskSecondary) {
+          setPhase("secondary_confirm");
+        } else if (result.confidence === "High") {
           setPhase("summary");
-        } else if (result.confidence === "Medium") {
-          setClarifyStep(0);
-          setClarifyAnswers({});
-          setSelected(null);
-          setPhase("clarify");
         } else {
-          // Low confidence — 2 questions
           setClarifyStep(0);
           setClarifyAnswers({});
           setSelected(null);
