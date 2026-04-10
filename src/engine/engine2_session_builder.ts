@@ -152,6 +152,83 @@ function findGuaranteedPose(category: MovementCategory, pool: SuitedPose[], sele
   return pool.find(p => p.exercise.movement_category === category && !selected_ids.has(p.exercise.id) && !p.has_modification_gap) || null;
 }
 
+// ── Systemic condition scoring (for flows without body-area diagnostic) ──────
+
+interface SystemicModifiers {
+  loadCeilingMultiplier: number;
+  maxComplexity: number;
+  preferredCategories: Set<MovementCategory>;
+  penalizedCategories: Set<MovementCategory>;
+  preferLowVarRank: boolean;
+}
+
+/**
+ * Maps condition keys to engine-level modifiers using V2 exercise properties.
+ * Merges multiple conditions — takes the most conservative value for each modifier.
+ */
+function resolveSystemicModifiers(conditions: string[]): SystemicModifiers {
+  const PRESETS: Record<string, Partial<SystemicModifiers>> = {
+    menopause:              { loadCeilingMultiplier: 0.85, maxComplexity: 3, preferLowVarRank: true },
+    perimenopause:          { loadCeilingMultiplier: 0.85, maxComplexity: 3, preferLowVarRank: true },
+    pcos:                   { loadCeilingMultiplier: 0.85, maxComplexity: 3, preferLowVarRank: true },
+    hormonal_fatigue:       { loadCeilingMultiplier: 0.85, maxComplexity: 3, preferLowVarRank: true },
+    endometriosis:          { loadCeilingMultiplier: 0.85, maxComplexity: 3, preferLowVarRank: true },
+    long_covid:             { loadCeilingMultiplier: 0.70, maxComplexity: 2, preferLowVarRank: true },
+    post_illness:           { loadCeilingMultiplier: 0.75, maxComplexity: 2, preferLowVarRank: true },
+    fibromyalgia:           { loadCeilingMultiplier: 0.75, maxComplexity: 3, preferLowVarRank: true },
+    chronic_fatigue_syndrome: { loadCeilingMultiplier: 0.70, maxComplexity: 2, preferLowVarRank: true },
+    stress_anxiety:         { loadCeilingMultiplier: 0.90, maxComplexity: 3, preferLowVarRank: false },
+    burnout:                { loadCeilingMultiplier: 0.85, maxComplexity: 3, preferLowVarRank: true },
+  };
+
+  const preferred: Set<MovementCategory> = new Set(['Restorative', 'Breath']);
+  let loadMul = 1;
+  let maxComp = 4;
+  let preferLow = false;
+
+  for (const cond of conditions) {
+    const preset = PRESETS[cond];
+    if (!preset) continue;
+    if (preset.loadCeilingMultiplier != null) loadMul = Math.min(loadMul, preset.loadCeilingMultiplier);
+    if (preset.maxComplexity != null) maxComp = Math.min(maxComp, preset.maxComplexity);
+    if (preset.preferLowVarRank) preferLow = true;
+  }
+
+  return {
+    loadCeilingMultiplier: loadMul,
+    maxComplexity: maxComp as 1 | 2 | 3 | 4,
+    preferredCategories: preferred,
+    penalizedCategories: new Set(['Upper Limb Weight Bearing']),
+    preferLowVarRank: preferLow,
+  };
+}
+
+/**
+ * Re-scores the E1 pool for systemic conditions:
+ * - Filters out exercises exceeding complexity cap
+ * - Boosts preferred categories (Restorative, Breath) by +2
+ * - Penalizes high-demand categories by -1
+ * - Sorts by adjusted score, then var_rank ascending
+ */
+function applySystemicScoring(pool: SuitedPose[], mods: SystemicModifiers): SuitedPose[] {
+  const rescored = pool
+    .filter(p => p.exercise.complexity <= mods.maxComplexity)
+    .map(p => {
+      let bonus = 0;
+      if (mods.preferredCategories.has(p.exercise.movement_category)) bonus += 2;
+      if (mods.penalizedCategories.has(p.exercise.movement_category)) bonus -= 1;
+      return { ...p, clinical_score: p.clinical_score + bonus };
+    });
+
+  rescored.sort((a, b) => {
+    if (b.clinical_score !== a.clinical_score) return b.clinical_score - a.clinical_score;
+    if (mods.preferLowVarRank) return ((a.exercise.var_rank ?? 0) - (b.exercise.var_rank ?? 0));
+    return (a.var_rank ?? 99) - (b.var_rank ?? 99);
+  });
+
+  return rescored;
+}
+
 export function buildSession(request: SessionRequest): E2Result {
   const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0, ageGroup, conditions = [] } = request;
   let target       = targetSize(duration_minutes, target_size_override);
