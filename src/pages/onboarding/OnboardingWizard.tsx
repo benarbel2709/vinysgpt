@@ -526,7 +526,7 @@ export default function OnboardingWizard() {
           );
         })()}
 
-        {/* ═══ STEP 3: Restrictions (FIX 6 Step A) ═══ */}
+        {/* ═══ STEP 3: Health Considerations ═══ */}
         {step === 3 && (
           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
             <div className="flex flex-col" style={{ gap: "10px" }}>
@@ -545,6 +545,45 @@ export default function OnboardingWizard() {
                   </button>
                 );
               })}
+
+              {/* Diagnosis section label */}
+              <p className="text-xs text-muted-foreground pt-4 pb-1 text-left">
+                Have you received a medical diagnosis for any of the following?
+              </p>
+
+              {DIAGNOSIS_OPTIONS.map((d) => {
+                const isChecked = selectedDiagnoses.includes(d.key);
+                return (
+                  <button
+                    key={d.key}
+                    onClick={() => toggleDiagnosis(d.key)}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-[8px] border-2 transition-all text-left ${isChecked ? "border-secondary bg-secondary/10" : "border-border bg-card"}`}
+                  >
+                    <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${isChecked ? "border-secondary bg-secondary" : "border-border bg-card"}`}>
+                      {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
+                    </div>
+                    <span className="text-sm font-medium text-foreground">{d.label}</span>
+                  </button>
+                );
+              })}
+
+              {/* None of the above */}
+              <button
+                onClick={() => toggleRestriction(NONE_OPTION)}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-[8px] border-2 transition-all text-left ${
+                  restrictions.length === 0 && selectedDiagnoses.length === 0
+                    ? "border-muted-foreground/30 bg-card"
+                    : "border-border bg-card"
+                }`}
+              >
+                <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${
+                  restrictions.length === 0 && selectedDiagnoses.length === 0
+                    ? "border-muted-foreground/30 bg-card"
+                    : "border-border bg-card"
+                }`}>
+                </div>
+                <span className="text-sm font-medium text-foreground">{NONE_OPTION}</span>
+              </button>
             </div>
             <p className="text-xs text-muted-foreground mt-4">
               Not sure? Skip for now — you can update this in your profile later.
