@@ -16,6 +16,8 @@ export interface SessionRequest {
   target_size_override?: number;
   /** Irritability score 0–5 from onboarding diagnostic */
   irritability?: number;
+  /** Age group from onboarding */
+  ageGroup?: string;
 }
 
 export interface SelectedPose {
@@ -149,13 +151,14 @@ function findGuaranteedPose(category: MovementCategory, pool: SuitedPose[], sele
 }
 
 export function buildSession(request: SessionRequest): E2Result {
-  const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0 } = request;
+  const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0, ageGroup } = request;
   let target       = targetSize(duration_minutes, target_size_override);
   const vr_ceiling = VAR_RANK_CEILING[stage][experience_level];
   let load_ceil    = target * LOAD_CEILING_MULTIPLIER[experience_level];
 
   // ── Irritability adjustments (applied as final layer) ──────────────
-  if (irritability >= 3) {
+  const useIrritabilityBias = irritability >= 3;
+  if (useIrritabilityBias) {
     load_ceil = Math.floor(load_ceil * 0.75); // reduce load ceiling by 25%
   }
   if (irritability >= 4) {
@@ -168,12 +171,20 @@ export function buildSession(request: SessionRequest): E2Result {
     load_ceil = Math.floor(load_ceil * 0.85); // 15% more conservative load ceiling
   }
 
+  // ── Age group adjustments (stack with other modifiers) ──────────────
+  const isOlderAdult = ageGroup === '60_69' || ageGroup === '70_plus';
+  if (ageGroup === '70_plus') {
+    load_ceil = Math.floor(load_ceil * 0.80); // reduce by 20%
+  } else if (ageGroup === '60_69') {
+    load_ceil = Math.floor(load_ceil * 0.90); // reduce by 10%
+  }
+
   const pool_size  = target * 3;
 
   const e1 = runEngine1(user_profile);
-  // When irritability >= 3, bias toward simpler exercises by preferring lower var_rank
+  // When irritability >= 3 OR older adult, bias toward simpler exercises by preferring lower var_rank
   let candidate_pool = filterByVarRankCeiling(e1.eligible_pool, vr_ceiling).slice(0, pool_size);
-  if (irritability >= 3) {
+  if (useIrritabilityBias || isOlderAdult) {
     candidate_pool.sort((a, b) => ((a.exercise.var_rank ?? 0) - (b.exercise.var_rank ?? 0)) || (b.clinical_score - a.clinical_score));
   }
 

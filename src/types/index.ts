@@ -91,6 +91,7 @@ export interface Profile {
   diagnosticArea?: string;
   diagnosticProfile?: string;
   diagnosticIrritability?: number;
+  ageGroup?: string;
 }
 
 export interface CurrentPlan {

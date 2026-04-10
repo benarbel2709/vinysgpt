@@ -38,6 +38,8 @@ export interface SessionServiceInput {
   targetSizeOverride?: number;
   /** Irritability score 0–5 from onboarding diagnostic */
   irritability?: number;
+  /** Age group from onboarding */
+  ageGroup?: string;
 }
 
 /** A single exercise ready for the workout player */
@@ -186,6 +188,7 @@ export function buildSessionInput(profile: {
   irritability?: number;
   energyLevel?: string;
   minutesPerSession?: number;
+  ageGroup?: string;
 }): SessionServiceInput {
   const diagnostic = profile.diagnosticResult || {
     area: profile.diagnosticArea || 'LB',
@@ -201,6 +204,7 @@ export function buildSessionInput(profile: {
     experienceLevel: mapEnergyToExperience(profile.energyLevel || 'medium'),
     durationMinutes: mapMinutesToDuration(profile.minutesPerSession || 20),
     irritability,
+    ageGroup: profile.ageGroup,
   };
 }
 
@@ -248,6 +252,7 @@ export function createSession(input: SessionServiceInput): PlayableSession {
     duration_minutes: input.durationMinutes,
     target_size_override: input.targetSizeOverride,
     irritability: input.irritability,
+    ageGroup: input.ageGroup,
   };
 
   const result: FullSessionResult = generateSession(request);
