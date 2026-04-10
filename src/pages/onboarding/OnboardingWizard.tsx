@@ -208,7 +208,7 @@ export default function OnboardingWizard() {
     } as any);
 
     const assessmentId = `assessment_${Date.now()}`;
-    const allRestrictions = restrictions.filter(r => r !== "None of the above");
+    const allRestrictions = restrictions.filter(r => r !== NONE_OPTION);
     if (restrictionOther.trim()) allRestrictions.push(restrictionOther.trim());
     const data: GenericAssessmentData = {
       mainIssue: selected.join(", "),
