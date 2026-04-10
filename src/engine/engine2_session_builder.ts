@@ -153,7 +153,7 @@ function findGuaranteedPose(category: MovementCategory, pool: SuitedPose[], sele
 }
 
 export function buildSession(request: SessionRequest): E2Result {
-  const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0, ageGroup } = request;
+  const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0, ageGroup, conditions = [] } = request;
   let target       = targetSize(duration_minutes, target_size_override);
   const vr_ceiling = VAR_RANK_CEILING[stage][experience_level];
   let load_ceil    = target * LOAD_CEILING_MULTIPLIER[experience_level];
@@ -181,11 +181,25 @@ export function buildSession(request: SessionRequest): E2Result {
     load_ceil = Math.floor(load_ceil * 0.90); // reduce by 10%
   }
 
+  // ── Systemic condition modifiers (only when no body-area profile) ──
+  const isSystemicFlow = user_profile.length === 0 && conditions.length > 0;
+  const systemicMods = isSystemicFlow ? resolveSystemicModifiers(conditions) : null;
+  if (systemicMods) {
+    load_ceil = Math.floor(load_ceil * systemicMods.loadCeilingMultiplier);
+  }
+
   const pool_size  = target * 3;
 
   const e1 = runEngine1(user_profile);
+
+  // For systemic flows, re-score the pool using condition-aware heuristics
+  let candidate_pool = filterByVarRankCeiling(e1.eligible_pool, vr_ceiling);
+  if (isSystemicFlow && systemicMods) {
+    candidate_pool = applySystemicScoring(candidate_pool, systemicMods);
+  }
+  candidate_pool = candidate_pool.slice(0, pool_size);
+
   // When irritability >= 3 OR older adult, bias toward simpler exercises by preferring lower var_rank
-  let candidate_pool = filterByVarRankCeiling(e1.eligible_pool, vr_ceiling).slice(0, pool_size);
   if (useIrritabilityBias || isOlderAdult) {
     candidate_pool.sort((a, b) => ((a.exercise.var_rank ?? 0) - (b.exercise.var_rank ?? 0)) || (b.clinical_score - a.clinical_score));
   }
