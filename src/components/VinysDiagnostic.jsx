@@ -1578,6 +1578,61 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
   }
 
   // ==========================================================================
+  // PHASE: SECONDARY PROFILE CONFIRMATION
+  // ==========================================================================
+  if (phase === "secondary_confirm" && diagnosticOutput) {
+    const resultScores = diagnosticOutput.scores || {};
+    const ranked = Object.entries(resultScores).sort(([, a], [, b]) => b - a);
+    const secondEntry = ranked.find(([p]) => p !== diagnosticOutput.primary && resultScores[p] > 0);
+    const secondCode = secondEntry ? secondEntry[0] : null;
+    const secondDisplay = secondCode ? (PROFILE_DISPLAY[secondCode] || { name: secondCode, description: "" }) : null;
+
+    const proceedAfterSecondary = () => {
+      if (diagnosticOutput.confidence === "High") {
+        setPhase("summary");
+      } else {
+        setClarifyStep(0);
+        setClarifyAnswers({});
+        setSelected(null);
+        setPhase("clarify");
+      }
+    };
+
+    return (
+      <Shell>
+        <div className="mb-8">
+          <h2 className="text-[22px] font-bold text-foreground leading-snug mb-2">We noticed a second movement pattern</h2>
+          <p className="text-[16px] text-foreground leading-[1.65] font-medium mb-1">Does this also affect you?</p>
+        </div>
+
+        {secondDisplay && (
+          <div className="p-5 rounded-2xl bg-card border border-border shadow-calm mb-6">
+            <span className="text-[15px] font-bold text-secondary block mb-1">{secondDisplay.name}</span>
+            <span className="text-[14px] text-muted-foreground leading-relaxed">{secondDisplay.description}</span>
+          </div>
+        )}
+
+        <div className="space-y-3">
+          <PrimaryButton
+            label="Yes, this also affects me"
+            onClick={() => {
+              setDiagnosticOutput(prev => ({ ...prev, secondaryProfile: secondCode }));
+              proceedAfterSecondary();
+            }}
+          />
+          <SecondaryButton
+            label="No, just the first"
+            onClick={() => {
+              setDiagnosticOutput(prev => ({ ...prev, secondaryProfile: null }));
+              proceedAfterSecondary();
+            }}
+          />
+        </div>
+      </Shell>
+    );
+  }
+
+  // ==========================================================================
   // PHASE: CLARIFICATION QUESTIONS (FIX 8)
   // ==========================================================================
   if (phase === "clarify" && diagnosticOutput) {
