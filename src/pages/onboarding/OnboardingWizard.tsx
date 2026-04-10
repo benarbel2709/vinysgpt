@@ -559,6 +559,25 @@ export default function OnboardingWizard() {
         {/* ═══ STEP 3: Health Considerations ═══ */}
         {step === 3 && (
           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
+            {/* Age group question */}
+            <div className="mb-6 text-left">
+              <p className="text-sm font-semibold text-foreground mb-3">What is your age group?</p>
+              <div className="flex flex-wrap gap-2">
+                {AGE_GROUP_OPTIONS.map((ag) => {
+                  const isSelected = ageGroup === ag.value;
+                  return (
+                    <button
+                      key={ag.value}
+                      onClick={() => setAgeGroup(prev => prev === ag.value ? "" : ag.value)}
+                      className={`px-4 py-2 rounded-[8px] border-2 text-sm font-medium transition-all ${isSelected ? "border-secondary bg-secondary/10 text-foreground" : "border-border bg-card text-foreground hover:border-secondary/40"}`}
+                    >
+                      {ag.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="flex flex-col" style={{ gap: "10px" }}>
               {RESTRICTION_OPTIONS.map((r) => {
                 const isChecked = restrictions.includes(r);
@@ -601,13 +620,13 @@ export default function OnboardingWizard() {
               <button
                 onClick={() => toggleRestriction(NONE_OPTION)}
                 className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-[8px] border-2 transition-all text-left ${
-                  restrictions.length === 0 && selectedDiagnoses.length === 0
+                  restrictions.length === 0 && selectedDiagnoses.length === 0 && !ageGroup
                     ? "border-muted-foreground/30 bg-card"
                     : "border-border bg-card"
                 }`}
               >
                 <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${
-                  restrictions.length === 0 && selectedDiagnoses.length === 0
+                  restrictions.length === 0 && selectedDiagnoses.length === 0 && !ageGroup
                     ? "border-muted-foreground/30 bg-card"
                     : "border-border bg-card"
                 }`}>
