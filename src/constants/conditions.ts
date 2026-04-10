@@ -108,6 +108,7 @@ export const CONDITIONS: ConditionInfo[] = [
   { key: "hormonal_fatigue", label: "Hormonal Fatigue", description: "Low-intensity hormonal balance support" },
   { key: "thyroid_conditions", label: "Thyroid Conditions", description: "Gentle movement for thyroid support" },
   { key: "endometriosis", label: "Endometriosis", description: "Gentle pelvic and hormonal support" },
+  { key: "pcos", label: "PCOS", description: "Hormonal balance and energy-aware movement" },
   // ── Posture & Functional ──
   { key: "postural_fatigue", label: "Postural Fatigue", description: "Relieving posture-related strain" },
   { key: "desk_tension", label: "Desk-Related Tension", description: "Counteracting prolonged sitting" },
@@ -121,6 +122,10 @@ export const CONDITIONS: ConditionInfo[] = [
   { key: "cross_training", label: "Cross Training", description: "Complement other workouts" },
   { key: "general_yoga", label: "General Yoga", description: "Balanced practice" },
   { key: "weight_management", label: "Weight Management", description: "Gentle movement for metabolic health" },
+  // ── Area-based ──
+  { key: "ankle_pain", label: "Ankle Pain", description: "Ankle stability and foot mechanics" },
+  { key: "upper_back_pain", label: "Upper Back Pain", description: "Thoracic mobility and postural relief" },
+  { key: "wrist_pain", label: "Wrist Pain", description: "Wrist and hand care" },
 ];
 
 export const CONDITIONS_LIST: ConditionKey[] = CONDITIONS.map(c => c.key);
