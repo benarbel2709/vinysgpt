@@ -136,6 +136,9 @@ export default function OnboardingWizard() {
   const [durationSelected, setDurationSelected] = useState(false);
   const [sessionsSelected, setSessionsSelected] = useState(false);
   const [showStartOverConfirm, setShowStartOverConfirm] = useState(false);
+  const [isSystemicFlow, setIsSystemicFlow] = useState(false);
+  const [systemicConditionKey, setSystemicConditionKey] = useState<ConditionKey | null>(null);
+  const [localIrritability, setLocalIrritability] = useState(2);
 
   const toggle = useCallback((c: ConditionKey) => {
     setSelected((p) => (p.includes(c) ? p.filter((x) => x !== c) : [...p, c]));
@@ -203,22 +206,43 @@ export default function OnboardingWizard() {
   };
 
   const handleBuild = () => {
-    // Ensure equipment is never empty
     const finalEquipment = equipment.length > 0 ? equipment : ["mat"];
 
-    updateProfile({
-      conditions: selected,
-      energyLevel,
-      flareToday: false,
-      sessionsPerWeek,
-      minutesPerSession,
-      practiceTime,
-      closingPreference: closingPref as "savasana" | "meditation" | "body_rest",
-      availableEquipment: finalEquipment,
-      restrictions: restrictions.filter(r => r !== NONE_OPTION),
-      diagnoses: selectedDiagnoses,
-      ageGroup: ageGroup || undefined,
-    } as any);
+    // For systemic flow, inject diagnostic-like data from condition
+    if (isSystemicFlow && systemicConditionKey) {
+      updateProfile({
+        conditions: [systemicConditionKey],
+        energyLevel,
+        flareToday: false,
+        sessionsPerWeek: 3,
+        minutesPerSession,
+        practiceTime: "morning",
+        closingPreference: closingPref as "savasana" | "meditation" | "body_rest",
+        availableEquipment: finalEquipment,
+        restrictions: [],
+        diagnoses: [],
+        diagnosticResult: { area: 'SYSTEMIC', primary: 'ST', secondary: null },
+        diagnosticArea: 'SYSTEMIC',
+        diagnosticProfile: 'ST',
+        diagnosticIrritability: localIrritability,
+        irritability: localIrritability,
+        ageGroup: ageGroup || undefined,
+      } as any);
+    } else {
+      updateProfile({
+        conditions: selected,
+        energyLevel,
+        flareToday: false,
+        sessionsPerWeek,
+        minutesPerSession,
+        practiceTime,
+        closingPreference: closingPref as "savasana" | "meditation" | "body_rest",
+        availableEquipment: finalEquipment,
+        restrictions: restrictions.filter(r => r !== NONE_OPTION),
+        diagnoses: selectedDiagnoses,
+        ageGroup: ageGroup || undefined,
+      } as any);
+    }
 
     const assessmentId = `assessment_${Date.now()}`;
     const allRestrictions = restrictions.filter(r => r !== NONE_OPTION);
@@ -232,19 +256,16 @@ export default function OnboardingWizard() {
     };
     const assessment: Assessment = { id: assessmentId, createdAt: new Date().toISOString(), type: "generic", data };
 
-    // Map experience level from energy answer
     const expMap: Record<string, 'beginner' | 'intermediate' | 'advanced'> = {
       low: 'beginner', medium: 'intermediate', high: 'advanced',
     };
 
-    // Build userProfile from selected area + any diagnostic areas
     const areaCodes: string[] = [];
-    if (selectedArea) {
+    if (selectedArea && !isSystemicFlow) {
       const code = AREA_TO_ENGINE[selectedArea];
       if (code) areaCodes.push(code);
     }
 
-    // V2 engine state: save diagnostic output + defaults
     updateState({
       disclaimerAccepted: true,
       onboardingCompleted: true,
@@ -261,7 +282,13 @@ export default function OnboardingWizard() {
   };
 
   const handleNext = () => {
-    if (step < TOTAL_STEPS - 1) setStep(step + 1);
+    if (step < TOTAL_STEPS - 1) {
+      if (isSystemicFlow) {
+        if (step === 3) { setStep(5); return; }
+        if (step === 5) { setStep(7); return; }
+      }
+      setStep(step + 1);
+    }
   };
 
   const handleBack = () => {
@@ -269,7 +296,12 @@ export default function OnboardingWizard() {
       navigate("/");
       return;
     }
-    // Skip step 1 (diagnostic) when going back — go to conditions
+    if (isSystemicFlow) {
+      if (step === 3) { setStep(0); setIsSystemicFlow(false); setSystemicConditionKey(null); setSelected([]); return; }
+      if (step === 5) { setStep(3); return; }
+      if (step === 7) { setStep(5); return; }
+      if (step === 8) { setStep(7); return; }
+    }
     if (step === 2) {
       setStep(0);
       return;
@@ -281,7 +313,7 @@ export default function OnboardingWizard() {
     "Where does your body need support?",
     "Body diagnostic",
     "Here's what we found",
-    "Any health considerations we should know about?",
+    isSystemicFlow ? "How are you feeling today?" : "Any health considerations we should know about?",
     "What equipment do you have?",
     "How long should each session be?",
     "How would you like to practice?",
@@ -326,9 +358,11 @@ export default function OnboardingWizard() {
 
   const AREA_LABELS: Record<string, string> = { LB: "Lower Back", HIP: "Hip", KNEE: "Knee", ANKLE: "Ankle & Foot", NECK: "Neck", UBACK: "Upper Back", WRIST: "Wrist & Hand", SHLDR: "Shoulder" };
 
-  // Post-assessment step counter (steps 3-7 = "Step 1 of 5" through "Step 5 of 5")
-  const POST_ASSESSMENT_TOTAL = 5;
+  // Post-assessment step counter
+  const SYSTEMIC_STEP_MAP: Record<number, number> = { 3: 1, 5: 2, 7: 3 };
+  const POST_ASSESSMENT_TOTAL = isSystemicFlow ? 3 : 5;
   const getPostAssessmentStep = (s: number) => {
+    if (isSystemicFlow) return SYSTEMIC_STEP_MAP[s] || null;
     if (s >= 3 && s <= 7) return s - 2;
     return null;
   };
@@ -373,9 +407,14 @@ export default function OnboardingWizard() {
             </h1>
           </>
         )}
-        {step === 3 && (
+        {step === 3 && !isSystemicFlow && (
           <p className="text-muted-foreground text-center text-sm mt-1 shrink-0">
             Select everything that applies — this helps us personalise your practice and filter out anything that could cause harm.
+          </p>
+        )}
+        {step === 3 && isSystemicFlow && (
+          <p className="text-muted-foreground text-center text-sm mt-1 shrink-0">
+            This helps us set the right intensity for your practice.
           </p>
         )}
         {step === 8 && (
@@ -443,18 +482,77 @@ export default function OnboardingWizard() {
             );
           };
 
+          const SYSTEMIC_CONDITIONS = [
+            { id: "MENO", label: "Menopause & Hormonal Changes", desc: "Hot flashes, joint pain, mood or energy shifts", conditionKey: "menopause" as ConditionKey, color: "#9B4A6F" },
+            { id: "LCOVID", label: "Long COVID & Post-Viral Fatigue", desc: "Fatigue, breathlessness, or lingering symptoms", conditionKey: "long_covid" as ConditionKey, color: "#4A7B7B" },
+            { id: "FIBRO", label: "Fibromyalgia", desc: "Widespread pain, fatigue, or sensitivity", conditionKey: "fibromyalgia" as ConditionKey, color: "#7B4A9B" },
+            { id: "CFS", label: "Chronic Fatigue (ME/CFS)", desc: "Low energy, post-exertional malaise", conditionKey: "chronic_fatigue_syndrome" as ConditionKey, color: "#9B7B4A" },
+            { id: "STRESS", label: "General Stress & Anxiety", desc: "Tension, sleep issues, nervous system overload", conditionKey: "stress_anxiety" as ConditionKey, color: "#4A6B9B" },
+          ];
+
+          const SYSTEMIC_ICONS: Record<string, React.ReactNode> = {
+            MENO:   <path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2zm0 3c-1.7 0-3 1.3-3 3s1.3 3 3 3" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
+            LCOVID: <><path d="M8 1v3M8 12v3M1 8h3M12 8h3" stroke="currentColor" strokeWidth="1.2"/><circle cx="8" cy="8" r="3" stroke="currentColor" fill="none" strokeWidth="1.2"/></>,
+            FIBRO:  <><circle cx="8" cy="8" r="6" stroke="currentColor" fill="none" strokeWidth="1.2"/><circle cx="5" cy="6" r="1" fill="currentColor"/><circle cx="11" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="10" r="1" fill="currentColor"/><circle cx="5" cy="11" r="1" fill="currentColor"/><circle cx="11" cy="11" r="1" fill="currentColor"/></>,
+            CFS:    <><rect x="4" y="5" width="8" height="8" rx="2" stroke="currentColor" fill="none" strokeWidth="1.2"/><line x1="6" y1="3" x2="10" y2="3" stroke="currentColor" strokeWidth="1.2"/><rect x="5.5" y="9" width="5" height="3" rx="0.5" fill="currentColor" opacity="0.2"/></>,
+            STRESS: <path d="M2 10Q5 4 8 10Q11 16 14 10M2 7Q5 1 8 7Q11 13 14 7" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
+          };
+
+          const SystemicCard = ({ cond }: { cond: typeof SYSTEMIC_CONDITIONS[0] }) => {
+            const accent = cond.color;
+            const isSelected = selectedArea === cond.id;
+            return (
+              <button
+                onClick={() => {
+                  setSelectedArea(cond.id);
+                  setIsSystemicFlow(true);
+                  setSystemicConditionKey(cond.conditionKey);
+                  setSelected([cond.conditionKey]);
+                  setTimeout(() => setStep(3), 200);
+                }}
+                style={{
+                  padding: "14px 14px 12px", borderRadius: 16,
+                  border: isSelected ? `2px solid ${accent}` : "1.5px solid #E4DDD6",
+                  background: isSelected ? `${accent}15` : "#FFFFFF",
+                  textAlign: "left" as const, cursor: "pointer", position: "relative" as const,
+                  overflow: "hidden" as const, transition: "all 0.15s ease",
+                  WebkitTapHighlightColor: "transparent",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+                  display: "flex", flexDirection: "column" as const, gap: 6, minHeight: 90,
+                }}
+              >
+                {isSelected && (
+                  <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: accent, borderRadius: "16px 0 0 16px" }} />
+                )}
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: `${accent}1A`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: accent }}>
+                      {SYSTEMIC_ICONS[cond.id]}
+                    </svg>
+                  </div>
+                  <span style={{ fontSize: 15, fontWeight: 700, color: "#1C2B26", lineHeight: 1.2 }}>{cond.label}</span>
+                </div>
+                <span style={{ fontSize: 12, color: "#7A8E89", lineHeight: 1.35 }}>{cond.desc}</span>
+              </button>
+            );
+          };
+
           return (
             <div className="w-full" style={{ marginTop: "16px", maxWidth: "520px", margin: "16px auto 0" }}>
               <p className="text-muted-foreground text-center text-[15px] mb-6 leading-relaxed">
-                Select the area you want to assess. We'll guide you through a movement session to understand your pattern.
+                Select the area you want to assess, or choose a whole-body condition below.
               </p>
               <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#7A8E89", textTransform: "uppercase" as const, marginBottom: 10 }}>UPPER BODY</div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
                 {upperBody.map(id => <AreaCard key={id} areaId={id} />)}
               </div>
               <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#7A8E89", textTransform: "uppercase" as const, marginBottom: 10 }}>LOWER BODY</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
                 {lowerBody.map(id => <AreaCard key={id} areaId={id} />)}
+              </div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#7A8E89", textTransform: "uppercase" as const, marginBottom: 10 }}>WHOLE BODY & SYSTEMIC CONDITIONS</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                {SYSTEMIC_CONDITIONS.map(cond => <SystemicCard key={cond.id} cond={cond} />)}
               </div>
             </div>
           );
@@ -556,8 +654,69 @@ export default function OnboardingWizard() {
           );
         })()}
 
-        {/* ═══ STEP 3: Health Considerations ═══ */}
-        {step === 3 && (
+        {/* ═══ STEP 3: Health Considerations / Systemic Energy Check ═══ */}
+        {step === 3 && isSystemicFlow && (
+          <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
+            {/* Energy level */}
+            <div className="mb-8 text-left">
+              <p className="text-sm font-semibold text-foreground mb-3">What's your energy level like right now?</p>
+              <div className="flex flex-wrap gap-2">
+                {([
+                  { value: "low" as EnergyLevel, label: "Low", desc: "Tired, need something gentle" },
+                  { value: "medium" as EnergyLevel, label: "Moderate", desc: "Steady, ready for balanced practice" },
+                  { value: "high" as EnergyLevel, label: "Good", desc: "Energised, can handle more" },
+                ] as const).map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setEnergyLevel(opt.value)}
+                    className={`flex-1 min-w-[100px] p-3 rounded-[12px] border-2 text-left transition-all ${energyLevel === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
+                  >
+                    <span className="font-semibold text-sm block text-foreground">{opt.label}</span>
+                    <span className="text-xs text-muted-foreground">{opt.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Sensitivity / irritability */}
+            <div className="mb-6 text-left">
+              <p className="text-sm font-semibold text-foreground mb-3">How sensitive or reactive is your body today?</p>
+              <div className="flex flex-col gap-2">
+                {([
+                  { value: 1, label: "Low", desc: "Feeling stable — I can handle normal intensity" },
+                  { value: 3, label: "Moderate", desc: "Somewhat reactive — keep it gentle" },
+                  { value: 5, label: "High", desc: "Very sensitive today — I need the gentlest approach" },
+                ] as const).map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setLocalIrritability(opt.value)}
+                    className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${localIrritability === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
+                  >
+                    <span className="font-semibold text-sm text-foreground">{opt.label}</span>
+                    <span className="text-xs text-muted-foreground ml-2">{opt.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Age group (optional) */}
+            <div className="text-left">
+              <p className="text-sm font-semibold text-foreground mb-3">What is your age group? <span className="font-normal text-muted-foreground">(optional)</span></p>
+              <div className="flex flex-wrap gap-2">
+                {AGE_GROUP_OPTIONS.map((ag) => (
+                  <button
+                    key={ag.value}
+                    onClick={() => setAgeGroup(prev => prev === ag.value ? "" : ag.value)}
+                    className={`px-4 py-2 rounded-[8px] border-2 text-sm font-medium transition-all ${ageGroup === ag.value ? "border-secondary bg-secondary/10 text-foreground" : "border-border bg-card text-foreground hover:border-secondary/40"}`}
+                  >
+                    {ag.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+        {step === 3 && !isSystemicFlow && (
           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
             {/* Age group question */}
             <div className="mb-6 text-left">
@@ -740,6 +899,10 @@ export default function OnboardingWizard() {
               setPracticeTime("morning");
               setShowStartOverConfirm(false);
               setDiagnosticResult(null);
+              setIsSystemicFlow(false);
+              setSystemicConditionKey(null);
+              setLocalIrritability(2);
+              setAgeGroup("");
             };
             const editRow = (lbl: string, value: string, targetStep: number) => (
               <div className="flex items-center justify-between">
