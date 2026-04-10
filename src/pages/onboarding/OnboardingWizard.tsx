@@ -267,7 +267,7 @@ export default function OnboardingWizard() {
     "Where does your body need support?",
     "Body diagnostic",
     "Here's what we found",
-    "Any movements to avoid?",
+    "Any health considerations we should know about?",
     "What equipment do you have?",
     "How long should each session be?",
     "How would you like to practice?",
@@ -361,7 +361,7 @@ export default function OnboardingWizard() {
         )}
         {step === 3 && (
           <p className="text-muted-foreground text-center text-sm mt-1 shrink-0">
-            This helps us filter out anything that could cause harm.
+            Select everything that applies — this helps us personalise your practice and filter out anything that could cause harm.
           </p>
         )}
         {step === 8 && (
