@@ -191,6 +191,7 @@ export function buildSessionInput(profile: {
   energyLevel?: string;
   minutesPerSession?: number;
   ageGroup?: string;
+  conditions?: string[];
 }): SessionServiceInput {
   const diagnostic = profile.diagnosticResult || {
     area: profile.diagnosticArea || 'LB',
@@ -207,6 +208,7 @@ export function buildSessionInput(profile: {
     durationMinutes: mapMinutesToDuration(profile.minutesPerSession || 20),
     irritability,
     ageGroup: profile.ageGroup,
+    conditions: profile.conditions,
   };
 }
 
@@ -255,6 +257,7 @@ export function createSession(input: SessionServiceInput): PlayableSession {
     target_size_override: input.targetSizeOverride,
     irritability: input.irritability,
     ageGroup: input.ageGroup,
+    conditions: input.conditions,
   };
 
   const result: FullSessionResult = generateSession(request);
