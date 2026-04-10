@@ -46,8 +46,31 @@ const RESTRICTION_OPTIONS = [
   "Currently under physiotherapy or medical care",
   "Osteoporosis or bone density concerns",
   "Balance issues or fall risk",
-  "None of the above",
 ];
+
+const DIAGNOSIS_OPTIONS: { label: string; key: string }[] = [
+  { label: "Herniated or bulging disc", key: "disc_herniation" },
+  { label: "Spinal stenosis", key: "spinal_stenosis" },
+  { label: "Scoliosis", key: "scoliosis" },
+  { label: "Spondylolisthesis", key: "spondylolisthesis" },
+  { label: "Osteoarthritis", key: "osteoarthritis" },
+  { label: "Rheumatoid arthritis", key: "rheumatoid_arthritis" },
+  { label: "Hypermobility (including EDS)", key: "hypermobility" },
+  { label: "Sacroiliac joint dysfunction", key: "si_joint" },
+  { label: "Sciatica or nerve impingement", key: "sciatica" },
+  { label: "Multiple sclerosis", key: "multiple_sclerosis" },
+  { label: "Parkinson's disease", key: "parkinsons" },
+  { label: "Heart condition or hypertension", key: "hypertension" },
+  { label: "Fibromyalgia", key: "fibromyalgia" },
+  { label: "Chronic fatigue syndrome (ME/CFS)", key: "chronic_fatigue" },
+  { label: "Lupus or other autoimmune condition", key: "autoimmune" },
+  { label: "Diabetes", key: "diabetes" },
+  { label: "Post-surgical recovery (spine or joint)", key: "post_surgical" },
+  { label: "Anxiety or PTSD", key: "anxiety_ptsd" },
+  { label: "Depression", key: "depression" },
+];
+
+const NONE_OPTION = "None of the above";
 
 const EQUIPMENT_CHOICES = [
   { key: "mat", label: "Yoga mat", alwaysOn: true },
@@ -90,6 +113,7 @@ export default function OnboardingWizard() {
   const [conditionDetails, setConditionDetails] = useState<Record<string, string[]>>({});
   const [diagnosticResult, setDiagnosticResult] = useState<any>(null);
   const [restrictions, setRestrictions] = useState<string[]>([]);
+  const [selectedDiagnoses, setSelectedDiagnoses] = useState<string[]>([]);
   const [restrictionOther, setRestrictionOther] = useState("");
   const [practiceTime, setPracticeTime] = useState<PracticeTime>(profile.practiceTime || "morning");
   const [minutesPerSession, setMinutesPerSession] = useState(profile.minutesPerSession || 20);
@@ -119,14 +143,17 @@ export default function OnboardingWizard() {
   }, []);
 
   const toggleRestriction = useCallback((r: string) => {
-    if (r === "None of the above") {
-      setRestrictions(prev => prev.includes(r) ? [] : ["None of the above"]);
-    } else {
-      setRestrictions(prev => {
-        const without = prev.filter(x => x !== "None of the above");
-        return without.includes(r) ? without.filter(x => x !== r) : [...without, r];
-      });
+    if (r === NONE_OPTION) {
+      // Clear everything
+      setRestrictions([]);
+      setSelectedDiagnoses([]);
+      return;
     }
+    setRestrictions(prev => prev.includes(r) ? prev.filter(x => x !== r) : [...prev, r]);
+  }, []);
+
+  const toggleDiagnosis = useCallback((key: string) => {
+    setSelectedDiagnoses(prev => prev.includes(key) ? prev.filter(x => x !== key) : [...prev, key]);
   }, []);
 
   const label = (c: string) =>
