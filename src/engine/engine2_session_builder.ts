@@ -162,6 +162,12 @@ export function buildSession(request: SessionRequest): E2Result {
     target = Math.max(3, target - 1); // remove one exercise from session
   }
 
+  // ── Secondary profile conservatism ──────────────
+  const hasSecondaryProfile = user_profile.some(ap => ap.secondary != null);
+  if (hasSecondaryProfile) {
+    load_ceil = Math.floor(load_ceil * 0.85); // 15% more conservative load ceiling
+  }
+
   const pool_size  = target * 3;
 
   const e1 = runEngine1(user_profile);
