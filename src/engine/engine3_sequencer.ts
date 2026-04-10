@@ -35,8 +35,9 @@ const FORCED_PHASE: Partial<Record<MovementCategory, SessionPhase[]>> = {
   'Restorative': ['closure'],
 };
 
-function maxPeakPoses(duration_minutes: SessionDuration, irritability: number = 0): number {
-  if (irritability >= 3) return 1; // cap peak to 1 when irritability is high
+function maxPeakPoses(duration_minutes: SessionDuration, irritability: number = 0, hasSecondaryProfile: boolean = false): number {
+  if (irritability >= 3) return 1;
+  if (hasSecondaryProfile) return 1; // stricter phase limits with secondary profile
   return duration_minutes <= 20 ? 1 : 2;
 }
 
