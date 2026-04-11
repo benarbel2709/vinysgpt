@@ -11,7 +11,7 @@ import BrandLogo from "@/components/BrandLogo";
 import DurationSelector from "@/components/onboarding/DurationSelector";
 import FlowProgress from "@/components/FlowProgress";
 import { Button } from "@/components/ui/button";
-import { X, Check, Pencil, Clock, Lock } from "lucide-react";
+import { X, Check, Pencil, Clock, Lock, ChevronLeft } from "lucide-react";
 import { useState as useStateReact } from "react";
 import {
   Dialog,
@@ -373,7 +373,18 @@ export default function OnboardingWizard() {
       {/* ── HEADER (logo + stepper + X in one row) ── */}
       <header className="shrink-0 z-50 w-full bg-background" style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
         <div className="flex items-center h-[56px] px-6 lg:px-[100px]">
-          <BrandLogo size="md" linkToHome={false} />
+          {step > 0 ? (
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors p-2 -ml-2"
+              aria-label="Go back"
+            >
+              <ChevronLeft size={20} />
+              <span className="text-sm font-medium">Back</span>
+            </button>
+          ) : (
+            <BrandLogo size="md" linkToHome={false} />
+          )}
           <div className="flex-1 flex justify-center">
             {step < 8 && step !== 1 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
           </div>
