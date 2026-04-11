@@ -11,12 +11,11 @@ import { HELPED_MOST_LABELS } from "@/constants/conditions";
 import type { HelpedMost } from "@/constants/conditions";
 import type { Checkin as CheckinType } from "@/types";
 import { useTTS } from "@/hooks/useTTS";
-import { X, Play, Pause, Volume2, VolumeX, Loader2, ChevronLeft, ChevronDown, CheckCircle2, Settings2, RotateCcw, Smartphone, Camera } from "lucide-react";
+import { X, Play, Pause, Volume2, VolumeX, Loader2, ChevronLeft, ChevronDown, CheckCircle2, Smartphone, Camera } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import { trackEvent } from "@/lib/analytics";
 import universalVideo from "@/assets/exercises/universal-fallback.mp4";
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import ExerciseAnimationV8 from "@/components/animations/ExerciseAnimationV8";
 
 /* ─── Slider field ─── */
@@ -192,10 +191,8 @@ export default function Workout() {
   const [helpedMost, setHelpedMost] = useState<HelpedMost>("breath");
   const [showMore, setShowMore] = useState(false);
 
-  // Collapsible state for below-video panel
-  const [instructionsOpen, setInstructionsOpen] = useState(false);
-  const [whyOpen, setWhyOpen] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
+  const [whyExpanded, setWhyExpanded] = useState(false);
 
   useEffect(() => { document.title = "Your Session — Vinys"; }, []);
 
@@ -224,8 +221,7 @@ export default function Workout() {
     if (activeExercise) {
       setRemaining(activeExercise.durationSeconds);
       setTimerDone(false);
-      setInstructionsOpen(false);
-      setWhyOpen(false);
+      setWhyExpanded(false);
     }
   }, [activeIdx, activeExercise?.id]);
 
@@ -420,162 +416,140 @@ export default function Workout() {
   const activeInstructions = masterForActive?.instructions || [];
   const activeModificationNote = activeExercise?.activeModification || "";
 
+
+
+
   return (
     <>
-      {/* ===== MAIN PLAYER LAYOUT ===== */}
-      <div className="fixed inset-0 bg-black z-50 flex flex-col">
+      {/* ===== MAIN PLAYER LAYOUT — full-screen video with overlays ===== */}
+      <div className="fixed inset-0 bg-black z-50">
 
-        {/* === VIDEO + OVERLAYS (top section) === */}
-        <div className="relative w-full flex-shrink-0 lg:flex lg:flex-1 lg:min-h-0">
+        {/* Full-screen video */}
+        <video
+          ref={videoRef}
+          src={universalVideo}
+          autoPlay loop muted playsInline
+          preload="auto"
+          onCanPlay={() => setVideoReady(true)}
+          onError={(e) => {
+            const t = e.target as HTMLVideoElement;
+            if (!t.src.includes('universal-fallback')) {
+              t.src = universalVideo;
+            }
+          }}
+          className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-500 ${videoReady ? 'opacity-100' : 'opacity-0'}`}
+        />
 
-          {/* Video container — 16:9 on mobile, fills left 60% on desktop */}
-          <div className="relative w-full lg:w-[60%]" style={{ aspectRatio: "16 / 9" }}>
-            <video
-              ref={videoRef}
-              src={universalVideo}
-              autoPlay loop muted playsInline
-              preload="auto"
-              onCanPlay={() => setVideoReady(true)}
-              onError={(e) => {
-                const t = e.target as HTMLVideoElement;
-                if (!t.src.includes('universal-fallback')) {
-                  t.src = universalVideo;
-                }
-              }}
-              className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-500 ${videoReady ? 'opacity-100' : 'opacity-0'}`}
-            />
+        {/* SVG pose fallback + spinner while video loads */}
+        {!videoReady && activeExercise && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-[1]">
+            <div className="w-[60%] max-w-[280px]">
+              <ExerciseAnimationV8
+                exercise={{
+                  id: activeExercise.id,
+                  name_he: activeExercise.name,
+                  category: activeExercise.movementCategory?.toLowerCase().includes("breath") ? "breath"
+                    : activeExercise.movementCategory?.toLowerCase().includes("release") ? "release"
+                    : activeExercise.movementCategory?.toLowerCase().includes("stabil") ? "stability"
+                    : "mobility",
+                } as any}
+                large
+              />
+            </div>
+            <div className="absolute bottom-3 right-3">
+              <Loader2 size={20} className="animate-spin text-white/60" />
+            </div>
+          </div>
+        )}
 
-            {/* SVG pose fallback + spinner while video loads */}
-            {!videoReady && activeExercise && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/80">
-                <div className="w-[60%] max-w-[280px]">
-                  <ExerciseAnimationV8
-                    exercise={{
-                      id: activeExercise.id,
-                      name_he: activeExercise.name,
-                      category: activeExercise.movementCategory?.toLowerCase().includes("breath") ? "breath"
-                        : activeExercise.movementCategory?.toLowerCase().includes("release") ? "release"
-                        : activeExercise.movementCategory?.toLowerCase().includes("stabil") ? "stability"
-                        : "mobility",
-                    } as any}
-                    large
-                  />
-                </div>
-                <div className="absolute bottom-3 right-3">
-                  <Loader2 size={20} className="animate-spin text-white/60" />
-                </div>
+        {/* ── All overlays on top of the video ── */}
+        {!isEnded && !showClosing && (
+          <>
+            {/* Top overlay: back, progress dots, timer, TTS */}
+            <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-3 py-2 md:px-5 md:py-3"
+              style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 100%)", height: 80 }}>
+              <button onClick={exitWorkout} className="flex items-center gap-0.5 text-white text-sm hover:text-white/80 transition-colors" aria-label="Back to plan">
+                <ChevronLeft size={18} />
+                <span className="hidden sm:inline">Back</span>
+              </button>
+              <div className="flex gap-1.5 items-center">
+                {exercises.map((_, i) => (
+                  <div key={i} className={`h-2 rounded-full transition-all duration-300 ${
+                    i === activeIdx ? "w-6 bg-white" : i < activeIdx ? "w-2 bg-white/60" : "w-2 bg-white/25"
+                  }`} />
+                ))}
               </div>
-            )}
-
-            {/* Top overlay gradient + controls */}
-            {!isEnded && !showClosing && (
-              <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-3 py-2 md:px-5 md:py-3"
-                style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 100%)", height: 80 }}>
-                {/* Back button */}
-                <button onClick={exitWorkout} className="flex items-center gap-0.5 text-white text-sm hover:text-white/80 transition-colors" aria-label="Back to plan">
-                  <ChevronLeft size={18} />
-                  <span className="hidden sm:inline">Back</span>
+              <div className="flex items-center gap-2">
+                <div className={`rounded-full px-3 py-1 bg-white/20 backdrop-blur-md ${timerDone ? "animate-pulse ring-1 ring-white/40" : ""}`}>
+                  <span className="text-white font-mono text-sm">
+                    {String(displayMinutes).padStart(2, "0")}:{String(displaySeconds).padStart(2, "0")}
+                  </span>
+                </div>
+                <button onClick={() => setMuted(!isMuted)} disabled={isTTSLoading}
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                  aria-label="Toggle sound">
+                  {isTTSLoading ? <Loader2 size={16} className="animate-spin" /> : isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
                 </button>
-                {/* Progress dots */}
-                <div className="flex gap-1.5 items-center">
-                  {exercises.map((_, i) => (
-                    <div key={i} className={`h-2 rounded-full transition-all duration-300 ${
-                      i === activeIdx ? "w-6 bg-white" : i < activeIdx ? "w-2 bg-white/60" : "w-2 bg-white/25"
-                    }`}>
-                      {i < activeIdx && (
-                        <div className="w-full h-full rounded-full flex items-center justify-center">
-                          <CheckCircle2 size={8} className="text-white/60" />
-                        </div>
-                      )}
-                    </div>
-                  ))}
+              </div>
+            </div>
+
+            {/* Bottom overlay: exercise name, why-this, pause & next */}
+            <div className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-5"
+              style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.35) 60%, transparent 100%)" }}>
+              {/* Exercise info */}
+              <p className="text-white/50 text-xs font-medium uppercase tracking-wider mb-0.5">{activeExercise?.phaseLabel}</p>
+              <p className="text-white font-semibold text-lg leading-tight">{exerciseTitle}</p>
+              {exerciseCue && (
+                <p className="text-white/70 text-sm mt-1">{exerciseCue}</p>
+              )}
+
+              {/* Safety note */}
+              {safetyNote && (
+                <div className="border-l-2 border-amber-400 bg-amber-950/40 px-3 py-1.5 rounded-r-lg mt-2 max-w-md">
+                  <p className="text-xs text-amber-200/90">{safetyNote}</p>
                 </div>
-                {/* Timer + TTS */}
-                <div className="flex items-center gap-2">
-                  <div className={`rounded-full px-3 py-1 bg-white/20 backdrop-blur-md ${timerDone ? "animate-pulse ring-1 ring-white/40" : ""}`}>
-                    <span className="text-white font-mono text-sm">
-                      {String(displayMinutes).padStart(2, "0")}:{String(displaySeconds).padStart(2, "0")}
-                    </span>
-                  </div>
-                  <button onClick={() => setMuted(!isMuted)} disabled={isTTSLoading}
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors"
-                    aria-label="Toggle sound">
-                    {isTTSLoading ? <Loader2 size={16} className="animate-spin" /> : isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+              )}
+
+              {/* Why this exercise — expandable inline */}
+              {whyText && (
+                <div className="mt-2 max-w-md">
+                  <button
+                    onClick={() => setWhyExpanded(v => !v)}
+                    className="text-white/60 text-sm hover:text-white/80 transition-colors flex items-center gap-1"
+                  >
+                    Why this exercise
+                    <ChevronDown size={14} className={`transition-transform duration-200 ${whyExpanded ? "rotate-180" : ""}`} />
                   </button>
-                </div>
-              </div>
-            )}
-
-            {/* Solo mode info banner */}
-            {isSoloSession && !isEnded && !showClosing && (
-              <div className="absolute bottom-[100px] left-0 right-0 z-10 px-4">
-                <div className="rounded-lg bg-white/10 backdrop-blur-md px-3 py-2 text-center">
-                  <p className="text-white/70 text-[11px] leading-relaxed">
-                    Solo mode — this exercise has not been filtered against your movement profile.{" "}
-                    <button onClick={() => navigate("/plan")} className="underline text-white/90 hover:text-white">
-                      Return to Your Plan
-                    </button>{" "}
-                    for a fully personalised session.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Bottom overlay gradient — exercise name + phase */}
-            {!isEnded && !showClosing && (
-              <div className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-3"
-                style={{ background: "linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%)", height: 100 }}>
-                <div className="absolute bottom-0 left-0 right-0 px-4 pb-3">
-                  <p className="text-white/50 text-xs font-medium uppercase tracking-wider mb-0.5">{activeExercise?.phaseLabel}</p>
-                  <p className="text-white font-semibold text-lg leading-tight">{exerciseTitle}</p>
-                  {exerciseCue && (
-                    <p className="text-white/80 text-sm mt-1" style={{ animation: "pulse 4s ease-in-out infinite" }}>
-                      {exerciseCue}
-                    </p>
+                  {whyExpanded && (
+                    <p className="text-white/50 text-sm leading-relaxed mt-1 max-w-sm">{whyText}</p>
                   )}
                 </div>
+              )}
+
+              {/* Solo mode info */}
+              {isSoloSession && (
+                <div className="rounded-lg bg-white/10 backdrop-blur-md px-3 py-2 mt-3 max-w-md">
+                  <p className="text-white/70 text-[11px] leading-relaxed">
+                    Solo mode — not filtered against your profile.{" "}
+                    <button onClick={() => navigate("/plan")} className="underline text-white/90 hover:text-white">Return to Plan</button>
+                  </p>
+                </div>
+              )}
+
+              {/* Pause + Next buttons */}
+              <div className="flex items-center justify-center gap-3 mt-4">
+                <button onClick={togglePlay}
+                  className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                  aria-label={isPlaying ? "Pause" : "Play"}>
+                  {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+                </button>
+                <button onClick={goNext}
+                  className="absolute right-4 bottom-5 rounded-full px-5 py-2.5 bg-white text-black font-medium hover:bg-white/90 transition-colors text-sm">
+                  {isLastExercise ? "Finish →" : "Next →"}
+                </button>
               </div>
-            )}
-          </div>
-
-          {/* Desktop: right panel */}
-          <div className="hidden lg:flex lg:flex-col lg:w-[40%] lg:overflow-y-auto lg:bg-black/90 lg:border-l lg:border-white/10">
-            <BelowVideoPanel
-              goNext={goNext} isLastExercise={isLastExercise} safetyNote={safetyNote}
-              instructions={activeInstructions} whyText={whyText} equipmentList={equipmentList}
-              modificationNote={activeModificationNote}
-              repsText="" rangeText=""
-              instructionsOpen={instructionsOpen} setInstructionsOpen={setInstructionsOpen}
-              whyOpen={whyOpen} setWhyOpen={setWhyOpen}
-            />
-          </div>
-        </div>
-
-        {/* === BELOW-VIDEO PANEL (mobile only — scrollable) === */}
-        <div className="flex-1 overflow-y-auto lg:hidden bg-black/95">
-          <BelowVideoPanel
-            goNext={goNext} isLastExercise={isLastExercise} safetyNote={safetyNote}
-            instructions={activeInstructions} whyText={whyText} equipmentList={equipmentList}
-            modificationNote={activeModificationNote}
-            repsText="" rangeText=""
-            instructionsOpen={instructionsOpen} setInstructionsOpen={setInstructionsOpen}
-            whyOpen={whyOpen} setWhyOpen={setWhyOpen}
-          />
-        </div>
-
-        {/* === FIXED BOTTOM BAR === */}
-        {!isEnded && !showClosing && (
-          <div className="flex-shrink-0 z-30 border-t border-white/10 bg-black/90 backdrop-blur-md px-4 py-3 flex items-center justify-center gap-2">
-            <button onClick={togglePlay}
-              className="rounded-full px-4 py-2 text-xs font-medium bg-white/10 text-white/60 hover:bg-white/15 hover:text-white transition-colors flex items-center gap-1.5">
-              {isPlaying ? <Pause size={14} /> : <Play size={14} />}
-              {isPlaying ? "Pause" : "Resume"}
-            </button>
-            <button onClick={() => setAdjustOpen(true)}
-              className="rounded-full px-4 py-2 text-xs font-medium bg-white/10 text-white/60 hover:bg-white/15 hover:text-white transition-colors">
-              Finish
-            </button>
-          </div>
+            </div>
+          </>
         )}
       </div>
 
@@ -828,81 +802,3 @@ export default function Workout() {
   );
 }
 
-/* ─── Below-Video Panel (shared mobile + desktop) ─── */
-function BelowVideoPanel({
-  goNext, isLastExercise, safetyNote, instructions, whyText, equipmentList,
-  modificationNote, repsText, rangeText, instructionsOpen, setInstructionsOpen, whyOpen, setWhyOpen,
-}: {
-  goNext: () => void; isLastExercise: boolean; safetyNote: string;
-  instructions: string[]; whyText: string; equipmentList: string[];
-  modificationNote?: string;
-  repsText: string; rangeText: string;
-  instructionsOpen: boolean; setInstructionsOpen: (v: boolean) => void;
-  whyOpen: boolean; setWhyOpen: (v: boolean) => void;
-}) {
-  return (
-    <div className="px-4 pt-4 pb-24 lg:pb-4 space-y-3">
-      {/* Next / Finish button */}
-      <button onClick={goNext}
-        className="w-full rounded-full py-3.5 bg-white text-black font-medium hover:bg-white/90 transition-colors text-base">
-        {isLastExercise ? "Finish session →" : "Next exercise →"}
-      </button>
-
-      {/* Safety note */}
-      {safetyNote && (
-        <div className="border-l-2 border-amber-400 bg-amber-950/30 px-3 py-2 rounded-r-lg">
-          <p className="text-xs text-amber-200/90">{safetyNote}</p>
-        </div>
-      )}
-
-      {/* Instructions — shown directly (not collapsed) */}
-      {instructions.length > 0 && (
-        <div className="pt-2">
-          <p className="text-white/50 text-xs font-medium uppercase tracking-wider mb-2">Instructions</p>
-          <ol className="space-y-2.5 pb-2">
-            {instructions.map((step, i) => (
-              <li key={i} className="flex gap-2.5">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/60">{i + 1}</span>
-                <span className="text-white/70 text-sm leading-relaxed">{step}</span>
-              </li>
-            ))}
-            {(repsText || rangeText) && (
-              <li className="flex gap-2 flex-wrap mt-2">
-                {repsText && <span className="text-xs bg-white/10 text-white/60 rounded-full px-3 py-1">{repsText}</span>}
-                {rangeText && <span className="text-xs bg-white/10 text-white/60 rounded-full px-3 py-1">{rangeText}</span>}
-              </li>
-            )}
-          </ol>
-          {modificationNote && (
-            <div className="border-l-2 border-teal-400 bg-teal-950/30 px-3 py-2 rounded-r-lg mt-2">
-              <p className="text-[10px] text-teal-300/70 font-medium uppercase tracking-wider mb-0.5">Modification for your profile</p>
-              <p className="text-xs text-teal-200/90">{modificationNote}</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Why this exercise collapsible */}
-      {whyText && (
-        <Collapsible open={whyOpen} onOpenChange={setWhyOpen}>
-          <CollapsibleTrigger className="flex items-center justify-between w-full py-3 text-white/80 hover:text-white transition-colors text-sm font-medium border-t border-white/10">
-            <span>Why this exercise</span>
-            <ChevronDown size={16} className={`transition-transform duration-200 ${whyOpen ? "rotate-180" : ""}`} />
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <p className="text-white/60 text-sm leading-relaxed pb-2">{whyText}</p>
-          </CollapsibleContent>
-        </Collapsible>
-      )}
-
-      {/* Equipment chips */}
-      {equipmentList.length > 0 && (
-        <div className="flex gap-2 flex-wrap pt-1">
-          {equipmentList.map((item) => (
-            <span key={item} className="text-xs bg-white/10 text-white/60 rounded-full px-3 py-1.5">{item}</span>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
