@@ -11,7 +11,7 @@ export default function MarketingNav() {
   const { user, isGuest } = useAuthContext();
   const appCtx = useAppSafe();
   const isAuthenticated = !!user || isGuest;
-  const hasPlan = !!appCtx?.state.currentPlan;
+  const hasPlan = !!(appCtx?.state.currentPlan || appCtx?.state.onboardingCompleted);
   const isMobile = useIsMobile();
   const isHomepage = location.pathname === "/";
 
