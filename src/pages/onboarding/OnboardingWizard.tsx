@@ -212,6 +212,19 @@ export default function OnboardingWizard() {
 
     // For systemic flow, inject diagnostic-like data from condition
     if (isSystemicFlow && systemicConditionKey) {
+      // Build condition-specific clinical data
+      const clinicalData: Record<string, any> = {};
+      if (systemicConditionKey === "menopause") {
+        clinicalData.menoSymptoms = menoSymptoms;
+      } else if (systemicConditionKey === "fibromyalgia" || systemicConditionKey === "chronic_fatigue_syndrome") {
+        clinicalData.flareLevel = flareLevel;
+      } else if (systemicConditionKey === "long_covid") {
+        clinicalData.covidEnergy = covidEnergy;
+        clinicalData.covidPEM = covidPEM;
+      } else if (systemicConditionKey === "stress_anxiety") {
+        clinicalData.stressState = stressState;
+      }
+
       updateProfile({
         conditions: [systemicConditionKey],
         energyLevel,
@@ -230,6 +243,7 @@ export default function OnboardingWizard() {
         diagnosticIrritability: localIrritability,
         irritability: localIrritability,
         ageGroup: ageGroup || undefined,
+        clinicalData,
       } as any);
     } else {
       updateProfile({
