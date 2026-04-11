@@ -311,6 +311,11 @@ export default function OnboardingWizard() {
   };
 
   const handleNext = () => {
+    if (step === 0 && selectedBodyZones.length > 0 && !isSystemicFlow) {
+      setSelectedArea(selectedBodyZones[0]);
+      setStep(1);
+      return;
+    }
     if (isSystemicFlow) {
       if (step === 3) { setStep(4); return; }
       if (step === 4) { setStep(5); return; }
