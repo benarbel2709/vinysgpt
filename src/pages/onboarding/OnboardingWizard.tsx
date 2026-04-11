@@ -220,14 +220,13 @@ export default function OnboardingWizard() {
       // Build condition-specific clinical data
       const clinicalData: Record<string, any> = {};
       if (systemicConditionKey === "menopause") {
-        clinicalData.menoSymptoms = menoSymptoms;
-      } else if (systemicConditionKey === "fibromyalgia" || systemicConditionKey === "chronic_fatigue_syndrome") {
-        clinicalData.flareLevel = flareLevel;
-      } else if (systemicConditionKey === "long_covid") {
-        clinicalData.covidEnergy = covidEnergy;
-        clinicalData.covidPEM = covidPEM;
+        clinicalData.menopauseSymptom = menopauseSymptom;
+      } else if (systemicConditionKey === "fibromyalgia") {
+        clinicalData.fibroFlareState = fibroFlareState;
+      } else if (systemicConditionKey === "long_covid" || systemicConditionKey === "chronic_fatigue_syndrome") {
+        clinicalData.fatigueEnergyYesterday = fatigueEnergyYesterday;
       } else if (systemicConditionKey === "stress_anxiety") {
-        clinicalData.stressState = stressState;
+        clinicalData.stressAnxietyState = stressAnxietyState;
       }
 
       updateProfile({
@@ -339,10 +338,11 @@ export default function OnboardingWizard() {
     "Body diagnostic",
     "Here's what we found",
     isSystemicFlow
-      ? systemicConditionKey === "menopause" ? "What are you experiencing most?"
-      : systemicConditionKey === "stress_anxiety" ? "How would you describe your current state?"
-      : systemicConditionKey === "long_covid" ? "What's your energy capacity right now?"
-      : "How is your pain or fatigue today?"
+      ? systemicConditionKey === "menopause" ? "What's affecting you most right now?"
+      : systemicConditionKey === "stress_anxiety" ? "How would you describe how you're feeling right now?"
+      : systemicConditionKey === "long_covid" || systemicConditionKey === "chronic_fatigue_syndrome" ? "How was your energy yesterday?"
+      : systemicConditionKey === "fibromyalgia" ? "How is your pain today vs your usual baseline?"
+      : "How are you feeling today?"
     : "Any health considerations we should know about?",
     "How long should each session be?",
     "How would you like to end each practice?",
