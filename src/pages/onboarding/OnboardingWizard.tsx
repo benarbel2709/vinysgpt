@@ -93,11 +93,10 @@ const EQUIPMENT_CHOICES = [
 // 3 = restrictions
 // 4 = equipment
 // 5 = session duration (DurationSelector)
-// 6 = schedule (sessions/week, time of day)
-// 7 = closing preference
-// 8 = confirmation
-const STEPPER_STEPS = 9;
-const TOTAL_STEPS = 9;
+// 6 = closing preference
+// 7 = confirmation
+const STEPPER_STEPS = 8;
+const TOTAL_STEPS = 8;
 
 const tagBase =
   "px-3.5 py-1.5 rounded-[8px] border-2 text-[18px] font-semibold transition-all cursor-pointer leading-tight";
