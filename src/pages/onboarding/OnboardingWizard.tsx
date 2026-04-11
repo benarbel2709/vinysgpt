@@ -745,6 +745,22 @@ export default function OnboardingWizard() {
                     </button>
                   );
                 })}
+                <button
+                  onClick={() => {
+                    setSystemicRedFlags([]);
+                    setTimeout(() => handleNext(), 280);
+                  }}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-[8px] border-2 transition-all text-left ${
+                    systemicRedFlags.length === 0 ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${
+                    systemicRedFlags.length === 0 ? "border-secondary bg-secondary" : "border-border bg-card"
+                  }`}>
+                    {systemicRedFlags.length === 0 && <Check size={12} className="text-white" strokeWidth={3} />}
+                  </div>
+                  <span className="text-sm font-medium text-foreground">{NONE_OPTION}</span>
+                </button>
               </div>
             </div>
           </div>
