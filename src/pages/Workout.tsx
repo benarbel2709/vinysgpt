@@ -497,7 +497,7 @@ export default function Workout() {
                   </div>
                   <button onClick={() => setMuted(!isMuted)} disabled={isTTSLoading}
                     className="w-8 h-8 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors"
-                    aria-label={isMuted ? "Unmute" : "Mute"}>
+                    aria-label="Toggle sound">
                     {isTTSLoading ? <Loader2 size={16} className="animate-spin" /> : isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
                   </button>
                 </div>
