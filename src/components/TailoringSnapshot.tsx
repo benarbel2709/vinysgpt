@@ -10,16 +10,14 @@ import { Sparkles, ChevronDown, ChevronUp, Clock, Zap, Target } from "lucide-rea
 export default function TailoringSnapshot() {
   const { state } = useApp();
   const [expanded, setExpanded] = useState(false);
-  const { minutesPerSession, energyLevel, flareToday, practiceTime, conditions } = state.profile;
+  const { minutesPerSession, energyLevel, flareToday, conditions } = state.profile;
 
   const durationLabel = minutesPerSession <= 15 ? "Quick" : minutesPerSession <= 30 ? "Standard" : "Extended";
   const energyLabel = ENERGY_LABELS[energyLevel] || energyLevel;
-  const timeLabel = PRACTICE_TIME_LABELS[practiceTime] || practiceTime;
 
   const chips = [
     { icon: Clock, label: `${minutesPerSession} min`, sub: durationLabel },
     { icon: Zap, label: energyLabel, sub: "Energy" },
-    { icon: Sun, label: timeLabel, sub: "Time" },
   ];
 
   if (flareToday) {
