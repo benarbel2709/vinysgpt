@@ -441,7 +441,7 @@ export default function OnboardingWizard() {
             Select everything that applies — this helps us personalise your practice and filter out anything that could cause harm.
           </p>
         )}
-        {step === 3 && isSystemicFlow && (
+        {step === 3 && isSystemicFlow && systemicConditionKey !== "menopause" && (
           <p className="text-muted-foreground text-center text-sm mt-1 shrink-0">
             This helps us set the right intensity for your practice.
           </p>
