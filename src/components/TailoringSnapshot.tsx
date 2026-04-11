@@ -37,7 +37,7 @@ export default function TailoringSnapshot() {
     return "no equipment needed";
   })();
 
-  const summaryText = `We built you a ${minutesPerSession}-minute ${timeLabel.toLowerCase()} practice${primaryCondition ? ` focused on ${primaryCondition}` : ""} — ${energyLabel.toLowerCase()} intensity, with ${equipmentSummary}.`;
+  const summaryText = `We built you a ${minutesPerSession}-minute practice${primaryCondition ? ` focused on ${primaryCondition}` : ""} — ${energyLabel.toLowerCase()} intensity, with ${equipmentSummary}.`;
 
   return (
     <div className="card-premium overflow-hidden">
