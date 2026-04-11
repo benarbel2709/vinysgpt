@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import VinysDiagnostic from "@/components/VinysDiagnostic";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "@/context/AppContext";
-import type { ConditionKey, EnergyLevel, PracticeTime } from "@/constants/conditions";
+import type { ConditionKey, EnergyLevel } from "@/constants/conditions";
 import { CONDITION_LABELS } from "@/constants/conditions";
 import type { GenericAssessmentData, Assessment } from "@/types";
 // V1 planGenerator no longer used — sessions are generated on-demand by sessionService
