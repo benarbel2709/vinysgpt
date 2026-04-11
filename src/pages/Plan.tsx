@@ -18,7 +18,7 @@ import { CATEGORY_LABELS, EQUIPMENT_LABELS } from "@/constants/conditions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import LibraryModal from "@/components/LibraryModal";
-import StageProgressIndicator from "@/components/StageProgressIndicator";
+import StageProgressIndicator from "@/components/StageProgressIndicator"; // kept for potential future use
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose,
 } from "@/components/ui/dialog";
