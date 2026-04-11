@@ -138,6 +138,7 @@ export default function OnboardingWizard() {
   const [isSystemicFlow, setIsSystemicFlow] = useState(false);
   const [systemicConditionKey, setSystemicConditionKey] = useState<ConditionKey | null>(null);
   const [localIrritability, setLocalIrritability] = useState(2);
+  const [safetyFlags, setSafetyFlags] = useState<string[]>([]);
 
   const toggle = useCallback((c: ConditionKey) => {
     setSelected((p) => (p.includes(c) ? p.filter((x) => x !== c) : [...p, c]));
