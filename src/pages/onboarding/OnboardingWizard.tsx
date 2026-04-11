@@ -306,7 +306,6 @@ export default function OnboardingWizard() {
     isSystemicFlow ? "How are you feeling today?" : "Any health considerations we should know about?",
     "What equipment do you have?",
     "How long should each session be?",
-    "How would you like to practice?",
     "How would you like to end each practice?",
     "You're all set.",
   ];
