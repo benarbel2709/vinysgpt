@@ -4,22 +4,20 @@
  */
 import { useState } from "react";
 import { useApp } from "@/context/AppContext";
-import { ENERGY_LABELS, PRACTICE_TIME_LABELS, CONDITION_LABELS, EQUIPMENT_LABELS } from "@/constants/conditions";
-import { Sparkles, ChevronDown, ChevronUp, Clock, Zap, Sun, Target, Wrench } from "lucide-react";
+import { ENERGY_LABELS, CONDITION_LABELS, EQUIPMENT_LABELS } from "@/constants/conditions";
+import { Sparkles, ChevronDown, ChevronUp, Clock, Zap, Target } from "lucide-react";
 
 export default function TailoringSnapshot() {
   const { state } = useApp();
   const [expanded, setExpanded] = useState(false);
-  const { minutesPerSession, energyLevel, flareToday, practiceTime, conditions } = state.profile;
+  const { minutesPerSession, energyLevel, flareToday, conditions } = state.profile;
 
   const durationLabel = minutesPerSession <= 15 ? "Quick" : minutesPerSession <= 30 ? "Standard" : "Extended";
   const energyLabel = ENERGY_LABELS[energyLevel] || energyLevel;
-  const timeLabel = PRACTICE_TIME_LABELS[practiceTime] || practiceTime;
 
   const chips = [
     { icon: Clock, label: `${minutesPerSession} min`, sub: durationLabel },
     { icon: Zap, label: energyLabel, sub: "Energy" },
-    { icon: Sun, label: timeLabel, sub: "Time" },
   ];
 
   if (flareToday) {
@@ -39,7 +37,7 @@ export default function TailoringSnapshot() {
     return "no equipment needed";
   })();
 
-  const summaryText = `We built you a ${minutesPerSession}-minute ${timeLabel.toLowerCase()} practice${primaryCondition ? ` focused on ${primaryCondition}` : ""} — ${energyLabel.toLowerCase()} intensity, with ${equipmentSummary}.`;
+  const summaryText = `We built you a ${minutesPerSession}-minute practice${primaryCondition ? ` focused on ${primaryCondition}` : ""} — ${energyLabel.toLowerCase()} intensity, with ${equipmentSummary}.`;
 
   return (
     <div className="card-premium overflow-hidden">
