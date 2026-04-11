@@ -904,6 +904,7 @@ export default function OnboardingWizard() {
               setIsSystemicFlow(false);
               setSystemicConditionKey(null);
               setLocalIrritability(2);
+              setSystemicRedFlags([]);
               setAgeGroup("");
             };
             const editRow = (lbl: string, value: string, targetStep: number) => (
