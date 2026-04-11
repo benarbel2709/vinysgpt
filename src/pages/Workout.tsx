@@ -433,14 +433,37 @@ export default function Workout() {
               src={universalVideo}
               autoPlay loop muted playsInline
               preload="auto"
+              onCanPlay={() => setVideoReady(true)}
               onError={(e) => {
                 const t = e.target as HTMLVideoElement;
                 if (!t.src.includes('universal-fallback')) {
                   t.src = universalVideo;
                 }
               }}
-              className="absolute inset-0 w-full h-full object-cover object-center"
+              className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-500 ${videoReady ? 'opacity-100' : 'opacity-0'}`}
             />
+
+            {/* SVG pose fallback + spinner while video loads */}
+            {!videoReady && activeExercise && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/80">
+                <div className="w-[60%] max-w-[280px]">
+                  <ExerciseAnimationV8
+                    exercise={{
+                      id: activeExercise.id,
+                      name_he: activeExercise.name,
+                      category: activeExercise.movementCategory?.toLowerCase().includes("breath") ? "breath"
+                        : activeExercise.movementCategory?.toLowerCase().includes("release") ? "release"
+                        : activeExercise.movementCategory?.toLowerCase().includes("stabil") ? "stability"
+                        : "mobility",
+                    } as any}
+                    large
+                  />
+                </div>
+                <div className="absolute bottom-3 right-3">
+                  <Loader2 size={20} className="animate-spin text-white/60" />
+                </div>
+              </div>
+            )}
 
             {/* Top overlay gradient + controls */}
             {!isEnded && !showClosing && (
