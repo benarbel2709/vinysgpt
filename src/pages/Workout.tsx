@@ -195,6 +195,7 @@ export default function Workout() {
   // Collapsible state for below-video panel
   const [instructionsOpen, setInstructionsOpen] = useState(false);
   const [whyOpen, setWhyOpen] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
 
   // Show rotate prompt on portrait mobile (once per session)
   useEffect(() => {
