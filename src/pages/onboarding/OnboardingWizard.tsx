@@ -140,7 +140,7 @@ export default function OnboardingWizard() {
   const [localIrritability, setLocalIrritability] = useState(2);
   const [safetyFlags, setSafetyFlags] = useState<string[]>([]);
   // Condition-specific clinical answers
-  const [menopauseSymptom, setMenopauseSymptom] = useState<string[]>([]);
+  const [menopauseSymptom, setMenopauseSymptom] = useState<string>("");
   const [fibroFlareState, setFibroFlareState] = useState<string>("");
   const [fatigueEnergyYesterday, setFatigueEnergyYesterday] = useState<string>("");
   const [stressAnxietyState, setStressAnxietyState] = useState<string>("");
@@ -189,7 +189,7 @@ export default function OnboardingWizard() {
         return !!diagnosticResult;
       case 3:
         if (isSystemicFlow) {
-          if (systemicConditionKey === "menopause") return menopauseSymptom.length > 0 && !!ageGroup;
+          if (systemicConditionKey === "menopause") return !!menopauseSymptom && !!ageGroup;
           if (systemicConditionKey === "fibromyalgia") return !!fibroFlareState;
           if (systemicConditionKey === "long_covid" || systemicConditionKey === "chronic_fatigue_syndrome") return !!fatigueEnergyYesterday;
           if (systemicConditionKey === "stress_anxiety") return !!stressAnxietyState;
@@ -690,28 +690,22 @@ export default function OnboardingWizard() {
             {/* ── MENOPAUSE ── */}
             {systemicConditionKey === "menopause" && (
               <>
-                <p className="text-sm text-muted-foreground mb-4">Check everything that applies — we'll shape your practice around these.</p>
+                <p className="text-sm text-muted-foreground mb-4">Select the one that affects you most — we'll shape your practice around it.</p>
                 <div className="flex flex-col gap-2 mb-8">
                   {([
                     { value: "hot-flushes", label: "Hot flushes & temperature regulation" },
                     { value: "joint-pain", label: "Joint stiffness & pain" },
                     { value: "mood-sleep", label: "Mood & sleep" },
                     { value: "low-energy", label: "Low energy & fatigue" },
-                  ] as const).map((opt) => {
-                    const isChecked = menopauseSymptom.includes(opt.value);
-                    return (
-                      <button
-                        key={opt.value}
-                        onClick={() => setMenopauseSymptom(prev => prev.includes(opt.value) ? prev.filter(v => v !== opt.value) : [...prev, opt.value])}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-[12px] border-2 transition-all text-left ${isChecked ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
-                      >
-                        <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${isChecked ? "border-secondary bg-secondary" : "border-border bg-card"}`}>
-                          {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
-                        </div>
-                        <span className="text-sm font-medium text-foreground">{opt.label}</span>
-                      </button>
-                    );
-                  })}
+                  ] as const).map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setMenopauseSymptom(opt.value)}
+                      className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${menopauseSymptom === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
+                    >
+                      <span className="text-sm font-medium text-foreground">{opt.label}</span>
+                    </button>
+                  ))}
                 </div>
 
                 {/* Age group — REQUIRED for menopause */}
@@ -802,7 +796,7 @@ export default function OnboardingWizard() {
                       { value: "very-low", label: "Very low — mostly resting" },
                       { value: "low", label: "Low — light activity only" },
                       { value: "moderate", label: "Moderate — managed some tasks" },
-                      { value: "good", label: "Good — near normal" },
+                      { value: "good", label: "Good — fairly active" },
                     ] as const).map((opt) => (
                       <button
                         key={opt.value}
@@ -860,9 +854,9 @@ export default function OnboardingWizard() {
                 <p className="text-sm text-muted-foreground mb-4">We'll match your practice to how your nervous system feels right now.</p>
                 <div className="flex flex-col gap-2 mb-8">
                   {([
-                    { value: "wound-up", label: "Wound up & anxious — mind racing" },
-                    { value: "depleted", label: "Flat & depleted — hard to motivate" },
-                    { value: "mixed", label: "A mix — anxious but also exhausted" },
+                    { value: "wound-up", label: "Wound up or anxious" },
+                    { value: "depleted", label: "Exhausted or depleted" },
+                    { value: "mixed", label: "A mix of both" },
                   ] as const).map((opt) => (
                     <button
                       key={opt.value}
