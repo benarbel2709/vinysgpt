@@ -139,6 +139,12 @@ export default function OnboardingWizard() {
   const [systemicConditionKey, setSystemicConditionKey] = useState<ConditionKey | null>(null);
   const [localIrritability, setLocalIrritability] = useState(2);
   const [safetyFlags, setSafetyFlags] = useState<string[]>([]);
+  // Condition-specific clinical answers
+  const [menoSymptoms, setMenoSymptoms] = useState<string[]>([]);
+  const [flareLevel, setFlareLevel] = useState<string>("");
+  const [covidEnergy, setCovidEnergy] = useState<string>("");
+  const [covidPEM, setCovidPEM] = useState(false);
+  const [stressState, setStressState] = useState<string>("");
 
   const toggle = useCallback((c: ConditionKey) => {
     setSelected((p) => (p.includes(c) ? p.filter((x) => x !== c) : [...p, c]));
