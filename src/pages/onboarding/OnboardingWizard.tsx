@@ -690,7 +690,7 @@ export default function OnboardingWizard() {
             {/* ── MENOPAUSE ── */}
             {systemicConditionKey === "menopause" && (
               <>
-                <p className="text-sm text-muted-foreground mb-4">Select the one that affects you most — we'll shape your practice around it.</p>
+                
                 <div className="flex flex-col gap-2 mb-8">
                   {([
                     { value: "hot-flushes", label: "Hot flushes & temperature regulation" },
@@ -1170,7 +1170,16 @@ export default function OnboardingWizard() {
             <Button variant="outline" onClick={handleBack} className="text-base h-[35px] rounded-full px-5">
               {step === 0 ? "Home" : "Back"}
             </Button>
-            {step === 3 ? (
+            {step === 3 && isSystemicFlow ? (
+              <Button
+                variant="hero"
+                onClick={handleNext}
+                disabled={!canGoNext()}
+                className="text-base h-[35px] rounded-full px-5"
+              >
+                Continue →
+              </Button>
+            ) : step === 3 && !isSystemicFlow ? (
               <div className="flex items-center gap-3">
                 <button onClick={handleNext} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Skip for now
