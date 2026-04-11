@@ -316,7 +316,7 @@ export default function Workout() {
       if (data) {
         await supabase.from("weekly_progress").update({ completed_count: data.completed_count + 1 }).eq("user_id", user.id).eq("week_start_date", weekStart);
       } else {
-        await supabase.from("weekly_progress").insert({ user_id: user.id, week_start_date: weekStart, completed_count: 1, target_count: state.profile.sessionsPerWeek });
+        await supabase.from("weekly_progress").insert({ user_id: user.id, week_start_date: weekStart, completed_count: 1, target_count: 3 });
       }
     }
 
