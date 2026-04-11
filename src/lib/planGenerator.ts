@@ -93,7 +93,7 @@ export function generatePlan(
     mode = determineMode(profile);
   }
 
-  const days = DAY_DISTRIBUTIONS[profile.sessionsPerWeek] || DAY_DISTRIBUTIONS[3];
+  const days = DAY_DISTRIBUTIONS[3];
 
   const closingPref = profile.closingPreference || "savasana";
 
