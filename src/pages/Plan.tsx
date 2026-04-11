@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import Layout from "@/components/Layout";
 import BrandLogo from "@/components/BrandLogo";
 import { Progress } from "@/components/ui/progress";
-import { MinusCircle, Search, Plus, X, Settings, Pencil, Play, RefreshCw, Clock, Activity, CalendarDays, UserCircle, Loader2, Check, Wind, Move, Shield, Heart, LayoutGrid, ArrowDown, ArrowUp, Sparkles } from "lucide-react";
+import { MinusCircle, Search, Plus, X, Settings, Pencil, Play, RefreshCw, Clock, Activity, CalendarDays, UserCircle, Loader2, Check, Wind, Move, Shield, Heart, LayoutGrid, ArrowDown, ArrowUp } from "lucide-react";
 import { MASTER_LOOKUP } from "@/data/exerciseAdapter";
 import { CATEGORY_LABELS, EQUIPMENT_LABELS } from "@/constants/conditions";
 import { supabase } from "@/integrations/supabase/client";
