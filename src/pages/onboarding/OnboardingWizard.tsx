@@ -715,6 +715,38 @@ export default function OnboardingWizard() {
                 ))}
               </div>
             </div>
+
+            {/* Safety red flags */}
+            <div className="text-left mt-8">
+              <div className="flex items-center gap-2 mb-3">
+                <AlertTriangle size={16} className="text-destructive" />
+                <p className="text-sm font-semibold text-destructive">Safety check</p>
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">
+                Please stop and consult a healthcare provider if any of the following apply to you right now.
+              </p>
+              <div className="flex flex-col gap-2">
+                {SYSTEMIC_RED_FLAGS.map((flag) => {
+                  const isChecked = systemicRedFlags.includes(flag);
+                  return (
+                    <button
+                      key={flag}
+                      onClick={() => setSystemicRedFlags(prev => prev.includes(flag) ? prev.filter(f => f !== flag) : [...prev, flag])}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-[8px] border-2 transition-all text-left ${
+                        isChecked ? "border-destructive bg-destructive/10" : "border-border bg-card"
+                      }`}
+                    >
+                      <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${
+                        isChecked ? "border-destructive bg-destructive" : "border-border bg-card"
+                      }`}>
+                        {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
+                      </div>
+                      <span className="text-sm text-foreground">{flag}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         )}
         {step === 3 && !isSystemicFlow && (
