@@ -279,7 +279,7 @@ export default function OnboardingWizard() {
   const handleNext = () => {
     if (step < TOTAL_STEPS - 1) {
       if (isSystemicFlow) {
-        if (step === 3) { if (systemicRedFlags.length > 0) { navigate("/stop"); return; } setStep(4); return; }
+        if (step === 3) { setStep(4); return; }
         if (step === 4) { setStep(5); return; }
       }
       setStep(step + 1);
