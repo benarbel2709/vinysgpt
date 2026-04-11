@@ -319,7 +319,12 @@ export default function OnboardingWizard() {
     "Where does your body need support?",
     "Body diagnostic",
     "Here's what we found",
-    isSystemicFlow ? "How are you feeling today?" : "Any health considerations we should know about?",
+    isSystemicFlow
+      ? systemicConditionKey === "menopause" ? "What are you experiencing most?"
+      : systemicConditionKey === "stress_anxiety" ? "How would you describe your current state?"
+      : systemicConditionKey === "long_covid" ? "What's your energy capacity right now?"
+      : "How is your pain or fatigue today?"
+    : "Any health considerations we should know about?",
     "How long should each session be?",
     "How would you like to end each practice?",
     "You're all set.",
