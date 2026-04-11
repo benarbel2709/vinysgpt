@@ -855,7 +855,7 @@ export default function OnboardingWizard() {
             {systemicConditionKey === "stress_anxiety" && (
               <>
                 <p className="text-sm text-muted-foreground mb-4">We'll match your practice to how your nervous system feels right now.</p>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 mb-8">
                   {([
                     { value: "wound-up", label: "Wound up & anxious — mind racing" },
                     { value: "depleted", label: "Flat & depleted — hard to motivate" },
@@ -869,6 +869,22 @@ export default function OnboardingWizard() {
                       <span className="text-sm font-medium text-foreground">{opt.label}</span>
                     </button>
                   ))}
+                </div>
+
+                {/* Age group (optional) */}
+                <div>
+                  <p className="text-sm font-semibold text-foreground mb-3">What is your age group? <span className="font-normal text-muted-foreground">(optional)</span></p>
+                  <div className="flex flex-wrap gap-2">
+                    {AGE_GROUP_OPTIONS.map((ag) => (
+                      <button
+                        key={ag.value}
+                        onClick={() => setAgeGroup(prev => prev === ag.value ? "" : ag.value)}
+                        className={`px-4 py-2 rounded-[8px] border-2 text-sm font-medium transition-all ${ageGroup === ag.value ? "border-secondary bg-secondary/10 text-foreground" : "border-border bg-card text-foreground hover:border-secondary/40"}`}
+                      >
+                        {ag.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </>
             )}
