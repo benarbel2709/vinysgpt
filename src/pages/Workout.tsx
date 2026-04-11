@@ -170,7 +170,7 @@ export default function Workout() {
   const [activeIdx, setActiveIdx] = useState(savedPos < exercises.length ? savedPos : 0);
   const [showPreview, setShowPreview] = useState(savedPos === 0);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(savedPos > 0);
   const [timerDone, setTimerDone] = useState(false);
   const [showClosing, setShowClosing] = useState(false);
   const [closingRemaining, setClosingRemaining] = useState(180);
