@@ -222,8 +222,7 @@ export default function Workout() {
     if (activeExercise) {
       setRemaining(activeExercise.durationSeconds);
       setTimerDone(false);
-      setInstructionsOpen(false);
-      setWhyOpen(false);
+      setWhyExpanded(false);
     }
   }, [activeIdx, activeExercise?.id]);
 
@@ -418,10 +417,8 @@ export default function Workout() {
   const activeInstructions = masterForActive?.instructions || [];
   const activeModificationNote = activeExercise?.activeModification || "";
 
-  const [whyExpanded, setWhyExpanded] = useState(false);
 
-  // Reset why-expanded when exercise changes
-  useEffect(() => { setWhyExpanded(false); }, [activeIdx]);
+
 
   return (
     <>
