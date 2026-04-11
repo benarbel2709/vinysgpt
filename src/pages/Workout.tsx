@@ -17,6 +17,7 @@ import { toast } from "@/hooks/use-toast";
 import { trackEvent } from "@/lib/analytics";
 import universalVideo from "@/assets/exercises/universal-fallback.mp4";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
+import ExerciseAnimationV8 from "@/components/animations/ExerciseAnimationV8";
 
 /* ─── Slider field ─── */
 function SliderField({ label, value, onChange, minLabel, maxLabel }: {
@@ -194,6 +195,7 @@ export default function Workout() {
   // Collapsible state for below-video panel
   const [instructionsOpen, setInstructionsOpen] = useState(false);
   const [whyOpen, setWhyOpen] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
 
   // Show rotate prompt on portrait mobile (once per session)
   useEffect(() => {
@@ -431,14 +433,37 @@ export default function Workout() {
               src={universalVideo}
               autoPlay loop muted playsInline
               preload="auto"
+              onCanPlay={() => setVideoReady(true)}
               onError={(e) => {
                 const t = e.target as HTMLVideoElement;
                 if (!t.src.includes('universal-fallback')) {
                   t.src = universalVideo;
                 }
               }}
-              className="absolute inset-0 w-full h-full object-cover object-center"
+              className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-500 ${videoReady ? 'opacity-100' : 'opacity-0'}`}
             />
+
+            {/* SVG pose fallback + spinner while video loads */}
+            {!videoReady && activeExercise && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/80">
+                <div className="w-[60%] max-w-[280px]">
+                  <ExerciseAnimationV8
+                    exercise={{
+                      id: activeExercise.id,
+                      name_he: activeExercise.name,
+                      category: activeExercise.movementCategory?.toLowerCase().includes("breath") ? "breath"
+                        : activeExercise.movementCategory?.toLowerCase().includes("release") ? "release"
+                        : activeExercise.movementCategory?.toLowerCase().includes("stabil") ? "stability"
+                        : "mobility",
+                    } as any}
+                    large
+                  />
+                </div>
+                <div className="absolute bottom-3 right-3">
+                  <Loader2 size={20} className="animate-spin text-white/60" />
+                </div>
+              </div>
+            )}
 
             {/* Top overlay gradient + controls */}
             {!isEnded && !showClosing && (
