@@ -29,7 +29,7 @@ export default function Plan() {
   const navigate = useNavigate();
   const plan = state.currentPlan;
   const checkins = state.checkins;
-  const weekly = useWeeklyProgress(state.profile.sessionsPerWeek);
+  const weekly = useWeeklyProgress(3);
 
   useEffect(() => { document.title = "Your Plan — Vinys"; }, []);
 
