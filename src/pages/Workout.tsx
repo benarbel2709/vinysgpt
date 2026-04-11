@@ -192,10 +192,8 @@ export default function Workout() {
   const [helpedMost, setHelpedMost] = useState<HelpedMost>("breath");
   const [showMore, setShowMore] = useState(false);
 
-  // Collapsible state for below-video panel
-  const [instructionsOpen, setInstructionsOpen] = useState(false);
-  const [whyOpen, setWhyOpen] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
+  const [whyExpanded, setWhyExpanded] = useState(false);
 
   useEffect(() => { document.title = "Your Session — Vinys"; }, []);
 
