@@ -1433,81 +1433,75 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
     if (showingVideo) {
       const cleanSubtitle = posture.subtitle ? posture.subtitle.replace(/★.*/, "").trim() : "";
       return (
-        <Shell className="!pt-0">
-          {/* Progress bar at top */}
-          <div className="pt-4 pb-3">
-            <p className="text-xs mb-1.5" style={{ color: "#888" }}>Posture {postureIdx + 1} of {progressTotal}</p>
-            <div className="w-full h-1 rounded-full bg-border overflow-hidden">
-              <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${((postureIdx + 1) / progressTotal) * 100}%` }} />
+        <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "#000", display: "flex", flexDirection: "column" }}>
+          {/* Full-viewport video */}
+          <video
+            src={posture.videoSrc || universalVideo}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            onError={(e) => {
+              const t = e.target;
+              if (!t.src.includes('universal-fallback')) {
+                t.src = universalVideo;
+              }
+            }}
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center" }}
+          />
+
+          {/* Top overlay: progress + name */}
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 10, padding: "16px 20px 24px", background: "linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: 1 }}>
+                Posture {postureIdx + 1} of {progressTotal}
+              </span>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  onClick={() => setMuted(!isMuted)}
+                  disabled={ttsLoading}
+                  style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.15)", backdropFilter: "blur(6px)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}
+                  aria-label={isMuted ? "Unmute" : "Mute"}
+                >
+                  {ttsLoading ? <RotateCcw className="w-4 h-4 animate-spin" /> : isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
+            <div style={{ width: "100%", height: 3, borderRadius: 2, background: "rgba(255,255,255,0.2)", overflow: "hidden", marginBottom: 12 }}>
+              <div style={{ height: "100%", borderRadius: 2, background: "white", transition: "width 0.3s", width: `${((postureIdx + 1) / progressTotal) * 100}%` }} />
+            </div>
+            {cleanSubtitle && (
+              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", display: "block" }}>{cleanSubtitle}</span>
+            )}
+            <span style={{ fontSize: 22, fontWeight: 800, color: "white", lineHeight: 1.2, display: "block", marginTop: 2 }}>{posture.name}</span>
           </div>
 
           {crossoverTriggered && (
-            <div className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-300 text-[13px] text-amber-800 leading-relaxed">
+            <div style={{ position: "absolute", top: 120, left: 20, right: 20, zIndex: 10, padding: "10px 14px", borderRadius: 12, background: "rgba(255,200,50,0.15)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,200,50,0.3)", color: "rgba(255,255,255,0.9)", fontSize: 13 }}>
               We're checking a few more things to give you the most accurate result.
             </div>
           )}
 
-          {/* Video card — uses universal fallback video like Workout.tsx */}
-          <div className="rounded-2xl overflow-hidden relative aspect-video mb-4" style={{ background: '#2A2A2A' }}>
-            <video
-              src={posture.videoSrc || universalVideo}
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="auto"
-              onError={(e) => {
-                const t = e.target;
-                if (!t.src.includes('universal-fallback')) {
-                  t.src = universalVideo;
-                }
-              }}
-              style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center" }}
-            />
-            {/* Posture name overlay */}
-            <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/50 to-transparent pointer-events-none">
-              {cleanSubtitle && (
-                <span className="text-[11px] text-white/60 font-bold tracking-widest uppercase block">{cleanSubtitle}</span>
-              )}
-              <span className="text-[18px] font-bold text-white leading-tight">{posture.name}</span>
-            </div>
-
-            {/* TTS overlay bar */}
-            <div style={{ position: "absolute", bottom: 10, left: 10, right: 10, display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 10 }}>
-              <button
-                onClick={() => setMuted(!isMuted)}
-                disabled={ttsLoading}
-                style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.15)", backdropFilter: "blur(6px)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}
-                aria-label={isMuted ? "Unmute" : "Mute"}
-              >
-                {ttsLoading ? <RotateCcw className="w-4 h-4 animate-spin" /> : isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-              </button>
-              <button
-                onClick={() => speak(`${posture.name}. ${posture.how}`)}
-                style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.15)", backdropFilter: "blur(6px)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}
-                aria-label="Replay instructions"
-              >
-                <RotateCcw className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Instructions card */}
+          {/* Instruction overlay (minimal, bottom area above CTA) */}
           {posture.how && (
-            <div className="p-5 rounded-2xl bg-card border border-border shadow-calm mb-5">
-              <span className="text-[11px] font-medium uppercase tracking-widest block mb-3" style={{ color: "#888" }}>How to do this</span>
-              <p className="text-[15px] text-foreground leading-[1.7]">{posture.how}</p>
+            <div style={{ position: "absolute", bottom: 100, left: 20, right: 20, zIndex: 10, padding: "12px 16px", borderRadius: 14, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(10px)", color: "rgba(255,255,255,0.85)", fontSize: 14, lineHeight: 1.6 }}>
+              {posture.how}
             </div>
           )}
 
-          <PrimaryButton label="I've tried this →" onClick={() => { ttsTextRef.current = ""; stopTTS(); setShowingVideo(false); }} />
-          <div className="flex justify-center">
-            <button onClick={() => { ttsTextRef.current = ""; stopTTS(); setShowingVideo(false); }} style={{ color: '#888', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', marginTop: 8 }}>
-              Skip video →
+          {/* Bottom overlay: Next CTA */}
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 10, padding: "20px 20px 40px", background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)", display: "flex", justifyContent: "center" }}>
+            <button
+              onClick={() => { ttsTextRef.current = ""; stopTTS(); setShowingVideo(false); }}
+              style={{ width: "100%", maxWidth: 340, height: 52, borderRadius: 26, background: "hsl(var(--primary))", color: "white", fontSize: 16, fontWeight: 700, border: "none", cursor: "pointer", transition: "transform 0.1s", boxShadow: "0 4px 20px rgba(0,0,0,0.3)" }}
+              onMouseDown={e => e.currentTarget.style.transform = "scale(0.97)"}
+              onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
+            >
+              Next →
             </button>
           </div>
-        </Shell>
+        </div>
       );
     }
 
