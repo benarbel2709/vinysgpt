@@ -78,10 +78,10 @@ const AGE_GROUP_OPTIONS = [
 const NONE_OPTION = "None of the above";
 
 const SYSTEMIC_RED_FLAGS = [
-  "Pregnant or recently given birth",
-  "Recent surgery or injury",
-  "Currently seeing a physio or doctor for this condition",
-  "Significant balance issues",
+  "I'm pregnant or recently gave birth",
+  "I've had recent surgery or an injury",
+  "I'm currently seeing a physio or doctor for this condition",
+  "I have significant balance issues",
 ];
 
 const EQUIPMENT_CHOICES = [
