@@ -1163,7 +1163,7 @@ export default function OnboardingWizard() {
                 disabled={!canGoNext()}
                 className="text-base h-[35px] rounded-full px-5"
               >
-                {step === 2 ? "Continue building your plan →" : "Next →"}
+                {step === 2 ? "Start your plan →" : "Next →"}
               </Button>
             )}
           </div>
