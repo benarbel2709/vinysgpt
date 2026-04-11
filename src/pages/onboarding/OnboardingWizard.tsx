@@ -898,7 +898,71 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 6: Confirmation / Summary ═══ */}
+        {/* ═══ STEP 7: Systemic Safety Screen ═══ */}
+        {step === 7 && isSystemicFlow && (() => {
+          const SAFETY_OPTIONS = [
+            "I'm pregnant or recently gave birth",
+            "I've had recent surgery or an injury",
+            "I'm currently seeing a physio or doctor for this condition",
+            "I have significant balance issues",
+          ];
+          const noneSelected = safetyFlags.includes("none");
+
+          const toggleSafetyFlag = (flag: string) => {
+            if (flag === "none") {
+              setSafetyFlags(["none"]);
+              return;
+            }
+            setSafetyFlags(prev => {
+              const without = prev.filter(f => f !== "none");
+              return without.includes(flag) ? without.filter(f => f !== flag) : [...without, flag];
+            });
+          };
+
+          return (
+            <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
+              <h1 className="font-display text-foreground font-bold text-2xl mb-2">Before we build your plan…</h1>
+              <p className="text-muted-foreground text-sm mb-6">
+                We want to make sure your practice is safe. Please check any that apply — we'll adjust your practice accordingly.
+              </p>
+              <div className="flex flex-col gap-2">
+                {SAFETY_OPTIONS.map((flag) => {
+                  const isChecked = safetyFlags.includes(flag);
+                  return (
+                    <button
+                      key={flag}
+                      onClick={() => toggleSafetyFlag(flag)}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-[12px] border-2 transition-all text-left ${
+                        isChecked ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"
+                      }`}
+                    >
+                      <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${
+                        isChecked ? "border-secondary bg-secondary" : "border-border bg-card"
+                      }`}>
+                        {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
+                      </div>
+                      <span className="text-sm font-medium text-foreground">{flag}</span>
+                    </button>
+                  );
+                })}
+                <button
+                  onClick={() => toggleSafetyFlag("none")}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-[12px] border-2 transition-all text-left ${
+                    noneSelected ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${
+                    noneSelected ? "border-secondary bg-secondary" : "border-border bg-card"
+                  }`}>
+                    {noneSelected && <Check size={12} className="text-white" strokeWidth={3} />}
+                  </div>
+                  <span className="text-sm font-medium text-foreground">None of the above</span>
+                </button>
+              </div>
+            </div>
+          );
+        })()}
+
         {step === 6 &&
           (() => {
             const doStartOver = () => {
