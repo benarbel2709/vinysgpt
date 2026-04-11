@@ -405,11 +405,6 @@ export default function OnboardingWizard() {
       >
         {step !== 1 && step !== 2 && (
           <>
-            {postStep && (
-              <p className="text-xs text-muted-foreground/70 font-semibold uppercase tracking-wider text-center" style={{ marginTop: "24px" }}>
-                Step {postStep} of {POST_ASSESSMENT_TOTAL}
-              </p>
-            )}
             <h1
               className="font-display text-foreground font-bold text-2xl text-center shrink-0"
               style={{ marginTop: postStep ? "6px" : "30px" }}
