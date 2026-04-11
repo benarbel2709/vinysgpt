@@ -688,12 +688,12 @@ export default function OnboardingWizard() {
 
             {/* Sensitivity / irritability */}
             <div className="mb-6 text-left">
-              <p className="text-sm font-semibold text-foreground mb-3">How sensitive or reactive is your body today?</p>
+              <p className="text-sm font-semibold text-foreground mb-3">How has your condition been lately?</p>
               <div className="flex flex-col gap-2">
                 {([
-                  { value: 1, label: "Low", desc: "Feeling stable — I can handle normal intensity" },
-                  { value: 3, label: "Moderate", desc: "Somewhat reactive — keep it gentle" },
-                  { value: 5, label: "High", desc: "Very sensitive today — I need the gentlest approach" },
+                  { value: 1, label: "I'm actually improving", desc: "Feeling better — ready for a fuller practice" },
+                  { value: 3, label: "About the same", desc: "Steady — keep it balanced" },
+                  { value: 5, label: "I'm dipping", desc: "Symptoms are flaring — I need the gentlest approach" },
                 ] as const).map((opt) => (
                   <button
                     key={opt.value}
