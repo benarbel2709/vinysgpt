@@ -253,6 +253,7 @@ export default function ExerciseLibrary() {
   const [tab, setTab] = useState<Tab>("By Type");
   const [selected, setSelected] = useState<MasterExercise | null>(null);
 
+  useEffect(() => { document.title = "Exercise Library — Vinys"; }, []);
   const byCategory = useMemo(() => ({
     breath: MASTER_EXERCISES.filter(e => e.category === "breath"),
     mobility: MASTER_EXERCISES.filter(e => e.category === "mobility"),
