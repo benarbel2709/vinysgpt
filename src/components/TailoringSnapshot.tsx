@@ -4,8 +4,8 @@
  */
 import { useState } from "react";
 import { useApp } from "@/context/AppContext";
-import { ENERGY_LABELS, PRACTICE_TIME_LABELS, CONDITION_LABELS, EQUIPMENT_LABELS } from "@/constants/conditions";
-import { Sparkles, ChevronDown, ChevronUp, Clock, Zap, Sun, Target, Wrench } from "lucide-react";
+import { ENERGY_LABELS, CONDITION_LABELS, EQUIPMENT_LABELS } from "@/constants/conditions";
+import { Sparkles, ChevronDown, ChevronUp, Clock, Zap, Target } from "lucide-react";
 
 export default function TailoringSnapshot() {
   const { state } = useApp();
