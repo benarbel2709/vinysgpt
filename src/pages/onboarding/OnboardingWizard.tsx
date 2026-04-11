@@ -29,11 +29,6 @@ const MINUTES_OPTIONS = [
   { value: 20, label: "20 min" },
   { value: 30, label: "30 min" },
 ];
-const TIME_OF_DAY_OPTIONS: { value: PracticeTime; label: string }[] = [
-  { value: "morning", label: "Morning" },
-  { value: "afternoon", label: "Afternoon" },
-  { value: "evening", label: "Evening" },
-];
 const CLOSING_OPTIONS = [
   { value: "savasana" as const, label: "Savasana", desc: "Traditional lying-down rest and integration (3 minutes)" },
   { value: "body_rest" as const, label: "Body Rest & Integration", desc: "Gentle movement-based wind-down (3 minutes)" },
