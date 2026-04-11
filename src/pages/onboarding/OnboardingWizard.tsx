@@ -790,34 +790,63 @@ export default function OnboardingWizard() {
               <>
                 <p className="text-sm text-muted-foreground mb-4">We'll pace your practice based on your current capacity.</p>
 
-                {/* PEM checkbox */}
-                <button
-                  onClick={() => setCovidPEM(prev => !prev)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-[12px] border-2 transition-all text-left mb-4 ${covidPEM ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
-                >
-                  <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${covidPEM ? "border-secondary bg-secondary" : "border-border bg-card"}`}>
-                    {covidPEM && <Check size={12} className="text-white" strokeWidth={3} />}
+                {/* Energy yesterday */}
+                <div className="mb-8">
+                  <p className="text-sm font-semibold text-foreground mb-1">How was your energy yesterday?</p>
+                  <p className="text-xs text-muted-foreground mb-3">Post-exertional symptoms often appear 12–48 hours after activity</p>
+                  <div className="flex flex-col gap-2">
+                    {([
+                      { value: "very-low", label: "Very low — mostly resting" },
+                      { value: "low", label: "Low — light activity only" },
+                      { value: "moderate", label: "Moderate — managed some tasks" },
+                      { value: "good", label: "Good — near normal" },
+                    ] as const).map((opt) => (
+                      <button
+                        key={opt.value}
+                        onClick={() => setCovidEnergy(opt.value)}
+                        className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${covidEnergy === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
+                      >
+                        <span className="text-sm font-medium text-foreground">{opt.label}</span>
+                      </button>
+                    ))}
                   </div>
-                  <span className="text-sm font-medium text-foreground">Symptoms worsen 24–48 hours after activity</span>
-                </button>
+                </div>
 
-                {/* Energy capacity */}
-                <p className="text-sm font-semibold text-foreground mb-3">Current energy capacity</p>
-                <div className="flex flex-col gap-2">
-                  {([
-                    { value: "very-low", label: "Very low — mostly resting" },
-                    { value: "low", label: "Low — light activity only" },
-                    { value: "moderate", label: "Moderate — managed some tasks" },
-                    { value: "good", label: "Good — near normal" },
-                  ] as const).map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={() => setCovidEnergy(opt.value)}
-                      className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${covidEnergy === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
-                    >
-                      <span className="text-sm font-medium text-foreground">{opt.label}</span>
-                    </button>
-                  ))}
+                {/* Trajectory question */}
+                <div className="mb-8">
+                  <p className="text-sm font-semibold text-foreground mb-3">How has your condition been lately?</p>
+                  <div className="flex flex-col gap-2">
+                    {([
+                      { value: 1, label: "I'm actually improving", desc: "Feeling better — ready for a fuller practice" },
+                      { value: 3, label: "About the same", desc: "Steady — keep it balanced" },
+                      { value: 5, label: "I'm dipping", desc: "Symptoms are flaring — I need the gentlest approach" },
+                    ] as const).map((opt) => (
+                      <button
+                        key={opt.value}
+                        onClick={() => setLocalIrritability(opt.value)}
+                        className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${localIrritability === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
+                      >
+                        <span className="font-semibold text-sm text-foreground">{opt.label}</span>
+                        <span className="text-xs text-muted-foreground ml-2">{opt.desc}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Age group (optional) */}
+                <div>
+                  <p className="text-sm font-semibold text-foreground mb-3">What is your age group? <span className="font-normal text-muted-foreground">(optional)</span></p>
+                  <div className="flex flex-wrap gap-2">
+                    {AGE_GROUP_OPTIONS.map((ag) => (
+                      <button
+                        key={ag.value}
+                        onClick={() => setAgeGroup(prev => prev === ag.value ? "" : ag.value)}
+                        className={`px-4 py-2 rounded-[8px] border-2 text-sm font-medium transition-all ${ageGroup === ag.value ? "border-secondary bg-secondary/10 text-foreground" : "border-border bg-card text-foreground hover:border-secondary/40"}`}
+                      >
+                        {ag.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </>
             )}
