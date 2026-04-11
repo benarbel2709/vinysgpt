@@ -138,6 +138,7 @@ export default function OnboardingWizard() {
   const [isSystemicFlow, setIsSystemicFlow] = useState(false);
   const [systemicConditionKey, setSystemicConditionKey] = useState<ConditionKey | null>(null);
   const [localIrritability, setLocalIrritability] = useState(2);
+  const [safetyFlags, setSafetyFlags] = useState<string[]>([]);
 
   const toggle = useCallback((c: ConditionKey) => {
     setSelected((p) => (p.includes(c) ? p.filter((x) => x !== c) : [...p, c]));
@@ -215,6 +216,7 @@ export default function OnboardingWizard() {
         closingPreference: closingPref as "savasana" | "meditation" | "body_rest",
         availableEquipment: finalEquipment,
         restrictions: [],
+        safetyFlags: safetyFlags.filter(f => f !== "none"),
         diagnoses: [],
         diagnosticResult: { area: 'SYSTEMIC', primary: 'ST', secondary: null },
         diagnosticArea: 'SYSTEMIC',
@@ -281,6 +283,8 @@ export default function OnboardingWizard() {
       if (isSystemicFlow) {
         if (step === 3) { setStep(4); return; }
         if (step === 4) { setStep(5); return; }
+        if (step === 5) { setStep(7); return; }
+        if (step === 7) { setStep(6); return; }
       }
       setStep(step + 1);
     }
@@ -295,7 +299,8 @@ export default function OnboardingWizard() {
       if (step === 3) { setStep(0); setIsSystemicFlow(false); setSystemicConditionKey(null); setSelected([]); return; }
       if (step === 4) { setStep(3); return; }
       if (step === 5) { setStep(4); return; }
-      if (step === 6) { setStep(5); return; }
+      if (step === 7) { setStep(5); return; }
+      if (step === 6) { setStep(7); return; }
     }
     if (step === 2) {
       setStep(0);
@@ -352,8 +357,8 @@ export default function OnboardingWizard() {
   const AREA_LABELS: Record<string, string> = { LB: "Lower Back", HIP: "Hip", KNEE: "Knee", ANKLE: "Ankle & Foot", NECK: "Neck", UBACK: "Upper Back", WRIST: "Wrist & Hand", SHLDR: "Shoulder" };
 
   // Post-assessment step counter
-  const SYSTEMIC_STEP_MAP: Record<number, number> = { 3: 1, 4: 2, 5: 3 };
-  const POST_ASSESSMENT_TOTAL = isSystemicFlow ? 3 : 3;
+  const SYSTEMIC_STEP_MAP: Record<number, number> = { 3: 1, 4: 2, 5: 3, 7: 4 };
+  const POST_ASSESSMENT_TOTAL = isSystemicFlow ? 4 : 3;
   const getPostAssessmentStep = (s: number) => {
     if (isSystemicFlow) return SYSTEMIC_STEP_MAP[s] || null;
     if (s >= 3 && s <= 5) return s - 2;
@@ -379,7 +384,7 @@ export default function OnboardingWizard() {
             <BrandLogo size="md" linkToHome={false} />
           )}
           <div className="flex-1 flex justify-center">
-            {step < 6 && step !== 1 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
+            {step < 6 && step !== 1 && step !== 7 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
           </div>
           <button
             onClick={() => navigate("/")}
@@ -396,7 +401,7 @@ export default function OnboardingWizard() {
         className="flex-1 min-h-0 flex flex-col items-center overflow-y-auto overflow-x-hidden"
         style={{ maxWidth: "1100px", margin: "0 auto", width: "100%", padding: "0 24px 90px" }}
       >
-        {step !== 1 && step !== 2 && step !== 6 && (
+        {step !== 1 && step !== 2 && step !== 6 && step !== 7 && (
           <>
             <h1
               className="font-display text-foreground font-bold text-2xl text-center shrink-0"
@@ -414,11 +419,6 @@ export default function OnboardingWizard() {
         {step === 3 && isSystemicFlow && (
           <p className="text-muted-foreground text-center text-sm mt-1 shrink-0">
             This helps us set the right intensity for your practice.
-          </p>
-        )}
-        {step === 7 && (
-          <p className="text-muted-foreground text-center text-sm mt-1 shrink-0">
-            We'll build your personalized practice.
           </p>
         )}
 
@@ -899,7 +899,71 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 6: Confirmation / Summary ═══ */}
+        {/* ═══ STEP 7: Systemic Safety Screen ═══ */}
+        {step === 7 && isSystemicFlow && (() => {
+          const SAFETY_OPTIONS = [
+            "I'm pregnant or recently gave birth",
+            "I've had recent surgery or an injury",
+            "I'm currently seeing a physio or doctor for this condition",
+            "I have significant balance issues",
+          ];
+          const noneSelected = safetyFlags.includes("none");
+
+          const toggleSafetyFlag = (flag: string) => {
+            if (flag === "none") {
+              setSafetyFlags(["none"]);
+              return;
+            }
+            setSafetyFlags(prev => {
+              const without = prev.filter(f => f !== "none");
+              return without.includes(flag) ? without.filter(f => f !== flag) : [...without, flag];
+            });
+          };
+
+          return (
+            <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
+              <h1 className="font-display text-foreground font-bold text-2xl mb-2">Before we build your plan…</h1>
+              <p className="text-muted-foreground text-sm mb-6">
+                We want to make sure your practice is safe. Please check any that apply — we'll adjust your practice accordingly.
+              </p>
+              <div className="flex flex-col gap-2">
+                {SAFETY_OPTIONS.map((flag) => {
+                  const isChecked = safetyFlags.includes(flag);
+                  return (
+                    <button
+                      key={flag}
+                      onClick={() => toggleSafetyFlag(flag)}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-[12px] border-2 transition-all text-left ${
+                        isChecked ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"
+                      }`}
+                    >
+                      <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${
+                        isChecked ? "border-secondary bg-secondary" : "border-border bg-card"
+                      }`}>
+                        {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
+                      </div>
+                      <span className="text-sm font-medium text-foreground">{flag}</span>
+                    </button>
+                  );
+                })}
+                <button
+                  onClick={() => toggleSafetyFlag("none")}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-[12px] border-2 transition-all text-left ${
+                    noneSelected ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${
+                    noneSelected ? "border-secondary bg-secondary" : "border-border bg-card"
+                  }`}>
+                    {noneSelected && <Check size={12} className="text-white" strokeWidth={3} />}
+                  </div>
+                  <span className="text-sm font-medium text-foreground">None of the above</span>
+                </button>
+              </div>
+            </div>
+          );
+        })()}
+
         {step === 6 &&
           (() => {
             const doStartOver = () => {
@@ -920,6 +984,7 @@ export default function OnboardingWizard() {
               setLocalIrritability(2);
               setSystemicRedFlags([]);
               setAgeGroup("");
+              setSafetyFlags([]);
             };
             const editRow = (lbl: string, value: string, targetStep: number) => (
               <div className="flex items-center justify-between">
@@ -971,7 +1036,7 @@ export default function OnboardingWizard() {
       </div>
 
       {/* ── FIXED BOTTOM BUTTONS ── */}
-      {step !== 1 && step !== 0 && step < 6 && (
+      {(step !== 1 && step !== 0 && step < 6 || step === 7) && (
         <div
           className="fixed bottom-0 inset-x-0 z-40 pointer-events-none bg-background"
           style={{ paddingBottom: "40px", paddingTop: "16px", boxShadow: "0 -2px 8px rgba(0,0,0,0.04)" }}
@@ -989,6 +1054,15 @@ export default function OnboardingWizard() {
                   Continue →
                 </Button>
               </div>
+            ) : step === 7 ? (
+              <Button
+                variant="hero"
+                onClick={handleNext}
+                disabled={safetyFlags.length === 0}
+                className="text-base h-[35px] rounded-full px-5"
+              >
+                Continue →
+              </Button>
             ) : (
               <Button
                 variant="hero"
