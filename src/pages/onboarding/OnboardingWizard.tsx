@@ -984,6 +984,7 @@ export default function OnboardingWizard() {
               setLocalIrritability(2);
               setSystemicRedFlags([]);
               setAgeGroup("");
+              setSafetyFlags([]);
             };
             const editRow = (lbl: string, value: string, targetStep: number) => (
               <div className="flex items-center justify-between">
