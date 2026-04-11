@@ -1034,7 +1034,7 @@ export default function OnboardingWizard() {
       </div>
 
       {/* ── FIXED BOTTOM BUTTONS ── */}
-      {(step !== 1 && step !== 0 && step < 6) || step === 7 ? (
+      {(step !== 1 && step !== 0 && step < 6 || step === 7) && (
         <div
           className="fixed bottom-0 inset-x-0 z-40 pointer-events-none bg-background"
           style={{ paddingBottom: "40px", paddingTop: "16px", boxShadow: "0 -2px 8px rgba(0,0,0,0.04)" }}
@@ -1052,6 +1052,15 @@ export default function OnboardingWizard() {
                   Continue →
                 </Button>
               </div>
+            ) : step === 7 ? (
+              <Button
+                variant="hero"
+                onClick={handleNext}
+                disabled={safetyFlags.length === 0}
+                className="text-base h-[35px] rounded-full px-5"
+              >
+                Continue →
+              </Button>
             ) : (
               <Button
                 variant="hero"
