@@ -790,47 +790,47 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 4: Equipment (FIX 6 Step B) ═══ */}
+        {/* ═══ STEP 4: Duration + Equipment ═══ */}
         {step === 4 && (
-          <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
-            <div className="flex flex-col" style={{ gap: "10px" }}>
-              {EQUIPMENT_CHOICES.map((eq) => {
-                const isChecked = equipment.includes(eq.key);
-                return (
-                  <button
-                    key={eq.key}
-                    onClick={() => toggleEquip(eq.key)}
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-[8px] border-2 transition-all text-left ${
-                      isChecked ? "border-secondary bg-secondary/10" : "border-border bg-card"
-                    } ${eq.alwaysOn ? "opacity-80" : ""}`}
-                  >
-                    <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${
-                      isChecked ? "border-secondary bg-secondary" : "border-border bg-card"
-                    }`}>
-                      {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
-                    </div>
-                    <span className="text-sm font-medium text-foreground">{eq.label}</span>
-                    {eq.alwaysOn && <span className="text-xs text-muted-foreground ml-auto">(always included)</span>}
-                  </button>
-                );
-              })}
+          <div className="w-full text-center" style={{ marginTop: "20px", maxWidth: "560px" }}>
+            <DurationSelector value={minutesPerSession} onChange={(v) => { setMinutesPerSession(v); setDurationSelected(true); }} />
+
+            <div style={{ marginTop: "32px" }}>
+              <h2 className="font-display text-foreground font-bold text-lg text-center mb-4">What equipment do you have?</h2>
+              <div className="flex flex-col" style={{ gap: "10px" }}>
+                {EQUIPMENT_CHOICES.map((eq) => {
+                  const isChecked = equipment.includes(eq.key);
+                  return (
+                    <button
+                      key={eq.key}
+                      onClick={() => toggleEquip(eq.key)}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-[8px] border-2 transition-all text-left ${
+                        isChecked ? "border-secondary bg-secondary/10" : "border-border bg-card"
+                      } ${eq.alwaysOn ? "opacity-80" : ""}`}
+                    >
+                      <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${
+                        isChecked ? "border-secondary bg-secondary" : "border-border bg-card"
+                      }`}>
+                        {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
+                      </div>
+                      <span className="text-sm font-medium text-foreground">{eq.label}</span>
+                      {eq.alwaysOn && <span className="text-xs text-muted-foreground ml-auto">(always included)</span>}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
 
-        {/* ═══ STEP 5: Session Duration (DurationSelector) ═══ */}
+        {/* ═══ STEP 5: Session Closing ═══ */}
         {step === 5 && (
-          <DurationSelector value={minutesPerSession} onChange={(v) => { setMinutesPerSession(v); setDurationSelected(true); }} />
-        )}
-
-        {/* ═══ STEP 6: Session Closing ═══ */}
-        {step === 6 && (
           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "440px" }}>
             <div className="flex flex-col" style={{ gap: "12px" }}>
               {CLOSING_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
-                  onClick={() => { setClosingPref(opt.value); setTimeout(() => setStep(7), 250); }}
+                  onClick={() => { setClosingPref(opt.value); setTimeout(() => setStep(6), 250); }}
                   className={`w-full text-left p-4 rounded-[12px] border-2 transition-all ${
                     closingPref === opt.value ? tagSelected : tagUnselected
                   }`}
