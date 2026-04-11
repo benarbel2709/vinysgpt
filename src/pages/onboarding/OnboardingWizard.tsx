@@ -729,7 +729,7 @@ export default function OnboardingWizard() {
             {(systemicConditionKey === "fibromyalgia" || systemicConditionKey === "chronic_fatigue_syndrome") && (
               <>
                 <p className="text-sm text-muted-foreground mb-4">This helps us calibrate the right intensity for today.</p>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 mb-8">
                   {([
                     { value: "flare-high", label: "Much higher — definite flare" },
                     { value: "flare-slight", label: "Slightly higher than usual" },
@@ -744,6 +744,43 @@ export default function OnboardingWizard() {
                       <span className="text-sm font-medium text-foreground">{opt.label}</span>
                     </button>
                   ))}
+                </div>
+
+                {/* Trajectory question */}
+                <div className="mb-8">
+                  <p className="text-sm font-semibold text-foreground mb-3">How has your condition been lately?</p>
+                  <div className="flex flex-col gap-2">
+                    {([
+                      { value: 1, label: "I'm actually improving", desc: "Feeling better — ready for a fuller practice" },
+                      { value: 3, label: "About the same", desc: "Steady — keep it balanced" },
+                      { value: 5, label: "I'm dipping", desc: "Symptoms are flaring — I need the gentlest approach" },
+                    ] as const).map((opt) => (
+                      <button
+                        key={opt.value}
+                        onClick={() => setLocalIrritability(opt.value)}
+                        className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${localIrritability === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
+                      >
+                        <span className="font-semibold text-sm text-foreground">{opt.label}</span>
+                        <span className="text-xs text-muted-foreground ml-2">{opt.desc}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Age group (optional) */}
+                <div>
+                  <p className="text-sm font-semibold text-foreground mb-3">What is your age group? <span className="font-normal text-muted-foreground">(optional)</span></p>
+                  <div className="flex flex-wrap gap-2">
+                    {AGE_GROUP_OPTIONS.map((ag) => (
+                      <button
+                        key={ag.value}
+                        onClick={() => setAgeGroup(prev => prev === ag.value ? "" : ag.value)}
+                        className={`px-4 py-2 rounded-[8px] border-2 text-sm font-medium transition-all ${ageGroup === ag.value ? "border-secondary bg-secondary/10 text-foreground" : "border-border bg-card text-foreground hover:border-secondary/40"}`}
+                      >
+                        {ag.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </>
             )}
