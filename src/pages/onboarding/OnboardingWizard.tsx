@@ -78,12 +78,10 @@ const AGE_GROUP_OPTIONS = [
 const NONE_OPTION = "None of the above";
 
 const SYSTEMIC_RED_FLAGS = [
-  "Chest pain, pressure, or tightness during or after light activity",
-  "Sudden severe headache, vision changes, or loss of consciousness",
-  "Unexplained rapid weight loss (not intentional)",
-  "New or worsening numbness, weakness, or loss of coordination",
-  "Difficulty breathing at rest or with minimal effort",
-  "Severe dizziness or fainting episodes",
+  "Pregnant or recently given birth",
+  "Recent surgery or injury",
+  "Currently seeing a physio or doctor for this condition",
+  "Significant balance issues",
 ];
 
 const EQUIPMENT_CHOICES = [
@@ -716,14 +714,14 @@ export default function OnboardingWizard() {
               </div>
             </div>
 
-            {/* Safety red flags */}
+            {/* Safety check */}
             <div className="text-left mt-8">
               <div className="flex items-center gap-2 mb-3">
                 <AlertTriangle size={16} className="text-destructive" />
                 <p className="text-sm font-semibold text-destructive">Safety check</p>
               </div>
               <p className="text-xs text-muted-foreground mb-3">
-                If any of the following apply to you right now, please consult a healthcare provider first — we'll adjust your practice accordingly.
+                We want to make sure your practice is safe. Please check any that apply — we'll adjust your practice accordingly.
               </p>
               <div className="flex flex-col gap-2">
                 {SYSTEMIC_RED_FLAGS.map((flag) => {
