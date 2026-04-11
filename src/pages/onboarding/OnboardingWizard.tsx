@@ -796,7 +796,7 @@ export default function OnboardingWizard() {
                       { value: "very-low", label: "Very low — mostly resting" },
                       { value: "low", label: "Low — light activity only" },
                       { value: "moderate", label: "Moderate — managed some tasks" },
-                      { value: "good", label: "Good — near normal" },
+                      { value: "good", label: "Good — fairly active" },
                     ] as const).map((opt) => (
                       <button
                         key={opt.value}
