@@ -184,7 +184,7 @@ export default function Plan() {
       <NavBar onStart={handleStartNextPractice} onAccountClick={() => setShowAccount(true)} onLibraryClick={() => { setLibraryInitialId(null); setShowLibrary(true); }} />
 
       <div className="px-6 py-8 max-w-5xl mx-auto space-y-8">
-        {/* 2) GREETING */}
+        {/* GREETING */}
         <GreetingBlock greeting={greetingDisplay} greetingSuffix={greetingSuffix} user={user} showAccount={showAccount} setShowAccount={setShowAccount} firstName={firstName} setFirstName={setFirstName} />
 
         {/* Guest save-progress banner */}
@@ -207,191 +207,67 @@ export default function Plan() {
 
         <SignInModal open={showSignIn} onOpenChange={setShowSignIn} />
 
-        {/* First-session welcome banner (before any sessions done) */}
-        {completedCount === 0 && (
-          <div className="rounded-2xl p-6" style={{ background: "linear-gradient(135deg, hsl(var(--surface-warm)), hsl(var(--surface-soft)))", border: "1px solid hsl(var(--border))" }}>
-            <div className="flex items-start gap-3">
-              <Sparkles size={20} className="text-primary mt-0.5 shrink-0" />
-              <div>
-                <p className="text-foreground font-semibold text-[15px]">Your practice is ready — it only takes {state.profile.minutesPerSession} minutes.</p>
-                <Button variant="hero" size="sm" className="mt-3 rounded-full px-5" onClick={() => navigate("/workout")}>
-                  Start Practice →
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Stage progress indicator */}
-        <StageProgressIndicator />
-
-        {/* Explore exercises CTA */}
+        {/* PRIMARY CTA — Start Practice */}
         <button
-          onClick={() => navigate("/exercises")}
-          className="w-full rounded-2xl p-4 text-left flex items-center justify-between transition-colors hover:shadow-sm"
-          style={{ background: "hsl(var(--surface-sage))", border: "1px solid hsl(var(--border))" }}
+          onClick={handleStartNextPractice}
+          className="w-full rounded-2xl p-8 text-center transition-all hover:shadow-lg active:scale-[0.99]"
+          style={{ background: "#4A7B6F" }}
         >
-          <span className="text-sm font-semibold text-foreground">Explore all exercises</span>
-          <span className="text-secondary font-medium text-sm">→</span>
+          <Play size={32} className="mx-auto mb-3 text-white" />
+          <span className="block text-white text-xl font-bold">Start practice</span>
+          <span className="block text-white/70 text-sm mt-1.5">
+            {state.profile.minutesPerSession} min · {state.profile.energyLevel === "high" ? "Vigorous" : state.profile.energyLevel === "medium" ? "Moderate" : "Gentle"}
+          </span>
         </button>
 
-        {/* First-session milestone banner (after first ever session) */}
-        {completedCount === 1 && !milestoneDismissed && (
-          <div className="rounded-2xl p-5 flex items-center gap-3" style={{ background: "hsl(var(--surface-warm))", border: "1px solid hsl(var(--border))" }}>
-            <Check size={20} className="text-secondary shrink-0" />
-            <p className="text-foreground font-medium text-sm flex-1">Your plan is ready. Start your first practice when you're ready.</p>
-            <button onClick={() => { setMilestoneDismissed(true); localStorage.setItem("vinys_milestone_first_done", "1"); }} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
-              <X size={16} />
-            </button>
-          </div>
-        )}
-
-        {/* 3) TOP STATS ROW */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <WeeklyTargetCard completedCount={completedCount} target={weekly.target} />
-          <div className="rounded-2xl text-white p-6 flex flex-col justify-between min-h-[120px]" style={{ background: "#028090" }}>
-            <span className="text-sm font-medium opacity-90">Time practicing</span>
-            <span className="text-[40px] sm:text-[44px] font-bold leading-[1.05] tracking-[-0.01em]">
-              {(() => {
-                const totalMin = plan?.sessions.filter(s => s.status === "done").reduce((sum, s) => sum + s.durationMinutes, 0) || 0;
-                const h = Math.floor(totalMin / 60);
-                const m = totalMin % 60;
-                return h > 0 ? `${h}h ${m} min` : `${m} min`;
-              })()}
-            </span>
-          </div>
-          <div className="rounded-2xl bg-foreground text-background p-6 flex flex-col justify-between min-h-[120px]">
-            <span className="text-sm font-medium opacity-90">Practices done</span>
-            <span className="text-[40px] sm:text-[44px] font-bold leading-[1.05] tracking-[-0.01em]">{completedCount}</span>
+        {/* WEEKLY PROGRESS — inline text */}
+        <div className="text-center">
+          <p className="text-foreground text-lg font-semibold">
+            {completedCount} / {weekly.target} sessions this week
+          </p>
+          <div className="w-full max-w-xs mx-auto h-1.5 rounded-full bg-foreground/10 mt-2 overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all"
+              style={{ width: `${Math.min((completedCount / weekly.target) * 100, 100)}%`, backgroundColor: "#4A7B6F" }}
+            />
           </div>
         </div>
 
-        {/* 5) DATA GRID (2x2) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* My conditions */}
-          <div className="rounded-2xl bg-surface-warm p-6 flex flex-col overflow-hidden">
-            <div className="flex items-center justify-between shrink-0 mb-4">
-              <h3 className="text-lg font-bold text-foreground">My conditions</h3>
+        {/* SECONDARY ITEMS — max 2-3 passive cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Conditions summary */}
+          <div className="rounded-2xl bg-surface-warm p-5">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-foreground">My conditions</h3>
               <button
                 onClick={() => { setPendingConditions([]); setConditionSearch(""); setShowAddCondition(true); }}
-                className="text-foreground/60 hover:text-foreground transition-colors"
+                className="text-foreground/40 hover:text-foreground transition-colors"
               >
-                <Plus size={20} />
+                <Plus size={16} />
               </button>
             </div>
-            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain pr-2 space-y-4" style={{ scrollbarWidth: "thin" }}>
-              {conditions.length > 0 ? conditions.map((c) => (
-                <div key={c} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-secondary font-semibold">{conditionLabel(c)}</span>
-                    <button
-                      onClick={() => setEditingCondition(c)}
-                      className="text-muted-foreground/60 hover:text-muted-foreground transition-colors"
-                    >
-                      <MinusCircle size={18} />
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {(state.profile as any).painAreas?.map((a: string) => (
-                      <span key={a} className="px-3 py-1.5 rounded-full border border-foreground/20 text-sm text-foreground">{a}</span>
-                    ))}
-                  </div>
-                  <hr className="border-border" />
-                </div>
-              )) : (
-                <p className="text-muted-foreground text-sm">No conditions selected</p>
-              )}
-              {/* Last session summary */}
-              {completedSessions.length > 0 && (() => {
-                const last = completedSessions[completedSessions.length - 1];
-                const dateStr = last.checkin ? "Today" : "Recently";
-                return (
-                  <div className="pt-2 mt-auto">
-                    <p className="text-xs text-muted-foreground">Last practice: {dateStr} · {last.durationMinutes} min</p>
-                  </div>
-                );
-              })()}
-            </div>
-          </div>
-
-          {/* My next sessions */}
-          <div className="rounded-2xl bg-surface-warm p-5 flex flex-col overflow-hidden">
-            <div className="flex flex-wrap items-center justify-between gap-2 shrink-0 mb-4">
-              <h3 className="text-lg font-bold text-foreground">My next practice</h3>
-            </div>
-            <div className="flex-1 min-h-0 flex flex-col items-center justify-center py-6 space-y-4">
-              <p className="text-sm text-muted-foreground text-center max-w-[260px]">
-                Each session is freshly generated based on your diagnostic profile and progress.
-              </p>
-              <Button variant="hero" size="lg" className="rounded-full px-8" onClick={() => navigate("/workout")}>
-                <Play size={18} /> Start Practice
-              </Button>
-            </div>
-          </div>
-
-          {/* My practice Set up */}
-          <div className="rounded-2xl bg-surface-warm p-6 flex flex-col overflow-hidden">
-            <h3 className="text-lg font-bold text-foreground shrink-0 mb-4">My practice set up</h3>
-            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain pr-2 space-y-4" style={{ scrollbarWidth: "thin" }}>
-              <SetupRow
-                icon={<Clock size={20} className="text-foreground/50" />}
-                label="Practice time"
-                value={`${state.profile.minutesPerSession} minutes`}
-                onEdit={() => { setTempMinutes(state.profile.minutesPerSession); setTempLevel(state.profile.energyLevel); setTempSessions(state.profile.sessionsPerWeek); setEditingSetup(true); }}
-              />
-              <hr className="border-border" />
-              <div className="flex items-center justify-between group relative">
-                <div className="flex items-start gap-3.5">
-                  <span className="mt-0.5"><Activity size={20} className="text-foreground/50" /></span>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Practice level</p>
-                    <p className="text-lg font-bold text-secondary">{state.profile.energyLevel === "high" ? "Vigorous" : state.profile.energyLevel === "medium" ? "Moderate" : "Gentle"}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="relative">
-                    <button className="text-muted-foreground/40 hover:text-muted-foreground transition-colors peer" aria-label="What is practice level?">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
-                    </button>
-                    <div className="absolute bottom-full right-0 mb-2 w-64 p-3 rounded-xl bg-foreground text-background text-xs leading-relaxed shadow-lg opacity-0 pointer-events-none peer-hover:opacity-100 peer-focus:opacity-100 peer-hover:pointer-events-auto transition-opacity z-50">
-                      Your practice level is set based on your movement assessment and sensitivity score. It adjusts automatically over time.
-                    </div>
-                  </div>
-                  <button onClick={() => { setTempMinutes(state.profile.minutesPerSession); setTempLevel(state.profile.energyLevel); setTempSessions(state.profile.sessionsPerWeek); setEditingSetup(true); }} className="text-muted-foreground/60 hover:text-foreground transition-colors">
-                    <Pencil size={18} />
-                  </button>
-                </div>
+            {conditions.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {conditions.map((c) => (
+                  <span key={c} className="px-3 py-1 rounded-full text-xs font-medium border border-border text-foreground">
+                    {conditionLabel(c)}
+                  </span>
+                ))}
               </div>
-              <hr className="border-border" />
-              <SetupRow
-                icon={<CalendarDays size={20} className="text-foreground/50" />}
-                label="Sessions per week"
-                value={`${state.profile.sessionsPerWeek}`}
-                onEdit={() => { setTempMinutes(state.profile.minutesPerSession); setTempLevel(state.profile.energyLevel); setTempSessions(state.profile.sessionsPerWeek); setEditingSetup(true); }}
-              />
-            </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">No conditions selected</p>
+            )}
           </div>
 
           {/* Quick Check-In */}
           <QuickCheckinCard hasCompletedSessions={completedCount > 0} />
         </div>
 
-        {/* My Progress — session history */}
-        <div className="rounded-2xl bg-surface-warm p-6">
-          <h3 className="text-lg font-bold text-foreground mb-1">My progress</h3>
-          <p className="text-sm text-muted-foreground mb-4">This week: {weekly.completed} of {weekly.target} sessions completed</p>
-          {completedSessions.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4 text-center">Your completed sessions will appear here. Start Practice 01 to begin your journey.</p>
-          ) : (
-            <SessionHistoryList completedSessions={completedSessions} exerciseLibrary={state.exerciseLibrary} />
-          )}
-        </div>
-
-        {/* Restart program — outside grid */}
-        <div className="pt-8 mt-12 mb-16 border-t" style={{ borderColor: "rgba(0,0,0,0.06)" }}>
+        {/* Restart program */}
+        <div className="pt-6 mt-8 mb-16 border-t" style={{ borderColor: "rgba(0,0,0,0.06)" }}>
           <Button
             variant="outline"
-            className="w-full rounded-full border-foreground/30 text-foreground text-sm h-14"
+            className="w-full rounded-full border-foreground/30 text-foreground text-sm h-12"
             onClick={() => setShowRestart(true)}
           >
             Restart program
