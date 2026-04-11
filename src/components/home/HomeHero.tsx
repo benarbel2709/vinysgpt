@@ -25,7 +25,7 @@ export default function HomeHero() {
           className="absolute inset-0 z-[1]"
           style={{ background: "linear-gradient(to right, rgba(15,10,6,0.70) 0%, rgba(15,10,6,0.50) 35%, rgba(15,10,6,0.22) 60%, rgba(15,10,6,0.00) 80%)" }}
         />
-        <div className="relative z-[2] flex items-end sm:items-center h-full vinys-container pb-12 sm:pb-0" style={{ paddingTop: "100px" }}>
+        <div className="relative z-[2] flex items-end sm:items-center h-full vinys-container pb-20 sm:pb-16" style={{ paddingTop: "100px" }}>
           <div className="max-w-[520px] text-center sm:text-left">
             <p className="text-xs font-semibold uppercase tracking-[0.15em] mb-3" style={{ color: "rgba(255,255,255,0.55)" }}>
               Therapeutic Yoga, Built for Your Body
