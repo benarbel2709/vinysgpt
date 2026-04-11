@@ -190,7 +190,7 @@ export default function OnboardingWizard() {
   const canGoNext = (): boolean => {
     switch (step) {
       case 0:
-        return !!selectedArea;
+        return selectedBodyZones.length > 0;
       case 1:
         return !!diagnosticResult;
       case 2:
