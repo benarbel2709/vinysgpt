@@ -122,6 +122,7 @@ export default function OnboardingWizard() {
 
   useEffect(() => { document.title = "Build Your Plan — Vinys"; }, []);
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
+  const [selectedBodyZones, setSelectedBodyZones] = useState<string[]>([]);
   const [selected, setSelected] = useState<ConditionKey[]>([]);
   const [conditionDetails, setConditionDetails] = useState<Record<string, string[]>>({});
   const [diagnosticResult, setDiagnosticResult] = useState<any>(null);
