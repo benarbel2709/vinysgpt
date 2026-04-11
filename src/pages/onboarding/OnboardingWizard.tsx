@@ -181,10 +181,8 @@ export default function OnboardingWizard() {
       case 5:
         return true; // duration has default
       case 6:
-        return true; // schedule has defaults
-      case 7:
         return !!closingPref;
-      case 8:
+      case 7:
         return true;
       default:
         return true;
