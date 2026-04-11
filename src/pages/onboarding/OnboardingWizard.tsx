@@ -11,7 +11,7 @@ import BrandLogo from "@/components/BrandLogo";
 import DurationSelector from "@/components/onboarding/DurationSelector";
 import FlowProgress from "@/components/FlowProgress";
 import { Button } from "@/components/ui/button";
-import { X, Check, Pencil, Clock, Lock, ChevronLeft } from "lucide-react";
+import { X, Check, Pencil, Clock, Lock, ChevronLeft, AlertTriangle } from "lucide-react";
 import { useState as useStateReact } from "react";
 import {
   Dialog,
@@ -77,6 +77,15 @@ const AGE_GROUP_OPTIONS = [
 
 const NONE_OPTION = "None of the above";
 
+const SYSTEMIC_RED_FLAGS = [
+  "Chest pain, pressure, or tightness during or after light activity",
+  "Sudden severe headache, vision changes, or loss of consciousness",
+  "Unexplained rapid weight loss (not intentional)",
+  "New or worsening numbness, weakness, or loss of coordination",
+  "Difficulty breathing at rest or with minimal effort",
+  "Severe dizziness or fainting episodes",
+];
+
 const EQUIPMENT_CHOICES = [
   { key: "mat", label: "Yoga mat", alwaysOn: true },
   { key: "blocks", label: "Yoga blocks", alwaysOn: false },
@@ -117,6 +126,7 @@ export default function OnboardingWizard() {
   const [selected, setSelected] = useState<ConditionKey[]>([]);
   const [conditionDetails, setConditionDetails] = useState<Record<string, string[]>>({});
   const [diagnosticResult, setDiagnosticResult] = useState<any>(null);
+  const [systemicRedFlags, setSystemicRedFlags] = useState<string[]>([]);
   const [restrictions, setRestrictions] = useState<string[]>([]);
   const [selectedDiagnoses, setSelectedDiagnoses] = useState<string[]>([]);
   const [ageGroup, setAgeGroup] = useState<string>("");
@@ -271,7 +281,7 @@ export default function OnboardingWizard() {
   const handleNext = () => {
     if (step < TOTAL_STEPS - 1) {
       if (isSystemicFlow) {
-        if (step === 3) { setStep(4); return; }
+        if (step === 3) { if (systemicRedFlags.length > 0) { navigate("/stop"); return; } setStep(4); return; }
         if (step === 4) { setStep(5); return; }
       }
       setStep(step + 1);
@@ -705,6 +715,38 @@ export default function OnboardingWizard() {
                 ))}
               </div>
             </div>
+
+            {/* Safety red flags */}
+            <div className="text-left mt-8">
+              <div className="flex items-center gap-2 mb-3">
+                <AlertTriangle size={16} className="text-destructive" />
+                <p className="text-sm font-semibold text-destructive">Safety check</p>
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">
+                Please stop and consult a healthcare provider if any of the following apply to you right now.
+              </p>
+              <div className="flex flex-col gap-2">
+                {SYSTEMIC_RED_FLAGS.map((flag) => {
+                  const isChecked = systemicRedFlags.includes(flag);
+                  return (
+                    <button
+                      key={flag}
+                      onClick={() => setSystemicRedFlags(prev => prev.includes(flag) ? prev.filter(f => f !== flag) : [...prev, flag])}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-[8px] border-2 transition-all text-left ${
+                        isChecked ? "border-destructive bg-destructive/10" : "border-border bg-card"
+                      }`}
+                    >
+                      <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${
+                        isChecked ? "border-destructive bg-destructive" : "border-border bg-card"
+                      }`}>
+                        {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
+                      </div>
+                      <span className="text-sm text-foreground">{flag}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         )}
         {step === 3 && !isSystemicFlow && (
@@ -862,6 +904,7 @@ export default function OnboardingWizard() {
               setIsSystemicFlow(false);
               setSystemicConditionKey(null);
               setLocalIrritability(2);
+              setSystemicRedFlags([]);
               setAgeGroup("");
             };
             const editRow = (lbl: string, value: string, targetStep: number) => (
