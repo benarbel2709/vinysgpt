@@ -12,7 +12,7 @@ export default function HomeHero() {
 
   return (
     <>
-      <section className="relative w-full overflow-hidden" style={{ height: "clamp(520px, 62vh, 660px)" }}>
+      <section className="relative w-full overflow-hidden" style={{ minHeight: "clamp(580px, 72vh, 780px)" }}>
         <div
           className="absolute inset-0"
           style={{
