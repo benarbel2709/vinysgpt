@@ -140,7 +140,7 @@ function ExerciseDetailSheet({ master, onClose }: { master: MasterExercise; onCl
       
       {/* Sheet */}
       <motion.div
-        className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-t-3xl"
+        className="relative w-full max-w-lg max-h-[85vh] rounded-t-3xl flex flex-col"
         style={{ background: "hsl(var(--card))" }}
         initial={{ y: "100%" }}
         animate={{ y: 0 }}
@@ -148,7 +148,7 @@ function ExerciseDetailSheet({ master, onClose }: { master: MasterExercise; onCl
         transition={{ type: "spring", damping: 28, stiffness: 300 }}
       >
         {/* Handle */}
-        <div className="sticky top-0 z-10 flex justify-center pt-3 pb-1" style={{ background: "hsl(var(--card))" }}>
+        <div className="sticky top-0 z-10 flex justify-center pt-3 pb-1 flex-shrink-0" style={{ background: "hsl(var(--card))" }}>
           <div className="w-10 h-1 rounded-full bg-muted-foreground/25" />
         </div>
 
@@ -156,79 +156,87 @@ function ExerciseDetailSheet({ master, onClose }: { master: MasterExercise; onCl
           <X size={18} />
         </button>
 
-        <div className="px-5 pb-6 space-y-5">
-          <ExerciseAnimationV8 exercise={exercise} large />
+        <div className="overflow-y-auto flex-1 min-h-0">
+          <div className="px-5 pb-6 space-y-5">
+            <ExerciseAnimationV8 exercise={exercise} large />
 
-          <div>
-            <h2 className="font-display font-bold text-foreground text-xl">{master.title}</h2>
-            <div className="flex items-center gap-2 mt-2">
-              <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${CAT_COLORS[master.category]}`}>
-                {CAT_LABELS[master.category]}
-              </span>
-              <span className="text-xs text-muted-foreground">{master.durationMin} min</span>
+            <div>
+              <h2 className="font-display font-bold text-foreground text-xl">{master.title}</h2>
+              <div className="flex items-center gap-2 mt-2">
+                <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${CAT_COLORS[master.category]}`}>
+                  {CAT_LABELS[master.category]}
+                </span>
+                <span className="text-xs text-muted-foreground">{master.durationMin} min</span>
+              </div>
             </div>
+
+            {/* Why */}
+            <div>
+              <h4 className="text-sm font-semibold text-foreground mb-1">Benefits</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">{master.why}</p>
+            </div>
+
+            {/* Instructions */}
+            <div>
+              <h4 className="text-sm font-semibold text-foreground mb-1">Instructions</h4>
+              <ol className="text-sm text-muted-foreground leading-relaxed space-y-1.5 list-decimal list-inside">
+                {master.instructions.map((step, i) => (
+                  <li key={i}>{step}</li>
+                ))}
+              </ol>
+            </div>
+
+            {/* Breathing */}
+            {master.breathing && (
+              <div>
+                <h4 className="text-sm font-semibold text-foreground mb-1">Breathing</h4>
+                <p className="text-sm text-muted-foreground">{master.breathing}</p>
+              </div>
+            )}
+
+            {/* Safety */}
+            {master.safety && (
+              <div>
+                <h4 className="text-sm font-semibold text-foreground mb-1">Safety</h4>
+                <p className="text-sm text-muted-foreground">{master.safety}</p>
+              </div>
+            )}
+
+            {/* Contraindications */}
+            {master.contraindications && master.contraindications.length > 0 && (
+              <div>
+                <h4 className="text-sm font-semibold text-foreground mb-1">Contraindications</h4>
+                <ul className="text-sm text-muted-foreground list-disc list-inside space-y-0.5">
+                  {master.contraindications.map((c, i) => <li key={i}>{c}</li>)}
+                </ul>
+              </div>
+            )}
+
+            {/* Equipment */}
+            {master.equipment && master.equipment.length > 0 && (
+              <div>
+                <h4 className="text-sm font-semibold text-foreground mb-1">Equipment</h4>
+                <p className="text-sm text-muted-foreground">{master.equipment.join(", ")}</p>
+              </div>
+            )}
+
+            {/* Start button */}
+            <button
+              onClick={handleStart}
+              className="w-full h-12 rounded-2xl font-semibold text-[15px] flex items-center justify-center gap-2 transition-colors"
+              style={{ background: "hsl(var(--secondary))", color: "hsl(var(--secondary-foreground))" }}
+            >
+              Start this exercise
+              <ChevronRight size={16} />
+            </button>
           </div>
-
-          {/* Why */}
-          <div>
-            <h4 className="text-sm font-semibold text-foreground mb-1">Benefits</h4>
-            <p className="text-sm text-muted-foreground leading-relaxed">{master.why}</p>
-          </div>
-
-          {/* Instructions */}
-          <div>
-            <h4 className="text-sm font-semibold text-foreground mb-1">Instructions</h4>
-            <ol className="text-sm text-muted-foreground leading-relaxed space-y-1.5 list-decimal list-inside">
-              {master.instructions.map((step, i) => (
-                <li key={i}>{step}</li>
-              ))}
-            </ol>
-          </div>
-
-          {/* Breathing */}
-          {master.breathing && (
-            <div>
-              <h4 className="text-sm font-semibold text-foreground mb-1">Breathing</h4>
-              <p className="text-sm text-muted-foreground">{master.breathing}</p>
-            </div>
-          )}
-
-          {/* Safety */}
-          {master.safety && (
-            <div>
-              <h4 className="text-sm font-semibold text-foreground mb-1">Safety</h4>
-              <p className="text-sm text-muted-foreground">{master.safety}</p>
-            </div>
-          )}
-
-          {/* Contraindications */}
-          {master.contraindications && master.contraindications.length > 0 && (
-            <div>
-              <h4 className="text-sm font-semibold text-foreground mb-1">Contraindications</h4>
-              <ul className="text-sm text-muted-foreground list-disc list-inside space-y-0.5">
-                {master.contraindications.map((c, i) => <li key={i}>{c}</li>)}
-              </ul>
-            </div>
-          )}
-
-          {/* Equipment */}
-          {master.equipment && master.equipment.length > 0 && (
-            <div>
-              <h4 className="text-sm font-semibold text-foreground mb-1">Equipment</h4>
-              <p className="text-sm text-muted-foreground">{master.equipment.join(", ")}</p>
-            </div>
-          )}
-
-          {/* Start button */}
-          <button
-            onClick={handleStart}
-            className="w-full h-12 rounded-2xl font-semibold text-[15px] flex items-center justify-center gap-2 transition-colors"
-            style={{ background: "hsl(var(--secondary))", color: "hsl(var(--secondary-foreground))" }}
-          >
-            Start this exercise
-            <ChevronRight size={16} />
-          </button>
         </div>
+
+        {/* Bottom gradient fade to hint at scrollable content */}
+        <div
+          className="pointer-events-none absolute bottom-0 left-0 right-0 h-12 rounded-b-3xl"
+          style={{ background: "linear-gradient(to top, hsl(var(--card)), transparent)" }}
+        />
       </motion.div>
     </motion.div>
   );
