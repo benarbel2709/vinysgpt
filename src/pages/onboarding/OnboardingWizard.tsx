@@ -146,6 +146,8 @@ export default function OnboardingWizard() {
   const [fibroFlareState, setFibroFlareState] = useState<string>("");
   const [fatigueEnergyYesterday, setFatigueEnergyYesterday] = useState<string>("");
   const [stressAnxietyState, setStressAnxietyState] = useState<string>("");
+  // Movement response for physical area flows (step 8)
+  const [movementResponse, setMovementResponse] = useState<string>("");
 
   const toggle = useCallback((c: ConditionKey) => {
     setSelected((p) => (p.includes(c) ? p.filter((x) => x !== c) : [...p, c]));
@@ -209,6 +211,8 @@ export default function OnboardingWizard() {
         return !!closingPref;
       case 6:
         return true;
+      case 8:
+        return !!movementResponse;
       default:
         return true;
     }
@@ -322,6 +326,9 @@ export default function OnboardingWizard() {
       if (step === 5) { setStep(7); return; }
       if (step === 7) { setStep(6); return; }
     }
+    // Physical area flow: step 2 → 8 (movement assessment) → 3
+    if (!isSystemicFlow && step === 2) { setStep(8); return; }
+    if (!isSystemicFlow && step === 8) { setStep(3); return; }
     if (step < TOTAL_STEPS - 1) {
       setStep(step + 1);
     }
@@ -343,6 +350,9 @@ export default function OnboardingWizard() {
       setStep(0);
       return;
     }
+    // Physical area flow: step 3 back to 8, step 8 back to 2
+    if (!isSystemicFlow && step === 3) { setStep(8); return; }
+    if (step === 8) { setStep(2); return; }
     setStep(step - 1);
   };
 
@@ -427,7 +437,7 @@ export default function OnboardingWizard() {
             <BrandLogo size="md" linkToHome={false} />
           )}
           <div className="flex-1 flex justify-center">
-            {step < 6 && step !== 1 && step !== 7 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
+            {step < 6 && step !== 1 && step !== 7 && step !== 8 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
           </div>
           <button
             onClick={() => navigate("/")}
@@ -444,7 +454,7 @@ export default function OnboardingWizard() {
         className="flex-1 min-h-0 flex flex-col items-center overflow-y-auto overflow-x-hidden"
         style={{ maxWidth: "1100px", margin: "0 auto", width: "100%", padding: "0 24px 90px" }}
       >
-        {step !== 1 && step !== 2 && step !== 6 && step !== 7 && (
+        {step !== 1 && step !== 2 && step !== 6 && step !== 7 && step !== 8 && (
           <>
             <h1
               className="font-display text-foreground font-bold text-2xl text-center shrink-0"
@@ -628,6 +638,46 @@ export default function OnboardingWizard() {
               </div>
 
               <p className="text-xs text-muted-foreground mb-6">{confNote}</p>
+            </div>
+          );
+        })()}
+
+        {/* ═══ STEP 8: Movement assessment (physical area flows only) ═══ */}
+        {step === 8 && !isSystemicFlow && (() => {
+          const AREA_READABLE: Record<string, string> = {
+            NECK: "neck", SHLDR: "shoulder", UBACK: "upper back", LB: "lower back",
+            WRIST: "wrist and hand", HIP: "hip", KNEE: "knee", ANKLE: "ankle and foot",
+          };
+          const areaName = AREA_READABLE[selectedArea || ""] || "body";
+          const MOVEMENT_OPTIONS = [
+            { value: "no-pain", label: "No pain" },
+            { value: "mild-discomfort", label: "Mild discomfort" },
+            { value: "pain", label: "Pain" },
+            { value: "very-sensitive", label: "Very sensitive" },
+          ];
+          return (
+            <div className="w-full flex flex-col items-center" style={{ marginTop: "60px", maxWidth: "600px" }}>
+              <h1 className="font-display text-foreground font-bold text-2xl text-center mb-8">
+                How does your {areaName} feel during movement?
+              </h1>
+              <div className="w-full grid grid-cols-4 gap-0 rounded-xl overflow-hidden border-2 border-border">
+                {MOVEMENT_OPTIONS.map((opt, idx) => {
+                  const isSelected = movementResponse === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      onClick={() => setMovementResponse(opt.value)}
+                      className={`py-3.5 px-2 text-center text-sm font-semibold transition-all ${
+                        isSelected
+                          ? "bg-accent text-accent-foreground"
+                          : "bg-card text-foreground hover:bg-accent/10"
+                      } ${idx < 3 ? "border-r-2 border-border" : ""}`}
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           );
         })()}
@@ -1110,7 +1160,7 @@ export default function OnboardingWizard() {
       </div>
 
       {/* ── FIXED BOTTOM BUTTONS ── */}
-      {(step !== 1 && step !== 0 && step < 6 || step === 7) && (
+      {(step !== 1 && step !== 0 && step < 6 || step === 7 || step === 8) && (
         <div
           className="fixed bottom-0 inset-x-0 z-40 pointer-events-none bg-background"
           style={{ paddingBottom: "40px", paddingTop: "16px", boxShadow: "0 -2px 8px rgba(0,0,0,0.04)" }}
