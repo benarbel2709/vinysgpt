@@ -698,11 +698,11 @@ export default function OnboardingWizard() {
                     { value: "mood-sleep", label: "Mood & sleep" },
                     { value: "low-energy", label: "Low energy & fatigue" },
                   ] as const).map((opt) => {
-                    const isChecked = menoSymptoms.includes(opt.value);
+                    const isChecked = menopauseSymptom.includes(opt.value);
                     return (
                       <button
                         key={opt.value}
-                        onClick={() => setMenoSymptoms(prev => prev.includes(opt.value) ? prev.filter(v => v !== opt.value) : [...prev, opt.value])}
+                        onClick={() => setMenopauseSymptom(prev => prev.includes(opt.value) ? prev.filter(v => v !== opt.value) : [...prev, opt.value])}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-[12px] border-2 transition-all text-left ${isChecked ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
                       >
                         <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${isChecked ? "border-secondary bg-secondary" : "border-border bg-card"}`}>
@@ -714,7 +714,7 @@ export default function OnboardingWizard() {
                   })}
                 </div>
 
-                {/* Age group — clinically critical for menopause */}
+                {/* Age group — REQUIRED for menopause */}
                 <p className="text-sm font-semibold text-foreground mb-3">What is your age group?</p>
                 <div className="flex flex-wrap gap-2">
                   {AGE_GROUP_OPTIONS.map((ag) => (
@@ -730,8 +730,8 @@ export default function OnboardingWizard() {
               </>
             )}
 
-            {/* ── FIBROMYALGIA & CHRONIC FATIGUE ── */}
-            {(systemicConditionKey === "fibromyalgia" || systemicConditionKey === "chronic_fatigue_syndrome") && (
+            {/* ── FIBROMYALGIA ── */}
+            {systemicConditionKey === "fibromyalgia" && (
               <>
                 <p className="text-sm text-muted-foreground mb-4">This helps us calibrate the right intensity for today.</p>
                 <div className="flex flex-col gap-2 mb-8">
@@ -743,8 +743,8 @@ export default function OnboardingWizard() {
                   ] as const).map((opt) => (
                     <button
                       key={opt.value}
-                      onClick={() => setFlareLevel(opt.value)}
-                      className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${flareLevel === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
+                      onClick={() => setFibroFlareState(opt.value)}
+                      className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${fibroFlareState === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
                     >
                       <span className="text-sm font-medium text-foreground">{opt.label}</span>
                     </button>
@@ -790,14 +790,12 @@ export default function OnboardingWizard() {
               </>
             )}
 
-            {/* ── LONG COVID ── */}
-            {systemicConditionKey === "long_covid" && (
+            {/* ── LONG COVID & ME/CFS (shared) ── */}
+            {(systemicConditionKey === "long_covid" || systemicConditionKey === "chronic_fatigue_syndrome") && (
               <>
                 <p className="text-sm text-muted-foreground mb-4">We'll pace your practice based on your current capacity.</p>
 
-                {/* Energy yesterday */}
                 <div className="mb-8">
-                  <p className="text-sm font-semibold text-foreground mb-1">How was your energy yesterday?</p>
                   <p className="text-xs text-muted-foreground mb-3">Post-exertional symptoms often appear 12–48 hours after activity</p>
                   <div className="flex flex-col gap-2">
                     {([
@@ -808,8 +806,8 @@ export default function OnboardingWizard() {
                     ] as const).map((opt) => (
                       <button
                         key={opt.value}
-                        onClick={() => setCovidEnergy(opt.value)}
-                        className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${covidEnergy === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
+                        onClick={() => setFatigueEnergyYesterday(opt.value)}
+                        className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${fatigueEnergyYesterday === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
                       >
                         <span className="text-sm font-medium text-foreground">{opt.label}</span>
                       </button>
@@ -868,8 +866,8 @@ export default function OnboardingWizard() {
                   ] as const).map((opt) => (
                     <button
                       key={opt.value}
-                      onClick={() => setStressState(opt.value)}
-                      className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${stressState === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
+                      onClick={() => setStressAnxietyState(opt.value)}
+                      className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${stressAnxietyState === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
                     >
                       <span className="text-sm font-medium text-foreground">{opt.label}</span>
                     </button>
