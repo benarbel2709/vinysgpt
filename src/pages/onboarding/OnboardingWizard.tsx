@@ -400,7 +400,7 @@ export default function OnboardingWizard() {
         className="flex-1 min-h-0 flex flex-col items-center overflow-y-auto overflow-x-hidden"
         style={{ maxWidth: "1100px", margin: "0 auto", width: "100%", padding: "0 24px 90px" }}
       >
-        {step !== 1 && step !== 2 && step !== 6 && (
+        {step !== 1 && step !== 2 && step !== 6 && step !== 7 && (
           <>
             <h1
               className="font-display text-foreground font-bold text-2xl text-center shrink-0"
@@ -420,9 +420,6 @@ export default function OnboardingWizard() {
             This helps us set the right intensity for your practice.
           </p>
         )}
-        {step === 7 && (
-          <p className="text-muted-foreground text-center text-sm mt-1 shrink-0">
-            We'll build your personalized practice.
           </p>
         )}
 
