@@ -17,6 +17,7 @@ import { toast } from "@/hooks/use-toast";
 import { trackEvent } from "@/lib/analytics";
 import universalVideo from "@/assets/exercises/universal-fallback.mp4";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
+import ExerciseAnimationV8 from "@/components/animations/ExerciseAnimationV8";
 
 /* ─── Slider field ─── */
 function SliderField({ label, value, onChange, minLabel, maxLabel }: {
