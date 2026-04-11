@@ -40,7 +40,7 @@ export default function QuickCheckin() {
   const [selected, setSelected] = useState<ConditionKey[]>(profile.conditions);
   const [energyLevel, setEnergyLevel] = useState<EnergyLevel>(profile.energyLevel);
   const [flareToday, setFlareToday] = useState(false);
-  const [sessionsPerWeek, setSessionsPerWeek] = useState(profile.sessionsPerWeek);
+  const [minutesPerSession, setMinutesPerSession] = useState(profile.minutesPerSession);
   const [minutesPerSession, setMinutesPerSession] = useState(profile.minutesPerSession);
   const [equipment, setEquipment] = useState<string[]>(
     state.assessments.length > 0
