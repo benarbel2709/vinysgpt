@@ -91,12 +91,11 @@ const EQUIPMENT_CHOICES = [
 // 1 = diagnostic
 // 2 = profile summary
 // 3 = restrictions
-// 4 = equipment
-// 5 = session duration (DurationSelector)
-// 6 = closing preference
-// 7 = confirmation
-const STEPPER_STEPS = 8;
-const TOTAL_STEPS = 8;
+// 4 = session duration + equipment
+// 5 = closing preference
+// 6 = confirmation
+const STEPPER_STEPS = 7;
+const TOTAL_STEPS = 7;
 
 const tagBase =
   "px-3.5 py-1.5 rounded-[8px] border-2 text-[18px] font-semibold transition-all cursor-pointer leading-tight";
@@ -177,12 +176,10 @@ export default function OnboardingWizard() {
       case 3:
         return true; // restrictions are optional
       case 4:
-        return true; // equipment always has mat
+        return true; // duration + equipment has defaults
       case 5:
-        return true; // duration has default
-      case 6:
         return !!closingPref;
-      case 7:
+      case 6:
         return true;
       default:
         return true;
@@ -274,8 +271,8 @@ export default function OnboardingWizard() {
   const handleNext = () => {
     if (step < TOTAL_STEPS - 1) {
       if (isSystemicFlow) {
-        if (step === 3) { setStep(5); return; }
-        if (step === 5) { setStep(6); return; }
+        if (step === 3) { setStep(4); return; }
+        if (step === 4) { setStep(5); return; }
       }
       setStep(step + 1);
     }
@@ -288,9 +285,9 @@ export default function OnboardingWizard() {
     }
     if (isSystemicFlow) {
       if (step === 3) { setStep(0); setIsSystemicFlow(false); setSystemicConditionKey(null); setSelected([]); return; }
-      if (step === 5) { setStep(3); return; }
+      if (step === 4) { setStep(3); return; }
+      if (step === 5) { setStep(4); return; }
       if (step === 6) { setStep(5); return; }
-      if (step === 7) { setStep(6); return; }
     }
     if (step === 2) {
       setStep(0);
@@ -304,7 +301,6 @@ export default function OnboardingWizard() {
     "Body diagnostic",
     "Here's what we found",
     isSystemicFlow ? "How are you feeling today?" : "Any health considerations we should know about?",
-    "What equipment do you have?",
     "How long should each session be?",
     "How would you like to end each practice?",
     "You're all set.",
@@ -348,11 +344,11 @@ export default function OnboardingWizard() {
   const AREA_LABELS: Record<string, string> = { LB: "Lower Back", HIP: "Hip", KNEE: "Knee", ANKLE: "Ankle & Foot", NECK: "Neck", UBACK: "Upper Back", WRIST: "Wrist & Hand", SHLDR: "Shoulder" };
 
   // Post-assessment step counter
-  const SYSTEMIC_STEP_MAP: Record<number, number> = { 3: 1, 5: 2, 6: 3 };
-  const POST_ASSESSMENT_TOTAL = isSystemicFlow ? 3 : 4;
+  const SYSTEMIC_STEP_MAP: Record<number, number> = { 3: 1, 4: 2, 5: 3 };
+  const POST_ASSESSMENT_TOTAL = isSystemicFlow ? 3 : 3;
   const getPostAssessmentStep = (s: number) => {
     if (isSystemicFlow) return SYSTEMIC_STEP_MAP[s] || null;
-    if (s >= 3 && s <= 6) return s - 2;
+    if (s >= 3 && s <= 5) return s - 2;
     return null;
   };
   const postStep = getPostAssessmentStep(step);
@@ -375,7 +371,7 @@ export default function OnboardingWizard() {
             <BrandLogo size="md" linkToHome={false} />
           )}
           <div className="flex-1 flex justify-center">
-            {step < 7 && step !== 1 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
+            {step < 6 && step !== 1 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
           </div>
           <button
             onClick={() => navigate("/")}
@@ -392,7 +388,7 @@ export default function OnboardingWizard() {
         className="flex-1 min-h-0 flex flex-col items-center overflow-y-auto overflow-x-hidden"
         style={{ maxWidth: "1100px", margin: "0 auto", width: "100%", padding: "0 24px 90px" }}
       >
-        {step !== 1 && step !== 2 && (
+        {step !== 1 && step !== 2 && step !== 6 && (
           <>
             <h1
               className="font-display text-foreground font-bold text-2xl text-center shrink-0"
@@ -412,7 +408,7 @@ export default function OnboardingWizard() {
             This helps us set the right intensity for your practice.
           </p>
         )}
-        {step === 8 && (
+        {step === 7 && (
           <p className="text-muted-foreground text-center text-sm mt-1 shrink-0">
             We'll build your personalized practice.
           </p>
