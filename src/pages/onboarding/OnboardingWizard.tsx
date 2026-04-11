@@ -282,6 +282,8 @@ export default function OnboardingWizard() {
       if (isSystemicFlow) {
         if (step === 3) { setStep(4); return; }
         if (step === 4) { setStep(5); return; }
+        if (step === 5) { setStep(7); return; }
+        if (step === 7) { setStep(6); return; }
       }
       setStep(step + 1);
     }
