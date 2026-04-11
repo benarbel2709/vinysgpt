@@ -642,6 +642,46 @@ export default function OnboardingWizard() {
           );
         })()}
 
+        {/* ═══ STEP 8: Movement assessment (physical area flows only) ═══ */}
+        {step === 8 && !isSystemicFlow && (() => {
+          const AREA_READABLE: Record<string, string> = {
+            NECK: "neck", SHLDR: "shoulder", UBACK: "upper back", LB: "lower back",
+            WRIST: "wrist and hand", HIP: "hip", KNEE: "knee", ANKLE: "ankle and foot",
+          };
+          const areaName = AREA_READABLE[selectedArea || ""] || "body";
+          const MOVEMENT_OPTIONS = [
+            { value: "no-pain", label: "No pain" },
+            { value: "mild-discomfort", label: "Mild discomfort" },
+            { value: "pain", label: "Pain" },
+            { value: "very-sensitive", label: "Very sensitive" },
+          ];
+          return (
+            <div className="w-full flex flex-col items-center" style={{ marginTop: "60px", maxWidth: "600px" }}>
+              <h1 className="font-display text-foreground font-bold text-2xl text-center mb-8">
+                How does your {areaName} feel during movement?
+              </h1>
+              <div className="w-full grid grid-cols-4 gap-0 rounded-xl overflow-hidden border-2 border-border">
+                {MOVEMENT_OPTIONS.map((opt, idx) => {
+                  const isSelected = movementResponse === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      onClick={() => setMovementResponse(opt.value)}
+                      className={`py-3.5 px-2 text-center text-sm font-semibold transition-all ${
+                        isSelected
+                          ? "bg-accent text-accent-foreground"
+                          : "bg-card text-foreground hover:bg-accent/10"
+                      } ${idx < 3 ? "border-r-2 border-border" : ""}`}
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
+
         {/* ═══ STEP 3: Condition-specific clinical questions (systemic) ═══ */}
         {step === 3 && isSystemicFlow && (
           <div className="w-full text-left" style={{ marginTop: "24px", maxWidth: "560px" }}>
@@ -1120,7 +1160,7 @@ export default function OnboardingWizard() {
       </div>
 
       {/* ── FIXED BOTTOM BUTTONS ── */}
-      {(step !== 1 && step !== 0 && step < 6 || step === 7) && (
+      {(step !== 1 && step !== 0 && step < 6 || step === 7 || step === 8) && (
         <div
           className="fixed bottom-0 inset-x-0 z-40 pointer-events-none bg-background"
           style={{ paddingBottom: "40px", paddingTop: "16px", boxShadow: "0 -2px 8px rgba(0,0,0,0.04)" }}
