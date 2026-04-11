@@ -151,6 +151,12 @@ export default function OnboardingWizard() {
     setSelected((p) => (p.includes(c) ? p.filter((x) => x !== c) : [...p, c]));
   }, []);
 
+  const toggleBodyZone = useCallback((zoneId: string) => {
+    setSelectedBodyZones(prev =>
+      prev.includes(zoneId) ? prev.filter(z => z !== zoneId) : [...prev, zoneId]
+    );
+  }, []);
+
   const toggleDetail = useCallback((condition: string, detail: string) => {
     setConditionDetails((p) => {
       const cur = p[condition] || [];
