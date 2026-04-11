@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MASTER_EXERCISES, MasterExercise } from "@/data/masterExercises";
 import ExerciseAnimationV8 from "@/components/animations/ExerciseAnimationV8";

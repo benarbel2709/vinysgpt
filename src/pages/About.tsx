@@ -8,7 +8,7 @@ import { ArrowRight } from "lucide-react";
 
 export default function About() {
   const navigate = useNavigate();
-  useEffect(() => { document.title = "About — Vinys"; window.scrollTo(0, 0); }, []);
+  useEffect(() => { document.title = "About Vinys — Adaptive Therapeutic Yoga"; window.scrollTo(0, 0); }, []);
 
   return (
     <Layout hideHeader hideFooter>
