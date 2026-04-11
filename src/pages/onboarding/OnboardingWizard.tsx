@@ -847,8 +847,8 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 8: Confirmation / Summary ═══ */}
-        {step === 8 &&
+        {/* ═══ STEP 7: Confirmation / Summary ═══ */}
+        {step === 7 &&
           (() => {
             const doStartOver = () => {
               setStep(0);
@@ -856,15 +856,11 @@ export default function OnboardingWizard() {
               setConditionDetails({});
               setRestrictions([]);
               setRestrictionOther("");
-              setTimeSelected(false);
               setDurationSelected(false);
-              setSessionsSelected(false);
               setEquipment(["mat"]);
               setClosingPref("");
               setEnergyLevel("medium");
-              setSessionsPerWeek(3);
               setMinutesPerSession(20);
-              setPracticeTime("morning");
               setShowStartOverConfirm(false);
               setDiagnosticResult(null);
               setIsSystemicFlow(false);
@@ -890,10 +886,8 @@ export default function OnboardingWizard() {
                   {editRow("Conditions", selected.map((k) => label(k)).join(", "), 0)}
                   {allRestrictions.length > 0 && editRow("Restrictions", allRestrictions.join(", "), 3)}
                   {editRow("Equipment", equipment.join(", "), 4)}
-                  {editRow("Time of day", practiceTime.charAt(0).toUpperCase() + practiceTime.slice(1), 6)}
                   {editRow("Duration", `${minutesPerSession} min`, 5)}
-                  {editRow("Sessions / week", String(sessionsPerWeek), 6)}
-                  {editRow("Session closing", CLOSING_OPTIONS.find((o) => o.value === closingPref)?.label || "", 7)}
+                  {editRow("Session closing", CLOSING_OPTIONS.find((o) => o.value === closingPref)?.label || "", 6)}
                 </div>
 
                 <Button variant="hero" size="lg" className="w-full rounded-full" onClick={() => handleBuild()}>
