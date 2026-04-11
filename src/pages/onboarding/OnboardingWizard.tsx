@@ -723,7 +723,7 @@ export default function OnboardingWizard() {
                 <p className="text-sm font-semibold text-destructive">Safety check</p>
               </div>
               <p className="text-xs text-muted-foreground mb-3">
-                Please stop and consult a healthcare provider if any of the following apply to you right now.
+                If any of the following apply to you right now, please consult a healthcare provider first — we'll adjust your practice accordingly.
               </p>
               <div className="flex flex-col gap-2">
                 {SYSTEMIC_RED_FLAGS.map((flag) => {
