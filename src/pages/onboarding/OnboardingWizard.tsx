@@ -11,7 +11,7 @@ import BrandLogo from "@/components/BrandLogo";
 import DurationSelector from "@/components/onboarding/DurationSelector";
 import FlowProgress from "@/components/FlowProgress";
 import { Button } from "@/components/ui/button";
-import { X, Check, Pencil, Clock, Lock, ChevronLeft } from "lucide-react";
+import { X, Check, Pencil, Clock, Lock, ChevronLeft, AlertTriangle } from "lucide-react";
 import { useState as useStateReact } from "react";
 import {
   Dialog,
@@ -77,6 +77,15 @@ const AGE_GROUP_OPTIONS = [
 
 const NONE_OPTION = "None of the above";
 
+const SYSTEMIC_RED_FLAGS = [
+  "Chest pain, pressure, or tightness during or after light activity",
+  "Sudden severe headache, vision changes, or loss of consciousness",
+  "Unexplained rapid weight loss (not intentional)",
+  "New or worsening numbness, weakness, or loss of coordination",
+  "Difficulty breathing at rest or with minimal effort",
+  "Severe dizziness or fainting episodes",
+];
+
 const EQUIPMENT_CHOICES = [
   { key: "mat", label: "Yoga mat", alwaysOn: true },
   { key: "blocks", label: "Yoga blocks", alwaysOn: false },
@@ -117,6 +126,7 @@ export default function OnboardingWizard() {
   const [selected, setSelected] = useState<ConditionKey[]>([]);
   const [conditionDetails, setConditionDetails] = useState<Record<string, string[]>>({});
   const [diagnosticResult, setDiagnosticResult] = useState<any>(null);
+  const [systemicRedFlags, setSystemicRedFlags] = useState<string[]>([]);
   const [restrictions, setRestrictions] = useState<string[]>([]);
   const [selectedDiagnoses, setSelectedDiagnoses] = useState<string[]>([]);
   const [ageGroup, setAgeGroup] = useState<string>("");
