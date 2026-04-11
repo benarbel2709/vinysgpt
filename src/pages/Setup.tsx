@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import Layout from "@/components/Layout";
 import PageIllustration from "@/components/illustrations/PageIllustration";
 
-const SESSIONS_OPTIONS = [2, 3, 4, 5];
 const MINUTES_OPTIONS = [10, 15, 20, 30, 45, 60];
 
 function SetupLabel({ children }: { children: React.ReactNode }) {
@@ -16,7 +15,7 @@ function SetupLabel({ children }: { children: React.ReactNode }) {
 export default function Setup() {
   const { state, updateProfile } = useApp();
   const navigate = useNavigate();
-  const { sessionsPerWeek, minutesPerSession } = state.profile;
+  const { minutesPerSession } = state.profile;
 
   return (
     <Layout>
@@ -30,23 +29,8 @@ export default function Setup() {
         </div>
 
         <PageIllustration theme="settings" />
-        <h1 className="text-foreground text-center">How would you like to practice?</h1>
-        <p className="text-sm text-muted-foreground text-center -mt-3">This helps us build the right schedule for you.</p>
-
-        {/* Sessions per week */}
-        <div className="card-premium p-6 space-y-3">
-          <SetupLabel>Sessions per week</SetupLabel>
-          <div className="flex gap-2">
-            {SESSIONS_OPTIONS.map((n) => (
-              <button key={n} onClick={() => updateProfile({ sessionsPerWeek: n })}
-                className={`flex-1 py-3 rounded-[16px] border-2 text-sm font-bold transition-all ${
-                  sessionsPerWeek === n
-                    ? "border-accent bg-accent/10 text-foreground shadow-sm"
-                    : "border-border bg-card text-foreground hover:border-accent/30"
-                }`}>{n}</button>
-            ))}
-          </div>
-        </div>
+        <h1 className="text-foreground text-center">How long should each session be?</h1>
+        <p className="text-sm text-muted-foreground text-center -mt-3">This helps us build the right plan for you.</p>
 
         {/* Minutes per session */}
         <div className="card-premium p-6 space-y-3">
