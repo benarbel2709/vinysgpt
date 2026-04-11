@@ -827,41 +827,14 @@ export default function OnboardingWizard() {
           <DurationSelector value={minutesPerSession} onChange={(v) => { setMinutesPerSession(v); setDurationSelected(true); }} />
         )}
 
-        {/* ═══ STEP 6: Schedule (FIX 6 Step C) ═══ */}
+        {/* ═══ STEP 6: Session Closing ═══ */}
         {step === 6 && (
-           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
-            <div>
-              <h2 className="font-bold text-[21px]" style={{ color: "#888" }}>Sessions per week</h2>
-              <div className="flex justify-center" style={{ gap: "10px", marginTop: "16px" }}>
-                {SESSIONS_OPTIONS.map((n) => (
-                  <button key={n} onClick={() => { setSessionsPerWeek(n); setSessionsSelected(true); }} className={tagSmall(sessionsPerWeek === n)}>
-                    {n}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div style={{ margin: "24px 0", height: "1px", width: "100%", backgroundColor: "hsl(var(--border) / 0.4)" }} />
-            <div>
-              <h2 className="font-bold text-[21px]" style={{ color: "#888" }}>Preferred time</h2>
-              <div className="flex justify-center" style={{ gap: "10px", marginTop: "16px" }}>
-                {TIME_OF_DAY_OPTIONS.map((opt) => (
-                  <button key={opt.value} onClick={() => { setPracticeTime(opt.value); setTimeSelected(true); }} className={tagSmall(practiceTime === opt.value)}>
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ═══ STEP 7: Session Closing ═══ */}
-        {step === 7 && (
           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "440px" }}>
             <div className="flex flex-col" style={{ gap: "12px" }}>
               {CLOSING_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
-                  onClick={() => { setClosingPref(opt.value); setTimeout(() => setStep(8), 250); }}
+                  onClick={() => { setClosingPref(opt.value); setTimeout(() => setStep(7), 250); }}
                   className={`w-full text-left p-4 rounded-[12px] border-2 transition-all ${
                     closingPref === opt.value ? tagSelected : tagUnselected
                   }`}
