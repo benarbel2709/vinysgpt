@@ -140,11 +140,10 @@ export default function OnboardingWizard() {
   const [localIrritability, setLocalIrritability] = useState(2);
   const [safetyFlags, setSafetyFlags] = useState<string[]>([]);
   // Condition-specific clinical answers
-  const [menoSymptoms, setMenoSymptoms] = useState<string[]>([]);
-  const [flareLevel, setFlareLevel] = useState<string>("");
-  const [covidEnergy, setCovidEnergy] = useState<string>("");
-  const [covidPEM, setCovidPEM] = useState(false);
-  const [stressState, setStressState] = useState<string>("");
+  const [menopauseSymptom, setMenopauseSymptom] = useState<string[]>([]);
+  const [fibroFlareState, setFibroFlareState] = useState<string>("");
+  const [fatigueEnergyYesterday, setFatigueEnergyYesterday] = useState<string>("");
+  const [stressAnxietyState, setStressAnxietyState] = useState<string>("");
 
   const toggle = useCallback((c: ConditionKey) => {
     setSelected((p) => (p.includes(c) ? p.filter((x) => x !== c) : [...p, c]));
