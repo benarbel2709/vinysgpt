@@ -347,7 +347,7 @@ export default function OnboardingWizard() {
   };
 
   const STEP_TITLES = [
-    "Where does your body need support?",
+    "Where do you feel discomfort?",
     "Body diagnostic",
     "Here's what we found",
     isSystemicFlow
