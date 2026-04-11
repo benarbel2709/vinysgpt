@@ -926,6 +926,7 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
   const [selected, setSelected] = useState(null);
   const [diagnosticOutput, setDiagnosticOutput] = useState(null);
   const [showingVideo, setShowingVideo] = useState(true);
+  const [feelingOverlay, setFeelingOverlay] = useState(false);
   // Red flags
   const [redFlagsChecked, setRedFlagsChecked] = useState([]);
   const [noneChecked, setNoneChecked] = useState(false);
@@ -988,8 +989,7 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
     setPhase("postures");
   }
 
-  // Reset video player when posture changes — auto-start video immediately
-  useEffect(() => { setVideoPlaying(true); }, [postureIdx]);
+  useEffect(() => { setVideoPlaying(true); setFeelingOverlay(false); }, [postureIdx]);
 
   // Auto-speak posture instructions when video screen loads, and loop TTS
   const ttsTextRef = useRef("");
