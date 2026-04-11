@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MASTER_EXERCISES, MasterExercise } from "@/data/masterExercises";
 import ExerciseAnimationV8 from "@/components/animations/ExerciseAnimationV8";
@@ -253,6 +253,7 @@ export default function ExerciseLibrary() {
   const [tab, setTab] = useState<Tab>("By Type");
   const [selected, setSelected] = useState<MasterExercise | null>(null);
 
+  useEffect(() => { document.title = "Exercise Library — Vinys"; }, []);
   const byCategory = useMemo(() => ({
     breath: MASTER_EXERCISES.filter(e => e.category === "breath"),
     mobility: MASTER_EXERCISES.filter(e => e.category === "mobility"),

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import VinysDiagnostic from "@/components/VinysDiagnostic";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "@/context/AppContext";
@@ -118,6 +118,8 @@ export default function OnboardingWizard() {
   const profile = state.profile;
 
   const [step, setStep] = useState(0);
+
+  useEffect(() => { document.title = "Build Your Plan — Vinys"; }, []);
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
   const [selected, setSelected] = useState<ConditionKey[]>([]);
   const [conditionDetails, setConditionDetails] = useState<Record<string, string[]>>({});

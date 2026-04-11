@@ -197,6 +197,8 @@ export default function Workout() {
   const [whyOpen, setWhyOpen] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
 
+  useEffect(() => { document.title = "Your Session — Vinys"; }, []);
+
   // Show rotate prompt on portrait mobile (once per session)
   useEffect(() => {
     if (typeof window === "undefined") return;
