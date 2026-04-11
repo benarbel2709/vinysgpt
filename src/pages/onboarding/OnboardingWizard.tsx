@@ -216,6 +216,7 @@ export default function OnboardingWizard() {
         closingPreference: closingPref as "savasana" | "meditation" | "body_rest",
         availableEquipment: finalEquipment,
         restrictions: [],
+        safetyFlags: safetyFlags.filter(f => f !== "none"),
         diagnoses: [],
         diagnosticResult: { area: 'SYSTEMIC', primary: 'ST', secondary: null },
         diagnosticArea: 'SYSTEMIC',
