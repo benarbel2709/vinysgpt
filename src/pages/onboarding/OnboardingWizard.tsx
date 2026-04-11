@@ -843,8 +843,8 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 7: Confirmation / Summary ═══ */}
-        {step === 7 &&
+        {/* ═══ STEP 6: Confirmation / Summary ═══ */}
+        {step === 6 &&
           (() => {
             const doStartOver = () => {
               setStep(0);
@@ -882,8 +882,8 @@ export default function OnboardingWizard() {
                   {editRow("Conditions", selected.map((k) => label(k)).join(", "), 0)}
                   {allRestrictions.length > 0 && editRow("Restrictions", allRestrictions.join(", "), 3)}
                   {editRow("Equipment", equipment.join(", "), 4)}
-                  {editRow("Duration", `${minutesPerSession} min`, 5)}
-                  {editRow("Session closing", CLOSING_OPTIONS.find((o) => o.value === closingPref)?.label || "", 6)}
+                  {editRow("Duration", `${minutesPerSession} min`, 4)}
+                  {editRow("Session closing", CLOSING_OPTIONS.find((o) => o.value === closingPref)?.label || "", 5)}
                 </div>
 
                 <Button variant="hero" size="lg" className="w-full rounded-full" onClick={() => handleBuild()}>
@@ -914,7 +914,7 @@ export default function OnboardingWizard() {
       </div>
 
       {/* ── FIXED BOTTOM BUTTONS ── */}
-      {step !== 1 && step !== 0 && step < 7 && (
+      {step !== 1 && step !== 0 && step < 6 && (
         <div
           className="fixed bottom-0 inset-x-0 z-40 pointer-events-none bg-background"
           style={{ paddingBottom: "40px", paddingTop: "16px", boxShadow: "0 -2px 8px rgba(0,0,0,0.04)" }}
