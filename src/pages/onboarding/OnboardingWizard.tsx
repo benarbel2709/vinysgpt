@@ -383,7 +383,7 @@ export default function OnboardingWizard() {
             <BrandLogo size="md" linkToHome={false} />
           )}
           <div className="flex-1 flex justify-center">
-            {step < 6 && step !== 1 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
+            {step < 6 && step !== 1 && step !== 7 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
           </div>
           <button
             onClick={() => navigate("/")}
