@@ -356,8 +356,8 @@ export default function OnboardingWizard() {
   const AREA_LABELS: Record<string, string> = { LB: "Lower Back", HIP: "Hip", KNEE: "Knee", ANKLE: "Ankle & Foot", NECK: "Neck", UBACK: "Upper Back", WRIST: "Wrist & Hand", SHLDR: "Shoulder" };
 
   // Post-assessment step counter
-  const SYSTEMIC_STEP_MAP: Record<number, number> = { 3: 1, 4: 2, 5: 3 };
-  const POST_ASSESSMENT_TOTAL = isSystemicFlow ? 3 : 3;
+  const SYSTEMIC_STEP_MAP: Record<number, number> = { 3: 1, 4: 2, 5: 3, 7: 4 };
+  const POST_ASSESSMENT_TOTAL = isSystemicFlow ? 4 : 3;
   const getPostAssessmentStep = (s: number) => {
     if (isSystemicFlow) return SYSTEMIC_STEP_MAP[s] || null;
     if (s >= 3 && s <= 5) return s - 2;
