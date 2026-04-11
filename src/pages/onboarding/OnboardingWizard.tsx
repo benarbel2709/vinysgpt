@@ -91,12 +91,11 @@ const EQUIPMENT_CHOICES = [
 // 1 = diagnostic
 // 2 = profile summary
 // 3 = restrictions
-// 4 = equipment
-// 5 = session duration (DurationSelector)
-// 6 = closing preference
-// 7 = confirmation
-const STEPPER_STEPS = 8;
-const TOTAL_STEPS = 8;
+// 4 = session duration + equipment
+// 5 = closing preference
+// 6 = confirmation
+const STEPPER_STEPS = 7;
+const TOTAL_STEPS = 7;
 
 const tagBase =
   "px-3.5 py-1.5 rounded-[8px] border-2 text-[18px] font-semibold transition-all cursor-pointer leading-tight";
@@ -177,12 +176,10 @@ export default function OnboardingWizard() {
       case 3:
         return true; // restrictions are optional
       case 4:
-        return true; // equipment always has mat
+        return true; // duration + equipment has defaults
       case 5:
-        return true; // duration has default
-      case 6:
         return !!closingPref;
-      case 7:
+      case 6:
         return true;
       default:
         return true;
@@ -274,8 +271,8 @@ export default function OnboardingWizard() {
   const handleNext = () => {
     if (step < TOTAL_STEPS - 1) {
       if (isSystemicFlow) {
-        if (step === 3) { setStep(5); return; }
-        if (step === 5) { setStep(6); return; }
+        if (step === 3) { setStep(4); return; }
+        if (step === 4) { setStep(5); return; }
       }
       setStep(step + 1);
     }
@@ -288,9 +285,9 @@ export default function OnboardingWizard() {
     }
     if (isSystemicFlow) {
       if (step === 3) { setStep(0); setIsSystemicFlow(false); setSystemicConditionKey(null); setSelected([]); return; }
-      if (step === 5) { setStep(3); return; }
+      if (step === 4) { setStep(3); return; }
+      if (step === 5) { setStep(4); return; }
       if (step === 6) { setStep(5); return; }
-      if (step === 7) { setStep(6); return; }
     }
     if (step === 2) {
       setStep(0);
@@ -304,7 +301,6 @@ export default function OnboardingWizard() {
     "Body diagnostic",
     "Here's what we found",
     isSystemicFlow ? "How are you feeling today?" : "Any health considerations we should know about?",
-    "What equipment do you have?",
     "How long should each session be?",
     "How would you like to end each practice?",
     "You're all set.",
@@ -348,11 +344,11 @@ export default function OnboardingWizard() {
   const AREA_LABELS: Record<string, string> = { LB: "Lower Back", HIP: "Hip", KNEE: "Knee", ANKLE: "Ankle & Foot", NECK: "Neck", UBACK: "Upper Back", WRIST: "Wrist & Hand", SHLDR: "Shoulder" };
 
   // Post-assessment step counter
-  const SYSTEMIC_STEP_MAP: Record<number, number> = { 3: 1, 5: 2, 6: 3 };
-  const POST_ASSESSMENT_TOTAL = isSystemicFlow ? 3 : 4;
+  const SYSTEMIC_STEP_MAP: Record<number, number> = { 3: 1, 4: 2, 5: 3 };
+  const POST_ASSESSMENT_TOTAL = isSystemicFlow ? 3 : 3;
   const getPostAssessmentStep = (s: number) => {
     if (isSystemicFlow) return SYSTEMIC_STEP_MAP[s] || null;
-    if (s >= 3 && s <= 6) return s - 2;
+    if (s >= 3 && s <= 5) return s - 2;
     return null;
   };
   const postStep = getPostAssessmentStep(step);
@@ -375,7 +371,7 @@ export default function OnboardingWizard() {
             <BrandLogo size="md" linkToHome={false} />
           )}
           <div className="flex-1 flex justify-center">
-            {step < 7 && step !== 1 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
+            {step < 6 && step !== 1 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
           </div>
           <button
             onClick={() => navigate("/")}
@@ -392,7 +388,7 @@ export default function OnboardingWizard() {
         className="flex-1 min-h-0 flex flex-col items-center overflow-y-auto overflow-x-hidden"
         style={{ maxWidth: "1100px", margin: "0 auto", width: "100%", padding: "0 24px 90px" }}
       >
-        {step !== 1 && step !== 2 && (
+        {step !== 1 && step !== 2 && step !== 6 && (
           <>
             <h1
               className="font-display text-foreground font-bold text-2xl text-center shrink-0"
@@ -412,7 +408,7 @@ export default function OnboardingWizard() {
             This helps us set the right intensity for your practice.
           </p>
         )}
-        {step === 8 && (
+        {step === 7 && (
           <p className="text-muted-foreground text-center text-sm mt-1 shrink-0">
             We'll build your personalized practice.
           </p>
@@ -794,47 +790,47 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 4: Equipment (FIX 6 Step B) ═══ */}
+        {/* ═══ STEP 4: Duration + Equipment ═══ */}
         {step === 4 && (
-          <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
-            <div className="flex flex-col" style={{ gap: "10px" }}>
-              {EQUIPMENT_CHOICES.map((eq) => {
-                const isChecked = equipment.includes(eq.key);
-                return (
-                  <button
-                    key={eq.key}
-                    onClick={() => toggleEquip(eq.key)}
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-[8px] border-2 transition-all text-left ${
-                      isChecked ? "border-secondary bg-secondary/10" : "border-border bg-card"
-                    } ${eq.alwaysOn ? "opacity-80" : ""}`}
-                  >
-                    <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${
-                      isChecked ? "border-secondary bg-secondary" : "border-border bg-card"
-                    }`}>
-                      {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
-                    </div>
-                    <span className="text-sm font-medium text-foreground">{eq.label}</span>
-                    {eq.alwaysOn && <span className="text-xs text-muted-foreground ml-auto">(always included)</span>}
-                  </button>
-                );
-              })}
+          <div className="w-full text-center" style={{ marginTop: "20px", maxWidth: "560px" }}>
+            <DurationSelector value={minutesPerSession} onChange={(v) => { setMinutesPerSession(v); setDurationSelected(true); }} />
+
+            <div style={{ marginTop: "32px" }}>
+              <h2 className="font-display text-foreground font-bold text-lg text-center mb-4">What equipment do you have?</h2>
+              <div className="flex flex-col" style={{ gap: "10px" }}>
+                {EQUIPMENT_CHOICES.map((eq) => {
+                  const isChecked = equipment.includes(eq.key);
+                  return (
+                    <button
+                      key={eq.key}
+                      onClick={() => toggleEquip(eq.key)}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-[8px] border-2 transition-all text-left ${
+                        isChecked ? "border-secondary bg-secondary/10" : "border-border bg-card"
+                      } ${eq.alwaysOn ? "opacity-80" : ""}`}
+                    >
+                      <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${
+                        isChecked ? "border-secondary bg-secondary" : "border-border bg-card"
+                      }`}>
+                        {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
+                      </div>
+                      <span className="text-sm font-medium text-foreground">{eq.label}</span>
+                      {eq.alwaysOn && <span className="text-xs text-muted-foreground ml-auto">(always included)</span>}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
 
-        {/* ═══ STEP 5: Session Duration (DurationSelector) ═══ */}
+        {/* ═══ STEP 5: Session Closing ═══ */}
         {step === 5 && (
-          <DurationSelector value={minutesPerSession} onChange={(v) => { setMinutesPerSession(v); setDurationSelected(true); }} />
-        )}
-
-        {/* ═══ STEP 6: Session Closing ═══ */}
-        {step === 6 && (
           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "440px" }}>
             <div className="flex flex-col" style={{ gap: "12px" }}>
               {CLOSING_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
-                  onClick={() => { setClosingPref(opt.value); setTimeout(() => setStep(7), 250); }}
+                  onClick={() => { setClosingPref(opt.value); setTimeout(() => setStep(6), 250); }}
                   className={`w-full text-left p-4 rounded-[12px] border-2 transition-all ${
                     closingPref === opt.value ? tagSelected : tagUnselected
                   }`}
@@ -847,8 +843,8 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 7: Confirmation / Summary ═══ */}
-        {step === 7 &&
+        {/* ═══ STEP 6: Confirmation / Summary ═══ */}
+        {step === 6 &&
           (() => {
             const doStartOver = () => {
               setStep(0);
@@ -886,8 +882,8 @@ export default function OnboardingWizard() {
                   {editRow("Conditions", selected.map((k) => label(k)).join(", "), 0)}
                   {allRestrictions.length > 0 && editRow("Restrictions", allRestrictions.join(", "), 3)}
                   {editRow("Equipment", equipment.join(", "), 4)}
-                  {editRow("Duration", `${minutesPerSession} min`, 5)}
-                  {editRow("Session closing", CLOSING_OPTIONS.find((o) => o.value === closingPref)?.label || "", 6)}
+                  {editRow("Duration", `${minutesPerSession} min`, 4)}
+                  {editRow("Session closing", CLOSING_OPTIONS.find((o) => o.value === closingPref)?.label || "", 5)}
                 </div>
 
                 <Button variant="hero" size="lg" className="w-full rounded-full" onClick={() => handleBuild()}>
@@ -918,7 +914,7 @@ export default function OnboardingWizard() {
       </div>
 
       {/* ── FIXED BOTTOM BUTTONS ── */}
-      {step !== 1 && step !== 0 && step < 7 && (
+      {step !== 1 && step !== 0 && step < 6 && (
         <div
           className="fixed bottom-0 inset-x-0 z-40 pointer-events-none bg-background"
           style={{ paddingBottom: "40px", paddingTop: "16px", boxShadow: "0 -2px 8px rgba(0,0,0,0.04)" }}
