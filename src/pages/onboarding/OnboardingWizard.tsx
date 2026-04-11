@@ -581,63 +581,23 @@ export default function OnboardingWizard() {
           </div>
         )}
 
-        {/* ═══ STEP 2: Profile Summary (FIX 7) ═══ */}
+        {/* ═══ STEP 2: Profile Summary ═══ */}
         {step === 2 && diagnosticResult && (() => {
-          const areaLabel = AREA_LABELS[diagnosticResult.area] || diagnosticResult.area;
-          const profileInfo = PROFILE_LABELS[diagnosticResult.primary] || { label: diagnosticResult.primary, desc: "Your plan will be tailored to your specific pattern." };
-          const irr = diagnosticResult.irritability ?? 0;
-
-          const sensitivityLabel = irr <= 2 ? "Low" : irr === 3 ? "Moderate" : "High";
-          const sensitivityColor = irr <= 2 ? "#22c55e" : irr === 3 ? "#f59e0b" : "#ef4444";
-
-          const confidence = diagnosticResult.confidence || "Medium";
-          const confNote = confidence === "High"
-            ? "High confidence profile"
-            : confidence === "Medium"
-            ? "Good confidence — may refine over first sessions"
-            : "Initial profile — will refine over your first sessions";
-
+          const areaLabel = (AREA_LABELS[diagnosticResult.area] || diagnosticResult.area).toLowerCase();
           return (
-            <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "460px" }}>
-              <h1 className="font-display text-foreground font-bold text-2xl mb-2">Here's what we found</h1>
-              <p className="text-muted-foreground text-sm mb-6">Based on your movement responses, here's your starting profile</p>
-
-              <div className="rounded-2xl bg-surface-warm p-6 text-left space-y-4 mb-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-sm">Area</span>
-                  <span className="font-semibold text-foreground">{areaLabel}</span>
-                </div>
-                <hr className="border-border" />
-                <div className="flex items-start justify-between gap-3">
-                  <span className="text-muted-foreground text-sm shrink-0">Movement Profile</span>
-                  <div className="text-right">
-                    <span className="font-semibold text-secondary block">{profileInfo.label}</span>
-                    <span className="text-xs text-muted-foreground">{profileInfo.desc}</span>
-                  </div>
-                </div>
-                {diagnosticResult.secondaryProfile && (() => {
-                  const secInfo = PROFILE_LABELS[diagnosticResult.secondaryProfile] || { label: diagnosticResult.secondaryProfile, desc: "" };
-                  return (
-                    <>
-                      <hr className="border-border" />
-                      <div className="flex items-start justify-between gap-3">
-                        <span className="text-muted-foreground text-sm shrink-0">Secondary Profile</span>
-                        <div className="text-right">
-                          <span className="font-semibold text-secondary/70 block">{secInfo.label}</span>
-                          <span className="text-xs text-muted-foreground">{secInfo.desc}</span>
-                        </div>
-                      </div>
-                    </>
-                  );
-                })()}
-                <hr className="border-border" />
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-sm">Sensitivity</span>
-                  <span className="font-semibold" style={{ color: sensitivityColor }}>{sensitivityLabel}</span>
-                </div>
+            <div className="w-full flex flex-col items-center text-center" style={{ marginTop: "80px", maxWidth: "600px" }}>
+              <div className="w-14 h-14 rounded-full bg-secondary/15 flex items-center justify-center mb-5">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--secondary))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
               </div>
-
-              <p className="text-xs text-muted-foreground mb-6">{confNote}</p>
+              <h1 className="font-display text-foreground font-bold mb-2" style={{ fontSize: "clamp(26px, 3vw, 32px)" }}>
+                Your plan is ready
+              </h1>
+              <p className="text-accent font-semibold text-base mb-4" style={{ textTransform: "capitalize" }}>
+                {areaLabel} discomfort detected
+              </p>
+              <p className="text-muted-foreground leading-relaxed max-w-[440px]" style={{ fontSize: "clamp(15px, 1.5vw, 17px)" }}>
+                Based on your assessment, we've built a personalised practice for your {areaLabel}.
+              </p>
             </div>
           );
         })()}
