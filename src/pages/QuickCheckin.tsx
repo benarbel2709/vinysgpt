@@ -41,7 +41,6 @@ export default function QuickCheckin() {
   const [energyLevel, setEnergyLevel] = useState<EnergyLevel>(profile.energyLevel);
   const [flareToday, setFlareToday] = useState(false);
   const [minutesPerSession, setMinutesPerSession] = useState(profile.minutesPerSession);
-  const [minutesPerSession, setMinutesPerSession] = useState(profile.minutesPerSession);
   const [equipment, setEquipment] = useState<string[]>(
     state.assessments.length > 0
       ? ((state.assessments[state.assessments.length - 1].data as GenericAssessmentData).equipment || [])
