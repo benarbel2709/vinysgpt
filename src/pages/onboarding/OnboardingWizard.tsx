@@ -123,8 +123,6 @@ export default function OnboardingWizard() {
   const [selectedDiagnoses, setSelectedDiagnoses] = useState<string[]>([]);
   const [ageGroup, setAgeGroup] = useState<string>("");
   const [restrictionOther, setRestrictionOther] = useState("");
-  const [practiceTime, setPracticeTime] = useState<PracticeTime>(profile.practiceTime || "morning");
-  const [minutesPerSession, setMinutesPerSession] = useState(profile.minutesPerSession || 20);
   const [sessionsPerWeek, setSessionsPerWeek] = useState(profile.sessionsPerWeek || 3);
   const [equipment, setEquipment] = useState<string[]>(["mat"]);
   const [closingPref, setClosingPref] = useState<string>("");
