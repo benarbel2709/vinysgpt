@@ -150,19 +150,8 @@ export default function QuickCheckin() {
         </SectionCard>
 
         {/* Schedule */}
-        <SectionCard title="Your practice schedule">
+        <SectionCard title="Session duration">
           <div className="space-y-3">
-            <span className="text-sm font-medium">Sessions per week</span>
-            <div className="flex gap-2">
-              {SESSIONS_OPTIONS.map((n) => (
-                <button key={n} onClick={() => setSessionsPerWeek(n)}
-                  className={`flex-1 py-2.5 rounded-2xl border-2 text-sm font-bold transition-all ${
-                    sessionsPerWeek === n
-                      ? "border-accent bg-accent/10 text-foreground shadow-sm"
-                      : "border-border bg-card text-foreground hover:border-accent/30"
-                  }`}>{n}</button>
-              ))}
-            </div>
             <span className="text-sm font-medium">Minutes per session</span>
             <div className="flex flex-wrap gap-2">
               {MINUTES_OPTIONS.map((n) => (
