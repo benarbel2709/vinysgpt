@@ -122,13 +122,11 @@ export default function OnboardingWizard() {
   const [selectedDiagnoses, setSelectedDiagnoses] = useState<string[]>([]);
   const [ageGroup, setAgeGroup] = useState<string>("");
   const [restrictionOther, setRestrictionOther] = useState("");
-  const [sessionsPerWeek, setSessionsPerWeek] = useState(profile.sessionsPerWeek || 3);
+  const [minutesPerSession, setMinutesPerSession] = useState(profile.minutesPerSession || 20);
   const [equipment, setEquipment] = useState<string[]>(["mat"]);
   const [closingPref, setClosingPref] = useState<string>("");
   const [energyLevel, setEnergyLevel] = useState<EnergyLevel>("medium");
-  const [timeSelected, setTimeSelected] = useState(false);
   const [durationSelected, setDurationSelected] = useState(false);
-  const [sessionsSelected, setSessionsSelected] = useState(false);
   const [showStartOverConfirm, setShowStartOverConfirm] = useState(false);
   const [isSystemicFlow, setIsSystemicFlow] = useState(false);
   const [systemicConditionKey, setSystemicConditionKey] = useState<ConditionKey | null>(null);
