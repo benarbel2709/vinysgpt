@@ -85,6 +85,7 @@ function ExerciseCard({ master, onClick }: { master: MasterExercise; onClick: ()
   return (
     <button
       onClick={onClick}
+      aria-label={master.title}
       className="rounded-2xl overflow-hidden text-left transition-shadow hover:shadow-md w-full"
       style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
     >
