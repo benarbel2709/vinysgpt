@@ -465,136 +465,72 @@ export default function OnboardingWizard() {
           </p>
         )}
 
-        {/* ═══ STEP 0: Body area picker (redesigned 8-area grid) ═══ */}
+        {/* ═══ STEP 0: Body silhouette + systemic cards ═══ */}
         {step === 0 && (() => {
-          const AREA_COLORS: Record<string, string> = {
-            NECK: "#7B6F4A", SHLDR: "#7B4A4A", UBACK: "#4A6B7B", WRIST: "#6B4A7B",
-            LB: "#4A7B6F", HIP: "#7B4A6F", KNEE: "#6F7B4A", ANKLE: "#4A6F7B",
-          };
-          const AREA_ICONS_SVG: Record<string, React.ReactNode> = {
-            NECK:  <path d="M8 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm0 5c-2 0-3 1-3 2v5h6V9c0-1-1-2-3-2z" fill="currentColor"/>,
-            SHLDR: <path d="M4 7h8M4 7c-2 1-3 3-3 5h14c0-2-1-4-3-5M8 7V3" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
-            UBACK: <path d="M8 1v14M5 5l3-3 3 3M5 11l3 3 3-3M4 8h8" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
-            WRIST: <path d="M3 10h10v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3zm1-4c0-2.2 1.8-4 4-4s4 1.8 4 4v4H4V6z" fill="currentColor"/>,
-            LB:    <path d="M8 1C5 1 3 3 3 6v3c0 3 2 5 5 5s5-2 5-5V6c0-3-2-5-5-5zm0 7v4" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
-            HIP:   <><path d="M2 10c0-4 3-7 6-7s6 3 6 7" stroke="currentColor" fill="none" strokeWidth="1.5"/><circle cx="5" cy="10" r="1.5" fill="currentColor"/><circle cx="11" cy="10" r="1.5" fill="currentColor"/></>,
-            KNEE:  <path d="M6 2v5l-3 3h10l-3-3V2h-4zm2 9v5" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
-            ANKLE: <path d="M4 4c0-1 1-2 4-2s4 1 4 2v5c0 2-1 3-4 3s-4-1-4-3V4zm0 5l-2 6h12l-2-6" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
-          };
-          const AREA_DESCS: Record<string, string> = {
-            NECK: "Pain, stiffness, or headaches", SHLDR: "Pain or restricted movement",
-            UBACK: "Mid-back tightness or aching", WRIST: "Pain, tingling, or grip issues",
-            LB: "Lumbar pain or stiffness", HIP: "Pain or restricted range",
-            KNEE: "Knee pain or instability", ANKLE: "Ankle pain or balance issues",
-          };
-          const upperBody = ["NECK", "SHLDR", "UBACK", "WRIST"];
-          const lowerBody = ["LB", "HIP", "KNEE", "ANKLE"];
-
-          const AreaCard = ({ areaId }: { areaId: string }) => {
-            const ba = BODY_AREAS.find(a => a.id === areaId)!;
-            const accent = AREA_COLORS[areaId];
-            const isSelected = selectedArea === areaId;
-            return (
-              <button
-                onClick={() => { setSelectedArea(areaId); setTimeout(() => setStep(1), 200); }}
-                style={{
-                  padding: "14px 14px 12px", borderRadius: 16,
-                  border: isSelected ? `2px solid ${accent}` : "1.5px solid #E4DDD6",
-                  background: isSelected ? `${accent}15` : "#FFFFFF",
-                  textAlign: "left" as const, cursor: "pointer", position: "relative" as const,
-                  overflow: "hidden" as const, transition: "all 0.15s ease",
-                  WebkitTapHighlightColor: "transparent",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-                  display: "flex", flexDirection: "column" as const, gap: 6, minHeight: 90,
-                }}
-              >
-                {isSelected && (
-                  <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: accent, borderRadius: "16px 0 0 16px" }} />
-                )}
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: `${accent}1A`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: accent }}>
-                      {AREA_ICONS_SVG[areaId]}
-                    </svg>
-                  </div>
-                  <span style={{ fontSize: 15, fontWeight: 700, color: "#1C2B26", lineHeight: 1.2 }}>{ba.label}</span>
-                </div>
-                <span style={{ fontSize: 12, color: "#7A8E89", lineHeight: 1.35 }}>{AREA_DESCS[areaId]}</span>
-              </button>
-            );
-          };
-
           const SYSTEMIC_CONDITIONS = [
-            { id: "MENO", label: "Menopause & Hormonal Changes", desc: "Hot flashes, joint pain, mood or energy shifts", conditionKey: "menopause" as ConditionKey, color: "#9B4A6F" },
-            { id: "LCOVID", label: "Long COVID & Post-Viral Fatigue", desc: "Fatigue, breathlessness, or lingering symptoms", conditionKey: "long_covid" as ConditionKey, color: "#4A7B7B" },
-            { id: "FIBRO", label: "Fibromyalgia", desc: "Widespread pain, fatigue, or sensitivity", conditionKey: "fibromyalgia" as ConditionKey, color: "#7B4A9B" },
-            { id: "CFS", label: "Chronic Fatigue (ME/CFS)", desc: "Low energy, post-exertional malaise", conditionKey: "chronic_fatigue_syndrome" as ConditionKey, color: "#9B7B4A" },
-            { id: "STRESS", label: "General Stress & Anxiety", desc: "Tension, sleep issues, nervous system overload", conditionKey: "stress_anxiety" as ConditionKey, color: "#4A6B9B" },
+            { id: "MENO", label: "Menopause & Hormonal Changes", conditionKey: "menopause" as ConditionKey, color: "#9B4A6F" },
+            { id: "LCOVID", label: "Long COVID & Post-Viral Fatigue", conditionKey: "long_covid" as ConditionKey, color: "#4A7B7B" },
+            { id: "FIBRO", label: "Fibromyalgia", conditionKey: "fibromyalgia" as ConditionKey, color: "#7B4A9B" },
+            { id: "CFS", label: "Chronic Fatigue (ME/CFS)", conditionKey: "chronic_fatigue_syndrome" as ConditionKey, color: "#9B7B4A" },
+            { id: "STRESS", label: "General Stress & Anxiety", conditionKey: "stress_anxiety" as ConditionKey, color: "#4A6B9B" },
           ];
 
-          const SYSTEMIC_ICONS: Record<string, React.ReactNode> = {
-            MENO:   <path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2zm0 3c-1.7 0-3 1.3-3 3s1.3 3 3 3" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
-            LCOVID: <><path d="M8 1v3M8 12v3M1 8h3M12 8h3" stroke="currentColor" strokeWidth="1.2"/><circle cx="8" cy="8" r="3" stroke="currentColor" fill="none" strokeWidth="1.2"/></>,
-            FIBRO:  <><circle cx="8" cy="8" r="6" stroke="currentColor" fill="none" strokeWidth="1.2"/><circle cx="5" cy="6" r="1" fill="currentColor"/><circle cx="11" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="10" r="1" fill="currentColor"/><circle cx="5" cy="11" r="1" fill="currentColor"/><circle cx="11" cy="11" r="1" fill="currentColor"/></>,
-            CFS:    <><rect x="4" y="5" width="8" height="8" rx="2" stroke="currentColor" fill="none" strokeWidth="1.2"/><line x1="6" y1="3" x2="10" y2="3" stroke="currentColor" strokeWidth="1.2"/><rect x="5.5" y="9" width="5" height="3" rx="0.5" fill="currentColor" opacity="0.2"/></>,
-            STRESS: <path d="M2 10Q5 4 8 10Q11 16 14 10M2 7Q5 1 8 7Q11 13 14 7" stroke="currentColor" fill="none" strokeWidth="1.2"/>,
-          };
-
-          const SystemicCard = ({ cond }: { cond: typeof SYSTEMIC_CONDITIONS[0] }) => {
-            const accent = cond.color;
-            const isSelected = selectedArea === cond.id;
-            return (
-              <button
-                onClick={() => {
-                  setSelectedArea(cond.id);
-                  setIsSystemicFlow(true);
-                  setSystemicConditionKey(cond.conditionKey);
-                  setSelected([cond.conditionKey]);
-                  setTimeout(() => setStep(3), 200);
-                }}
-                style={{
-                  padding: "14px 14px 12px", borderRadius: 16,
-                  border: isSelected ? `2px solid ${accent}` : "1.5px solid #E4DDD6",
-                  background: isSelected ? `${accent}15` : "#FFFFFF",
-                  textAlign: "left" as const, cursor: "pointer", position: "relative" as const,
-                  overflow: "hidden" as const, transition: "all 0.15s ease",
-                  WebkitTapHighlightColor: "transparent",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-                  display: "flex", flexDirection: "column" as const, gap: 6, minHeight: 90,
-                }}
-              >
-                {isSelected && (
-                  <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: accent, borderRadius: "16px 0 0 16px" }} />
-                )}
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: `${accent}1A`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: accent }}>
-                      {SYSTEMIC_ICONS[cond.id]}
-                    </svg>
-                  </div>
-                  <span style={{ fontSize: 15, fontWeight: 700, color: "#1C2B26", lineHeight: 1.2 }}>{cond.label}</span>
-                </div>
-                <span style={{ fontSize: 12, color: "#7A8E89", lineHeight: 1.35 }}>{cond.desc}</span>
-              </button>
-            );
-          };
-
           return (
-            <div className="w-full" style={{ marginTop: "16px", maxWidth: "520px", margin: "16px auto 0" }}>
-              <p className="text-muted-foreground text-center text-[15px] mb-6 leading-relaxed">
-                Select the area you want to assess, or choose a whole-body condition below.
+            <div className="w-full" style={{ marginTop: "12px", maxWidth: "800px", margin: "12px auto 0" }}>
+              <p className="text-muted-foreground text-center text-[14px] mb-5 leading-relaxed">
+                Tap one or more areas on the body, then press Continue.
               </p>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#7A8E89", textTransform: "uppercase" as const, marginBottom: 10 }}>UPPER BODY</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
-                {upperBody.map(id => <AreaCard key={id} areaId={id} />)}
+
+              {/* Body illustration */}
+              <BodySilhouetteSelector
+                selectedZones={selectedBodyZones}
+                onToggleZone={toggleBodyZone}
+              />
+
+              {/* Next button for body zones */}
+              <div className="flex justify-center mt-5 mb-6">
+                <Button
+                  onClick={handleNext}
+                  disabled={selectedBodyZones.length === 0}
+                  className="px-8 py-2.5 text-[15px] font-semibold rounded-xl"
+                >
+                  Continue
+                </Button>
               </div>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#7A8E89", textTransform: "uppercase" as const, marginBottom: 10 }}>LOWER BODY</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
-                {lowerBody.map(id => <AreaCard key={id} areaId={id} />)}
+
+              {/* Systemic conditions */}
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#7A8E89", textTransform: "uppercase" as const, marginBottom: 10 }}>
+                WHOLE-BODY & SYSTEMIC CONDITIONS
               </div>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#7A8E89", textTransform: "uppercase" as const, marginBottom: 10 }}>WHOLE BODY & SYSTEMIC CONDITIONS</div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                {SYSTEMIC_CONDITIONS.map(cond => <SystemicCard key={cond.id} cond={cond} />)}
+                {SYSTEMIC_CONDITIONS.map(cond => {
+                  const accent = cond.color;
+                  return (
+                    <button
+                      key={cond.id}
+                      onClick={() => {
+                        setSelectedArea(cond.id);
+                        setIsSystemicFlow(true);
+                        setSystemicConditionKey(cond.conditionKey);
+                        setSelected([cond.conditionKey]);
+                        setTimeout(() => setStep(3), 200);
+                      }}
+                      style={{
+                        padding: "12px 14px", borderRadius: 14,
+                        border: "1.5px solid #E4DDD6",
+                        background: "#FFFFFF",
+                        textAlign: "left" as const, cursor: "pointer",
+                        transition: "all 0.15s ease",
+                        WebkitTapHighlightColor: "transparent",
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+                        display: "flex", alignItems: "center", gap: 10,
+                      }}
+                    >
+                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: accent, flexShrink: 0 }} />
+                      <span style={{ fontSize: 14, fontWeight: 600, color: "#1C2B26", lineHeight: 1.3 }}>{cond.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           );
