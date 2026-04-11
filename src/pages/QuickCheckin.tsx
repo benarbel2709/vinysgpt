@@ -86,7 +86,6 @@ export default function QuickCheckin() {
       conditions: selected,
       energyLevel,
       flareToday,
-      sessionsPerWeek,
       minutesPerSession,
     };
 
