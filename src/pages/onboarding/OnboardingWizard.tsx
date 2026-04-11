@@ -139,6 +139,12 @@ export default function OnboardingWizard() {
   const [systemicConditionKey, setSystemicConditionKey] = useState<ConditionKey | null>(null);
   const [localIrritability, setLocalIrritability] = useState(2);
   const [safetyFlags, setSafetyFlags] = useState<string[]>([]);
+  // Condition-specific clinical answers
+  const [menoSymptoms, setMenoSymptoms] = useState<string[]>([]);
+  const [flareLevel, setFlareLevel] = useState<string>("");
+  const [covidEnergy, setCovidEnergy] = useState<string>("");
+  const [covidPEM, setCovidPEM] = useState(false);
+  const [stressState, setStressState] = useState<string>("");
 
   const toggle = useCallback((c: ConditionKey) => {
     setSelected((p) => (p.includes(c) ? p.filter((x) => x !== c) : [...p, c]));
@@ -206,6 +212,19 @@ export default function OnboardingWizard() {
 
     // For systemic flow, inject diagnostic-like data from condition
     if (isSystemicFlow && systemicConditionKey) {
+      // Build condition-specific clinical data
+      const clinicalData: Record<string, any> = {};
+      if (systemicConditionKey === "menopause") {
+        clinicalData.menoSymptoms = menoSymptoms;
+      } else if (systemicConditionKey === "fibromyalgia" || systemicConditionKey === "chronic_fatigue_syndrome") {
+        clinicalData.flareLevel = flareLevel;
+      } else if (systemicConditionKey === "long_covid") {
+        clinicalData.covidEnergy = covidEnergy;
+        clinicalData.covidPEM = covidPEM;
+      } else if (systemicConditionKey === "stress_anxiety") {
+        clinicalData.stressState = stressState;
+      }
+
       updateProfile({
         conditions: [systemicConditionKey],
         energyLevel,
@@ -224,6 +243,7 @@ export default function OnboardingWizard() {
         diagnosticIrritability: localIrritability,
         irritability: localIrritability,
         ageGroup: ageGroup || undefined,
+        clinicalData,
       } as any);
     } else {
       updateProfile({
@@ -313,7 +333,12 @@ export default function OnboardingWizard() {
     "Where does your body need support?",
     "Body diagnostic",
     "Here's what we found",
-    isSystemicFlow ? "How are you feeling today?" : "Any health considerations we should know about?",
+    isSystemicFlow
+      ? systemicConditionKey === "menopause" ? "What are you experiencing most?"
+      : systemicConditionKey === "stress_anxiety" ? "How would you describe your current state?"
+      : systemicConditionKey === "long_covid" ? "What's your energy capacity right now?"
+      : "How is your pain or fatigue today?"
+    : "Any health considerations we should know about?",
     "How long should each session be?",
     "How would you like to end each practice?",
     "You're all set.",
@@ -416,7 +441,7 @@ export default function OnboardingWizard() {
             Select everything that applies — this helps us personalise your practice and filter out anything that could cause harm.
           </p>
         )}
-        {step === 3 && isSystemicFlow && (
+        {step === 3 && isSystemicFlow && systemicConditionKey !== "menopause" && (
           <p className="text-muted-foreground text-center text-sm mt-1 shrink-0">
             This helps us set the right intensity for your practice.
           </p>
@@ -653,66 +678,134 @@ export default function OnboardingWizard() {
           );
         })()}
 
-        {/* ═══ STEP 3: Health Considerations / Systemic Energy Check ═══ */}
+        {/* ═══ STEP 3: Condition-specific clinical questions (systemic) ═══ */}
         {step === 3 && isSystemicFlow && (
-          <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
-            {/* Energy level */}
-            <div className="mb-8 text-left">
-              <p className="text-sm font-semibold text-foreground mb-3">What's your energy level like right now?</p>
-              <div className="flex flex-wrap gap-2">
-                {([
-                  { value: "low" as EnergyLevel, label: "Low", desc: "Tired, need something gentle" },
-                  { value: "medium" as EnergyLevel, label: "Moderate", desc: "Steady, ready for balanced practice" },
-                  { value: "high" as EnergyLevel, label: "Good", desc: "Energised, can handle more" },
-                ] as const).map((opt) => (
-                  <button
-                    key={opt.value}
-                    onClick={() => setEnergyLevel(opt.value)}
-                    className={`flex-1 min-w-[100px] p-3 rounded-[12px] border-2 text-left transition-all ${energyLevel === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
-                  >
-                    <span className="font-semibold text-sm block text-foreground">{opt.label}</span>
-                    <span className="text-xs text-muted-foreground">{opt.desc}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
+          <div className="w-full text-left" style={{ marginTop: "24px", maxWidth: "560px" }}>
 
-            {/* Sensitivity / irritability */}
-            <div className="mb-6 text-left">
-              <p className="text-sm font-semibold text-foreground mb-3">How has your condition been lately?</p>
-              <div className="flex flex-col gap-2">
-                {([
-                  { value: 1, label: "I'm actually improving", desc: "Feeling better — ready for a fuller practice" },
-                  { value: 3, label: "About the same", desc: "Steady — keep it balanced" },
-                  { value: 5, label: "I'm dipping", desc: "Symptoms are flaring — I need the gentlest approach" },
-                ] as const).map((opt) => (
-                  <button
-                    key={opt.value}
-                    onClick={() => setLocalIrritability(opt.value)}
-                    className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${localIrritability === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
-                  >
-                    <span className="font-semibold text-sm text-foreground">{opt.label}</span>
-                    <span className="text-xs text-muted-foreground ml-2">{opt.desc}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
+            {/* ── MENOPAUSE ── */}
+            {systemicConditionKey === "menopause" && (
+              <>
+                <p className="text-sm text-muted-foreground mb-4">Check everything that applies — we'll shape your practice around these.</p>
+                <div className="flex flex-col gap-2 mb-8">
+                  {([
+                    { value: "hot-flushes", label: "Hot flushes & temperature regulation" },
+                    { value: "joint-pain", label: "Joint stiffness & pain" },
+                    { value: "mood-sleep", label: "Mood & sleep" },
+                    { value: "low-energy", label: "Low energy & fatigue" },
+                  ] as const).map((opt) => {
+                    const isChecked = menoSymptoms.includes(opt.value);
+                    return (
+                      <button
+                        key={opt.value}
+                        onClick={() => setMenoSymptoms(prev => prev.includes(opt.value) ? prev.filter(v => v !== opt.value) : [...prev, opt.value])}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-[12px] border-2 transition-all text-left ${isChecked ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
+                      >
+                        <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${isChecked ? "border-secondary bg-secondary" : "border-border bg-card"}`}>
+                          {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
+                        </div>
+                        <span className="text-sm font-medium text-foreground">{opt.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
 
-            {/* Age group (optional) */}
-            <div className="text-left">
-              <p className="text-sm font-semibold text-foreground mb-3">What is your age group? <span className="font-normal text-muted-foreground">(optional)</span></p>
-              <div className="flex flex-wrap gap-2">
-                {AGE_GROUP_OPTIONS.map((ag) => (
-                  <button
-                    key={ag.value}
-                    onClick={() => setAgeGroup(prev => prev === ag.value ? "" : ag.value)}
-                    className={`px-4 py-2 rounded-[8px] border-2 text-sm font-medium transition-all ${ageGroup === ag.value ? "border-secondary bg-secondary/10 text-foreground" : "border-border bg-card text-foreground hover:border-secondary/40"}`}
-                  >
-                    {ag.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+                {/* Age group — clinically critical for menopause */}
+                <p className="text-sm font-semibold text-foreground mb-3">What is your age group?</p>
+                <div className="flex flex-wrap gap-2">
+                  {AGE_GROUP_OPTIONS.map((ag) => (
+                    <button
+                      key={ag.value}
+                      onClick={() => setAgeGroup(prev => prev === ag.value ? "" : ag.value)}
+                      className={`px-4 py-2 rounded-[8px] border-2 text-sm font-medium transition-all ${ageGroup === ag.value ? "border-secondary bg-secondary/10 text-foreground" : "border-border bg-card text-foreground hover:border-secondary/40"}`}
+                    >
+                      {ag.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* ── FIBROMYALGIA & CHRONIC FATIGUE ── */}
+            {(systemicConditionKey === "fibromyalgia" || systemicConditionKey === "chronic_fatigue_syndrome") && (
+              <>
+                <p className="text-sm text-muted-foreground mb-4">This helps us calibrate the right intensity for today.</p>
+                <div className="flex flex-col gap-2">
+                  {([
+                    { value: "flare-high", label: "Much higher — definite flare" },
+                    { value: "flare-slight", label: "Slightly higher than usual" },
+                    { value: "baseline", label: "About my usual level" },
+                    { value: "good-day", label: "Lower than usual — good day" },
+                  ] as const).map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setFlareLevel(opt.value)}
+                      className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${flareLevel === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
+                    >
+                      <span className="text-sm font-medium text-foreground">{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* ── LONG COVID ── */}
+            {systemicConditionKey === "long_covid" && (
+              <>
+                <p className="text-sm text-muted-foreground mb-4">We'll pace your practice based on your current capacity.</p>
+
+                {/* PEM checkbox */}
+                <button
+                  onClick={() => setCovidPEM(prev => !prev)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-[12px] border-2 transition-all text-left mb-4 ${covidPEM ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
+                >
+                  <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${covidPEM ? "border-secondary bg-secondary" : "border-border bg-card"}`}>
+                    {covidPEM && <Check size={12} className="text-white" strokeWidth={3} />}
+                  </div>
+                  <span className="text-sm font-medium text-foreground">Symptoms worsen 24–48 hours after activity</span>
+                </button>
+
+                {/* Energy capacity */}
+                <p className="text-sm font-semibold text-foreground mb-3">Current energy capacity</p>
+                <div className="flex flex-col gap-2">
+                  {([
+                    { value: "very-low", label: "Very low — mostly resting" },
+                    { value: "low", label: "Low — light activity only" },
+                    { value: "moderate", label: "Moderate — managed some tasks" },
+                    { value: "good", label: "Good — near normal" },
+                  ] as const).map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setCovidEnergy(opt.value)}
+                      className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${covidEnergy === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
+                    >
+                      <span className="text-sm font-medium text-foreground">{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* ── STRESS & ANXIETY ── */}
+            {systemicConditionKey === "stress_anxiety" && (
+              <>
+                <p className="text-sm text-muted-foreground mb-4">We'll match your practice to how your nervous system feels right now.</p>
+                <div className="flex flex-col gap-2">
+                  {([
+                    { value: "wound-up", label: "Wound up & anxious — mind racing" },
+                    { value: "depleted", label: "Flat & depleted — hard to motivate" },
+                    { value: "mixed", label: "A mix — anxious but also exhausted" },
+                  ] as const).map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setStressState(opt.value)}
+                      className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${stressState === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
+                    >
+                      <span className="text-sm font-medium text-foreground">{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
 
           </div>
         )}
