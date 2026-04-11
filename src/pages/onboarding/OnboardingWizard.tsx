@@ -188,7 +188,13 @@ export default function OnboardingWizard() {
       case 2:
         return !!diagnosticResult;
       case 3:
-        return true; // restrictions are optional
+        if (isSystemicFlow) {
+          if (systemicConditionKey === "menopause") return menopauseSymptom.length > 0 && !!ageGroup;
+          if (systemicConditionKey === "fibromyalgia") return !!fibroFlareState;
+          if (systemicConditionKey === "long_covid" || systemicConditionKey === "chronic_fatigue_syndrome") return !!fatigueEnergyYesterday;
+          if (systemicConditionKey === "stress_anxiety") return !!stressAnxietyState;
+        }
+        return true; // restrictions are optional for non-systemic
       case 4:
         return true; // duration + equipment has defaults
       case 5:
