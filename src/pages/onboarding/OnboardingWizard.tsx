@@ -420,8 +420,6 @@ export default function OnboardingWizard() {
             This helps us set the right intensity for your practice.
           </p>
         )}
-          </p>
-        )}
 
         {/* ═══ STEP 0: Body area picker (redesigned 8-area grid) ═══ */}
         {step === 0 && (() => {
