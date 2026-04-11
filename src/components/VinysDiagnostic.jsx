@@ -1493,7 +1493,7 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
           {/* Bottom overlay: Next CTA */}
           <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 10, padding: "20px 20px 40px", background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)", display: "flex", justifyContent: "center" }}>
             <button
-              onClick={() => { ttsTextRef.current = ""; stopTTS(); setShowingVideo(false); }}
+              onClick={() => { ttsTextRef.current = ""; stopTTS(); setFeelingOverlay(true); }}
               style={{ width: "100%", maxWidth: 340, height: 52, borderRadius: 26, background: "hsl(var(--primary))", color: "white", fontSize: 16, fontWeight: 700, border: "none", cursor: "pointer", transition: "transform 0.1s", boxShadow: "0 4px 20px rgba(0,0,0,0.3)" }}
               onMouseDown={e => e.currentTarget.style.transform = "scale(0.97)"}
               onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
@@ -1501,6 +1501,53 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
               Next →
             </button>
           </div>
+
+          {/* "How did that feel?" overlay */}
+          {feelingOverlay && (
+            <div
+              style={{
+                position: "absolute", inset: 0, zIndex: 60,
+                background: "rgba(0,0,0,0.7)", backdropFilter: "blur(6px)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                animation: "fadeInOverlay 0.25s ease-out",
+              }}
+            >
+              <style>{`@keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }`}</style>
+              <div style={{ width: "100%", maxWidth: 340, padding: "0 20px" }}>
+                <h3 style={{ color: "white", fontSize: 22, fontWeight: 800, textAlign: "center", marginBottom: 20 }}>
+                  How did that feel?
+                </h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {[
+                    { value: "no-pain", label: "No pain" },
+                    { value: "some-discomfort", label: "Some discomfort" },
+                    { value: "it-hurt", label: "It hurt" },
+                    { value: "not-sure", label: "Not sure" },
+                  ].map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => {
+                        setFeelingOverlay(false);
+                        setShowingVideo(false);
+                      }}
+                      style={{
+                        width: "100%", padding: "14px 20px", borderRadius: 14,
+                        background: "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)",
+                        border: "1.5px solid rgba(255,255,255,0.2)",
+                        color: "white", fontSize: 16, fontWeight: 600,
+                        cursor: "pointer", transition: "all 0.15s",
+                        textAlign: "center",
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.22)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.4)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       );
     }
