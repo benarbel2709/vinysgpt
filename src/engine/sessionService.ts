@@ -54,6 +54,8 @@ export interface SessionServiceInput {
   conditions?: string[];
   /** Quick-profile modifiers for conservative session tuning */
   quick_modifiers?: QuickModifiers;
+  /** Safety flags from quick assessment */
+  safety_flags?: string[];
 }
 
 /** A single exercise ready for the workout player */
@@ -166,12 +168,36 @@ export function mapDiagnosticToUserProfile(diagnosticResult: {
  * Used for the Quick Start track — produces a single ActiveAreaProfile.
  */
 export function mapQuickAssessmentToUserProfile(qa: QuickAssessmentData): UserProfile {
-  const area = (qa.primary_area === 'GEN' ? 'LB' : qa.primary_area) as BodyArea;
+  const area = (qa.primary_area === 'GEN' ? 'GEN' : qa.primary_area) as BodyArea;
   return [{
     area,
     primary: qa.movement_profile,
     secondary: null,
   }];
+}
+
+/**
+ * Detects low-information profile: GEN area + NE movement + NONE goal + no safety flags.
+ * Returns adjusted QuickModifiers with low_info_fallback flag.
+ */
+export function detectLowInfoProfile(
+  qa: QuickAssessmentData,
+  baseModifiers: QuickModifiers
+): QuickModifiers {
+  const isLowInfo =
+    qa.primary_area === 'GEN' &&
+    qa.movement_profile === 'NE' &&
+    qa.goal_preference === 'NONE' &&
+    (qa.safety_flags.length === 0);
+
+  if (isLowInfo) {
+    return {
+      ...baseModifiers,
+      max_var_rank_reduction: 2,
+      low_info_fallback: true,
+    };
+  }
+  return baseModifiers;
 }
 
 /**
@@ -284,6 +310,7 @@ export function createSession(input: SessionServiceInput): PlayableSession {
     ageGroup: input.ageGroup,
     conditions: input.conditions,
     quick_modifiers: input.quick_modifiers,
+    safety_flags: input.safety_flags,
   };
 
   const result: FullSessionResult = generateSession(request);
