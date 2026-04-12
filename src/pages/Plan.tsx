@@ -91,8 +91,7 @@ export default function Plan() {
       setShowQuickGate(true);
       return;
     }
-    const effectiveCompleted = user ? weekly.completed : completedCount;
-    if (effectiveCompleted >= weekly.target) {
+    if (completedCount >= weekly.target) {
       setShowWeeklyDone(true);
       return;
     }
