@@ -1405,7 +1405,7 @@ export default function OnboardingWizard() {
         >
           <div className="flex justify-between pointer-events-auto px-6 lg:px-[100px]">
             <Button variant="outline" onClick={handleBack} className="text-base h-[35px] rounded-full px-5">
-              {step === 0 ? "Home" : "Back"}
+              ← {step === 0 ? "Home" : "Back"}
             </Button>
             {step === 3 && isSystemicFlow ? (
               <Button
