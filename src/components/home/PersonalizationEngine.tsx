@@ -40,7 +40,7 @@ export default function PersonalizationEngine() {
               key={step.title}
               className="vinys-card shadow-sm text-center"
               style={{ padding: "28px 20px" }}
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 1, y: 0 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{ duration: 0.35, delay: i * 0.08 }}

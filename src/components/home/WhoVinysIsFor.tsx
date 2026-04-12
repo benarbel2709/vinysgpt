@@ -21,7 +21,7 @@ export default function WhoVinysIsFor() {
             <motion.div
               key={i}
               className="flex items-start gap-3"
-              initial={{ opacity: 0, x: -10 }}
+              initial={{ opacity: 1, x: 0 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-20px" }}
               transition={{ duration: 0.3, delay: i * 0.05 }}

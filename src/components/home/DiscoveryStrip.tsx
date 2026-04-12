@@ -39,7 +39,7 @@ export default function DiscoveryStrip({ onChipClick }: Props) {
           {CATEGORIES.map((cat, i) => (
             <motion.div
               key={cat.title}
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 1, y: 0 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{ duration: 0.35, delay: i * 0.06 }}

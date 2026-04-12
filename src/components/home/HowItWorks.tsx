@@ -18,7 +18,7 @@ export default function HowItWorks() {
             <motion.div
               key={step.num}
               className="text-center flex-1"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 1, y: 0 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{ duration: 0.4, delay: i * 0.1 }}

@@ -46,7 +46,7 @@ export default function SafetyArchitecture() {
             <motion.div
               key={point.title}
               className="flex items-start gap-4"
-              initial={{ opacity: 0, x: -12 }}
+              initial={{ opacity: 1, x: 0 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{ duration: 0.3, delay: i * 0.06 }}

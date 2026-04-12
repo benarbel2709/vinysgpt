@@ -52,7 +52,7 @@ export default function SessionFlowVisual() {
           </p>
           <motion.div
             className="flex items-center justify-center gap-3"
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 1, y: 0 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-40px" }}
             transition={{ duration: 0.35 }}
@@ -76,7 +76,7 @@ export default function SessionFlowVisual() {
           </p>
           <motion.div
             className="flex items-center justify-center gap-3"
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 1, y: 0 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-40px" }}
             transition={{ duration: 0.35, delay: 0.1 }}

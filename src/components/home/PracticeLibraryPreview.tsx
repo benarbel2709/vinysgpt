@@ -79,7 +79,7 @@ export default function PracticeLibraryPreview({ initialFilter, onOpenLibrary }:
                 key={ex.id}
                 className="rounded-2xl border p-5 transition-shadow hover:shadow-md"
                 style={{ background: "hsl(var(--card))", borderColor: "hsl(var(--border))" }}
-                initial={{ opacity: 0, y: 12 }}
+                initial={{ opacity: 1, y: 0 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.3, delay: i * 0.04 }}
