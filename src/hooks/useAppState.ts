@@ -88,6 +88,8 @@ function loadState(): AppState {
     if (stored.sessionDuration === undefined) stored.sessionDuration = 20;
     if (stored.justAdvancedStage === undefined) stored.justAdvancedStage = false;
     if (stored.hasCompletedOnboarding === undefined) stored.hasCompletedOnboarding = stored.onboardingCompleted ?? false;
+    if (stored.quickAssessment === undefined) stored.quickAssessment = null;
+    if (stored.quickSessionCount === undefined) stored.quickSessionCount = 0;
     return stored;
   }
   return { ...DEFAULT_APP_STATE, exerciseLibrary: ALL_EXERCISES };

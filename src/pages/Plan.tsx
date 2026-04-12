@@ -82,11 +82,24 @@ export default function Plan() {
 
   // ── Handlers ──
 
+  const isQuickProfile = state.quickAssessment?.assessment_type === "quick";
+  const quickCount = state.quickSessionCount || 0;
+  const [showQuickGate, setShowQuickGate] = useState(false);
+
   const handleStartNextPractice = () => {
+    // Gate: quick-profile users after 3 sessions
+    if (isQuickProfile && quickCount >= 3) {
+      setShowQuickGate(true);
+      return;
+    }
     const effectiveCompleted = user ? weekly.completed : completedCount;
     if (effectiveCompleted >= weekly.target) {
       setShowWeeklyDone(true);
       return;
+    }
+    // Increment quick session count
+    if (isQuickProfile) {
+      updateState({ quickSessionCount: quickCount + 1 });
     }
     // V2: on-demand session — navigate to workout without a session ID
     navigate("/workout");
@@ -172,6 +185,37 @@ export default function Plan() {
     );
   }
 
+  // Gate screen for quick-profile users after 3 sessions
+  if (showQuickGate) {
+    return (
+      <Layout hideHeader hideFooter>
+        <div className="min-h-screen flex items-center justify-center px-6">
+          <div className="max-w-md text-center space-y-6">
+            <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+              <Activity size={28} className="text-primary" />
+            </div>
+            <h1 className="font-display text-foreground font-bold text-2xl">You're ready for the next step</h1>
+            <p className="text-muted-foreground leading-relaxed">
+              To keep practicing, we'd like to know a little more about how you move. The full assessment takes around 8 minutes and helps us build sessions that are truly matched to you.
+            </p>
+            <Button
+              variant="hero"
+              size="lg"
+              className="w-full rounded-full"
+              onClick={() => {
+                // Clear quick assessment so they go through full flow
+                updateState({ quickAssessment: null, onboardingCompleted: false });
+                navigate("/onboarding");
+              }}
+            >
+              Start my full assessment
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   // Completed sessions for history (from legacy plan data if it exists)
   const completedSessions = plan?.sessions?.filter(s => s.status === "done").map((s, idx) => {
     const matchingCheckin = checkins.find(c => c.sessionId === s.id);
@@ -206,6 +250,18 @@ export default function Plan() {
         )}
 
         <SignInModal open={showSignIn} onOpenChange={setShowSignIn} />
+
+        {/* Quick profile badge */}
+        {isQuickProfile && quickCount < 3 && (
+          <div className="text-center space-y-1">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
+              Session {quickCount + 1} of 3 — Quick Profile{quickCount === 2 ? " — last session before full setup" : ""}
+            </span>
+            <p className="text-xs text-muted-foreground">
+              You are on a quick profile — complete the full assessment for better personalisation.
+            </p>
+          </div>
+        )}
 
         {/* PRIMARY CTA — Start Practice */}
         <button

@@ -120,6 +120,17 @@ export interface AppState {
   sessionDuration: number;
   justAdvancedStage: boolean;
   hasCompletedOnboarding: boolean;
+  /** Quick assessment data (dual-track onboarding) */
+  quickAssessment?: {
+    assessment_type: "quick";
+    confidence_level: "low";
+    primary_area: string;
+    movement_profile: string;
+    irritability: number;
+    goal_preference: string;
+    safety_flags: string[];
+  } | null;
+  quickSessionCount?: number;
 }
 
 export const DEFAULT_APP_STATE: AppState = {
@@ -148,6 +159,8 @@ export const DEFAULT_APP_STATE: AppState = {
   sessionDuration: 20,
   justAdvancedStage: false,
   hasCompletedOnboarding: false,
+  quickAssessment: null,
+  quickSessionCount: 0,
 };
 
 // Re-export from constants for backward compat
