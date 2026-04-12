@@ -159,6 +159,8 @@ export const DEFAULT_APP_STATE: AppState = {
   sessionDuration: 20,
   justAdvancedStage: false,
   hasCompletedOnboarding: false,
+  quickAssessment: null,
+  quickSessionCount: 0,
 };
 
 // Re-export from constants for backward compat
