@@ -8,6 +8,13 @@ export type ProgressionStage = 1 | 2 | 3;
 export type ExperienceLevel = 'beginner' | 'intermediate' | 'advanced';
 export type SessionDuration = 10 | 20 | 30 | 45;
 
+export interface QuickModifiers {
+  max_var_rank_reduction: number;
+  max_peak: number;
+  caution_penalty: number;
+  diversity_weight: number;
+}
+
 export interface SessionRequest {
   user_profile: UserProfile;
   stage: ProgressionStage;
@@ -20,6 +27,8 @@ export interface SessionRequest {
   ageGroup?: string;
   /** Condition keys — drives scoring for systemic flows (empty user_profile) */
   conditions?: string[];
+  /** Quick-profile modifiers — conservative session tuning */
+  quick_modifiers?: QuickModifiers;
 }
 
 export interface SelectedPose {

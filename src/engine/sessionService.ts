@@ -24,6 +24,15 @@ import { PHASE_LABELS, PHASE_DESCRIPTIONS } from './engine3_sequencer';
 
 // ─── Public types ────────────────────────────────────────────────────────────
 
+/** Quick assessment shape from the 5-question flow */
+export interface QuickAssessmentData {
+  primary_area: string;
+  movement_profile: string;
+  irritability: number;
+  goal_preference: string;
+  safety_flags: string[];
+}
+
 /** Minimal input the UI needs to provide */
 export interface SessionServiceInput {
   /** Active area profiles from diagnostic (E1 input) */
