@@ -634,9 +634,8 @@ export default function Workout() {
                     {block.exercises.map((ex, i) => (
                       <div key={ex.id} className={`relative flex items-start gap-3 py-2.5 px-3 ${i < block.exercises.length - 1 ? "border-b border-white/10" : ""}`}>
                         {!ex.videoId && (
-                          <div className="shrink-0 w-12 h-12 rounded-lg flex flex-col items-center justify-center" style={{ backgroundColor: "#0D9488" }}>
-                            <Camera size={16} className="text-white" />
-                            <span className="text-white text-[7px] font-medium mt-0.5 leading-none">Coming soon</span>
+                          <div className="shrink-0 w-12 h-12 rounded-lg flex items-center justify-center bg-white/10 px-1">
+                            <span className="text-white/60 text-[8px] font-medium leading-tight text-center line-clamp-2">{ex.name.split(' — ')[0]}</span>
                           </div>
                         )}
                         <span className="text-white/30 text-xs font-mono w-5 text-right shrink-0 mt-1">{ex.position}</span>
