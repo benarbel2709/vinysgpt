@@ -395,8 +395,18 @@ export default function OnboardingWizard() {
   };
 
   const handleBack = () => {
-    if (step === 0) {
+    if (step === -1) {
       navigate("/");
+      return;
+    }
+    if (step === 0) {
+      setStep(-1);
+      return;
+    }
+    // Quick assessment back
+    if (step === 10) {
+      if (qaStep === 1) { setStep(-1); return; }
+      setQaStep(qaStep - 1);
       return;
     }
     if (isSystemicFlow) {
