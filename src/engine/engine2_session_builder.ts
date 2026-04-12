@@ -13,6 +13,8 @@ export interface QuickModifiers {
   max_peak: number;
   caution_penalty: number;
   diversity_weight: number;
+  /** When true, boost REST/MOBILITY categories for low-info profiles */
+  low_info_fallback?: boolean;
 }
 
 export interface SessionRequest {
@@ -29,6 +31,8 @@ export interface SessionRequest {
   conditions?: string[];
   /** Quick-profile modifiers — conservative session tuning */
   quick_modifiers?: QuickModifiers;
+  /** Safety flags from quick assessment (PREG, INJURY, RADICULAR, POST_SURGERY) */
+  safety_flags?: string[];
 }
 
 export interface SelectedPose {
@@ -82,6 +86,8 @@ const MAX_SAME_POSE_FAMILY  = 2;
 const MAX_SAME_MOVEMENT_DIR = 2;
 const AREA_DOMINANCE_LIMIT  = 0.40;
 const CLINICAL_OVERRIDE_SCORE = 3;
+/** Goal preference must not dominate more than 30% of session composition */
+const GOAL_PREFERENCE_WEIGHT_CAP = 0.3;
 
 interface DiversityState {
   area_counts: Record<string, number>;
