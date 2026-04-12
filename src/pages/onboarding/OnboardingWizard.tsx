@@ -118,7 +118,7 @@ export default function OnboardingWizard() {
   const navigate = useNavigate();
   const profile = state.profile;
 
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(-1); // -1 = track selection
 
   useEffect(() => { document.title = "Build Your Plan — Vinys"; }, []);
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
@@ -148,6 +148,13 @@ export default function OnboardingWizard() {
   const [stressAnxietyState, setStressAnxietyState] = useState<string>("");
   // Movement response for physical area flows (step 8)
   const [movementResponse, setMovementResponse] = useState<string>("");
+  // Quick assessment state
+  const [qaArea, setQaArea] = useState<string>("");
+  const [qaMovement, setQaMovement] = useState<string>("");
+  const [qaIrritability, setQaIrritability] = useState<number>(0);
+  const [qaGoal, setQaGoal] = useState<string>("");
+  const [qaFlags, setQaFlags] = useState<string[]>([]);
+  const [qaStep, setQaStep] = useState(1); // 1-5
 
   const toggle = useCallback((c: ConditionKey) => {
     setSelected((p) => (p.includes(c) ? p.filter((x) => x !== c) : [...p, c]));
