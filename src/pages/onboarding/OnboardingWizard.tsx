@@ -494,7 +494,7 @@ export default function OnboardingWizard() {
       {/* ── HEADER (logo + stepper + X in one row) ── */}
       <header className="shrink-0 z-50 w-full bg-background" style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
         <div className="flex items-center h-[56px] px-6 lg:px-[100px]">
-          {step > 0 ? (
+          {step > 0 || step === 10 ? (
             <button
               onClick={handleBack}
               className="flex items-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors p-2 -ml-2"
@@ -507,7 +507,15 @@ export default function OnboardingWizard() {
             <BrandLogo size="md" linkToHome={false} />
           )}
           <div className="flex-1 flex justify-center">
-            {step < 6 && step !== 1 && step !== 7 && step !== 8 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
+            {step === 10 && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground font-medium">Step {qaStep} of 5</span>
+                <div className="w-24 h-1.5 rounded-full bg-foreground/10 overflow-hidden">
+                  <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(qaStep / 5) * 100}%` }} />
+                </div>
+              </div>
+            )}
+            {step >= 0 && step < 6 && step !== 1 && step !== 7 && step !== 8 && <FlowProgress current={step + 1} total={STEPPER_STEPS} />}
           </div>
           <button
             onClick={() => navigate("/")}
