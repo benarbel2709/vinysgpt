@@ -220,6 +220,18 @@ export default function Plan() {
 
         <SignInModal open={showSignIn} onOpenChange={setShowSignIn} />
 
+        {/* Quick profile badge */}
+        {isQuickProfile && quickCount < 3 && (
+          <div className="text-center space-y-1">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
+              Session {quickCount + 1} of 3 — Quick Profile{quickCount === 2 ? " — last session before full setup" : ""}
+            </span>
+            <p className="text-xs text-muted-foreground">
+              You are on a quick profile — complete the full assessment for better personalisation.
+            </p>
+          </div>
+        )}
+
         {/* PRIMARY CTA — Start Practice */}
         <button
           onClick={handleStartNextPractice}
