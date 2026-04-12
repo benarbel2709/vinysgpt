@@ -153,15 +153,11 @@ export default function Plan() {
 
   // ── Greeting ──
   const hour = new Date().getHours();
-  const practiceTime = state.profile.practiceTime;
-  const timeGreeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-  const greetingSuffix = practiceTime === "morning"
-    ? "your morning practice is ready."
-    : practiceTime === "afternoon"
-    ? "Time for today's practice."
-    : practiceTime === "evening"
-    ? "your evening practice is waiting."
-    : null;
+  const isNightOwl = hour < 5;
+  const timeGreeting = isNightOwl ? "Good night" : hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  const greetingSuffix = isNightOwl
+    ? "your practice will be ready in the morning."
+    : "your practice is ready.";
   const greeting = firstName
     ? `${timeGreeting}, ${firstName}`
     : timeGreeting;
