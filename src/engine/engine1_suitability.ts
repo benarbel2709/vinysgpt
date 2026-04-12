@@ -46,7 +46,10 @@ const SCORE_ESPECIALLY_BENEFICIAL = 2;
 const SCORE_DEFAULT = 0;
 const SCORE_CAUTION = -1;
 
-function scoreArea(exercise: Exercise, ap: ActiveAreaProfile): { score: number; is_caution: boolean; modification_text: string } {
+/** When user selects "Whole body / general", movement-profile scores are halved */
+const MOVEMENT_PROFILE_WEIGHT_GEN = 0.5;
+
+function scoreArea(exercise: Exercise, ap: ActiveAreaProfile, weightMultiplier: number = 1.0): { score: number; is_caution: boolean; modification_text: string } {
   const area_data = exercise.profiles[ap.area];
   if (!area_data) return { score: SCORE_DEFAULT, is_caution: false, modification_text: '' };
   const { especially_beneficial, caution, avoid } = area_data;
@@ -60,6 +63,8 @@ function scoreArea(exercise: Exercise, ap: ActiveAreaProfile): { score: number; 
   if (primary_beneficial) { score = SCORE_ESPECIALLY_BENEFICIAL; }
   else if (primary_caution) { score = SCORE_CAUTION; is_caution = true; }
   else { if (secondary_beneficial) { score = 1; } else if (secondary_caution || secondary_avoid) { score = SCORE_CAUTION; is_caution = true; } }
+  // Apply GEN weight: halve movement-profile-based scores for "whole body" profiles
+  score = Math.round(score * weightMultiplier * 100) / 100;
   const modification_text = is_caution ? (area_data.modifications || '') : '';
   return { score, is_caution, modification_text };
 }
@@ -79,6 +84,9 @@ export function runEngine1(user_profile: UserProfile, library: Exercise[] = EXER
   const total_in_library = library.length;
   let excluded_count = 0;
   const eligible_pool: SuitedPose[] = [];
+  // Detect if any area is GEN → halve movement-profile score weight
+  const hasGenArea = user_profile.some(ap => ap.area === 'GEN' as BodyArea);
+  const genWeight = hasGenArea ? MOVEMENT_PROFILE_WEIGHT_GEN : 1.0;
   for (const exercise of library) {
     if (isHardExcluded(exercise, user_profile)) { excluded_count++; continue; }
     let total_score = 0;
@@ -87,7 +95,8 @@ export function runEngine1(user_profile: UserProfile, library: Exercise[] = EXER
     const modifications_available: Partial<Record<BodyArea, string>> = {};
     let has_modification_gap = false;
     for (const ap of user_profile) {
-      const { score, is_caution, modification_text } = scoreArea(exercise, ap);
+      const weight = ap.area === ('GEN' as BodyArea) ? genWeight : 1.0;
+      const { score, is_caution, modification_text } = scoreArea(exercise, ap, weight);
       total_score += score;
       if (is_caution) { caution_flag = true; caution_areas.push(ap.area); if (modification_text) { modifications_available[ap.area] = modification_text; } else { has_modification_gap = true; } }
     }
