@@ -532,7 +532,7 @@ export default function OnboardingWizard() {
         className="flex-1 min-h-0 flex flex-col items-center overflow-y-auto overflow-x-hidden"
         style={{ maxWidth: "1100px", margin: "0 auto", width: "100%", padding: "0 24px 90px" }}
       >
-        {step !== 1 && step !== 2 && step !== 6 && step !== 7 && step !== 8 && (
+        {step >= 0 && step !== 1 && step !== 2 && step !== 6 && step !== 7 && step !== 8 && step !== 10 && (
           <>
             <h1
               className="font-display text-foreground font-bold text-2xl text-center shrink-0"
@@ -552,6 +552,206 @@ export default function OnboardingWizard() {
             This helps us set the right intensity for your practice.
           </p>
         )}
+
+        {/* ═══ STEP -1: Track Selection ═══ */}
+        {step === -1 && (
+          <div className="w-full flex flex-col items-center" style={{ marginTop: "40px", maxWidth: "720px" }}>
+            <h1 className="font-display text-foreground font-bold text-center mb-2" style={{ fontSize: "clamp(24px, 3vw, 32px)" }}>
+              How would you like to begin?
+            </h1>
+            <p className="text-muted-foreground text-center text-sm mb-8 max-w-[520px] leading-relaxed">
+              Both paths lead to a real, personalised therapeutic practice — choose what works for you right now.
+            </p>
+            <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {/* LEFT — Quick start */}
+              <button
+                onClick={() => setStep(10)}
+                className="text-left p-6 rounded-2xl border-2 border-primary bg-primary/5 hover:bg-primary/10 transition-all"
+              >
+                <span className="text-[10px] font-bold tracking-widest text-primary uppercase">Start today</span>
+                <h3 className="font-bold text-foreground text-lg mt-2 mb-2">Begin right now, refine over time</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  Answer 5 questions and get your first session immediately. Your plan evolves as we learn how your body moves.
+                </p>
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {["~60 seconds", "First session today", "Plan evolves with you"].map(t => (
+                    <span key={t} className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-primary/10 text-primary">{t}</span>
+                  ))}
+                </div>
+                <span className="inline-flex items-center justify-center px-5 py-2 rounded-full bg-primary text-primary-foreground text-sm font-semibold">
+                  Start practicing
+                </span>
+                <p className="text-[11px] text-muted-foreground mt-3 leading-snug">
+                  After 3 sessions we will invite you to complete your full profile.
+                </p>
+              </button>
+              {/* RIGHT — Full assessment */}
+              <button
+                onClick={() => setStep(0)}
+                className="text-left p-6 rounded-2xl border-2 border-border hover:border-foreground/30 transition-all"
+              >
+                <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">Most precise</span>
+                <h3 className="font-bold text-foreground text-lg mt-2 mb-2">Map your movement first</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  A guided movement assessment so every session is precisely matched to how your body actually moves — from day one.
+                </p>
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {["~8 minutes", "Complete movement profile", "Highest accuracy from session 1"].map(t => (
+                    <span key={t} className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-muted text-muted-foreground">{t}</span>
+                  ))}
+                </div>
+                <span className="inline-flex items-center justify-center px-5 py-2 rounded-full border-2 border-foreground text-foreground text-sm font-semibold">
+                  Take the full assessment
+                </span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ═══ STEP 10: Quick Assessment (5 questions) ═══ */}
+        {step === 10 && (() => {
+          const QA_AREAS = [
+            { code: "LB", label: "Lower back" },
+            { code: "NK", label: "Neck" },
+            { code: "SH", label: "Shoulders" },
+            { code: "KN", label: "Knees" },
+            { code: "HI", label: "Hips" },
+            { code: "AN", label: "Ankles and feet" },
+            { code: "GEN", label: "Whole body or general" },
+          ];
+          const QA_MOVEMENT = [
+            { code: "FL", label: "Bending forward — sitting or rounding" },
+            { code: "EX", label: "Arching backward" },
+            { code: "LI", label: "Standing or putting load on my legs" },
+            { code: "ST", label: "Anything unstable — hard to control" },
+            { code: "NE", label: "Not sure, or everything feels sensitive" },
+          ];
+          const QA_DAILY = [
+            { label: "Mild — I notice it but it does not hold me back", value: 2 },
+            { label: "Moderate — it limits me sometimes", value: 3 },
+            { label: "High — it restricts my movement or activity", value: 4 },
+          ];
+          const QA_GOAL = [
+            { code: "BREATH", label: "Gentle breathing and calming movement" },
+            { code: "MOBILITY", label: "Stretching and opening up" },
+            { code: "STRENGTH", label: "Building strength and stability" },
+            { code: "REST", label: "Slow, restorative rest" },
+            { code: "NONE", label: "Not sure yet" },
+          ];
+          const QA_SAFETY = [
+            { code: "PREG", label: "I am pregnant" },
+            { code: "INJURY", label: "Recent injury" },
+            { code: "RADICULAR", label: "Pain that radiates into my arm or leg" },
+            { code: "POST_SURGERY", label: "Previous surgery in the affected area" },
+            { code: "NONE", label: "None of the above" },
+          ];
+
+          const canContinueQA = () => {
+            if (qaStep === 1) return !!qaArea;
+            if (qaStep === 2) return !!qaMovement;
+            if (qaStep === 3) return qaIrritability > 0;
+            if (qaStep === 4) return !!qaGoal;
+            if (qaStep === 5) return qaFlags.length > 0;
+            return false;
+          };
+
+          const handleQANext = () => {
+            if (qaStep < 5) { setQaStep(qaStep + 1); return; }
+            handleQuickComplete();
+          };
+
+          const toggleQAFlag = (code: string) => {
+            if (code === "NONE") { setQaFlags(["NONE"]); return; }
+            setQaFlags(prev => {
+              const without = prev.filter(f => f !== "NONE");
+              return without.includes(code) ? without.filter(f => f !== code) : [...without, code];
+            });
+          };
+
+          const optionBtn = (selected: boolean) =>
+            `w-full p-3.5 rounded-[12px] border-2 text-left transition-all ${selected ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/40"}`;
+
+          return (
+            <div className="w-full flex flex-col items-center" style={{ marginTop: "30px", maxWidth: "560px" }}>
+              {qaStep === 1 && (
+                <>
+                  <h1 className="font-display text-foreground font-bold text-2xl text-center mb-6">Where do you feel the main issue right now?</h1>
+                  <div className="w-full flex flex-col gap-2">
+                    {QA_AREAS.map(a => (
+                      <button key={a.code} onClick={() => setQaArea(a.code)} className={optionBtn(qaArea === a.code)}>
+                        <span className="text-sm font-medium text-foreground">{a.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+              {qaStep === 2 && (
+                <>
+                  <h1 className="font-display text-foreground font-bold text-2xl text-center mb-6">What type of movement tends to make it worse?</h1>
+                  <div className="w-full flex flex-col gap-2">
+                    {QA_MOVEMENT.map(m => (
+                      <button key={m.code} onClick={() => setQaMovement(m.code)} className={optionBtn(qaMovement === m.code)}>
+                        <span className="text-sm font-medium text-foreground">{m.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+              {qaStep === 3 && (
+                <>
+                  <h1 className="font-display text-foreground font-bold text-2xl text-center mb-6">How much does it affect your daily life?</h1>
+                  <div className="w-full flex flex-col gap-2">
+                    {QA_DAILY.map(d => (
+                      <button key={d.value} onClick={() => setQaIrritability(d.value)} className={optionBtn(qaIrritability === d.value)}>
+                        <span className="text-sm font-medium text-foreground">{d.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+              {qaStep === 4 && (
+                <>
+                  <h1 className="font-display text-foreground font-bold text-2xl text-center mb-6">What kind of movement tends to feel good for you?</h1>
+                  <div className="w-full flex flex-col gap-2">
+                    {QA_GOAL.map(g => (
+                      <button key={g.code} onClick={() => setQaGoal(g.code)} className={optionBtn(qaGoal === g.code)}>
+                        <span className="text-sm font-medium text-foreground">{g.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+              {qaStep === 5 && (
+                <>
+                  <h1 className="font-display text-foreground font-bold text-2xl text-center mb-2">Anything we should keep in mind?</h1>
+                  <p className="text-muted-foreground text-center text-sm mb-6">Select all that apply</p>
+                  <div className="w-full flex flex-col gap-2">
+                    {QA_SAFETY.map(s => {
+                      const isChecked = qaFlags.includes(s.code);
+                      return (
+                        <button key={s.code} onClick={() => toggleQAFlag(s.code)}
+                          className={`w-full flex items-center gap-3 p-3.5 rounded-[12px] border-2 text-left transition-all ${isChecked ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/40"}`}
+                        >
+                          <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${isChecked ? "border-primary bg-primary" : "border-border bg-card"}`}>
+                            {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
+                          </div>
+                          <span className="text-sm font-medium text-foreground">{s.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+
+              {/* QA bottom CTA */}
+              <div className="w-full mt-8">
+                <Button variant="hero" size="lg" className="w-full rounded-full" onClick={handleQANext} disabled={!canContinueQA()}>
+                  {qaStep === 5 ? "Let's go →" : "Continue →"}
+                </Button>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* ═══ STEP 0: Body silhouette + systemic cards ═══ */}
         {step === 0 && (() => {
