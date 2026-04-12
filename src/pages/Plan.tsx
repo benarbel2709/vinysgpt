@@ -185,6 +185,37 @@ export default function Plan() {
     );
   }
 
+  // Gate screen for quick-profile users after 3 sessions
+  if (showQuickGate) {
+    return (
+      <Layout hideHeader hideFooter>
+        <div className="min-h-screen flex items-center justify-center px-6">
+          <div className="max-w-md text-center space-y-6">
+            <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+              <Activity size={28} className="text-primary" />
+            </div>
+            <h1 className="font-display text-foreground font-bold text-2xl">You're ready for the next step</h1>
+            <p className="text-muted-foreground leading-relaxed">
+              To keep practicing, we'd like to know a little more about how you move. The full assessment takes around 8 minutes and helps us build sessions that are truly matched to you.
+            </p>
+            <Button
+              variant="hero"
+              size="lg"
+              className="w-full rounded-full"
+              onClick={() => {
+                // Clear quick assessment so they go through full flow
+                updateState({ quickAssessment: null, onboardingCompleted: false });
+                navigate("/onboarding");
+              }}
+            >
+              Start my full assessment
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   // Completed sessions for history (from legacy plan data if it exists)
   const completedSessions = plan?.sessions?.filter(s => s.status === "done").map((s, idx) => {
     const matchingCheckin = checkins.find(c => c.sessionId === s.id);
