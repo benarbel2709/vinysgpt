@@ -13,7 +13,8 @@ import type {
   ExperienceLevel,
   SessionDuration,
   SelectedPose,
-import type { QuickModifiers } from './engine2_session_builder';
+  QuickModifiers,
+} from './engine2_session_builder';
 import type {
   SequencedPose,
   SessionPhase,
