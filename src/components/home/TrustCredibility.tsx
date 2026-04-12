@@ -26,7 +26,7 @@ export default function TrustCredibility() {
                 border: "1px solid hsl(var(--border))",
                 color: "hsl(var(--foreground))",
               }}
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 1, scale: 1 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.3, delay: i * 0.08 }}

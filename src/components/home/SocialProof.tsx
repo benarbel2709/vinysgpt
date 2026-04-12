@@ -34,7 +34,7 @@ export default function SocialProof() {
             <motion.div
               key={stat.label}
               className="text-center px-4"
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 1, y: 0 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{ duration: 0.35, delay: i * 0.08 }}
