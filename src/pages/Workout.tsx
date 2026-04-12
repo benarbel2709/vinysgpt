@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import PhaseHeader from "@/components/PhaseHeader";
+import { getExerciseCues } from "@/lib/exerciseCues";
 import { useParams, useNavigate } from "react-router-dom";
 import { useApp } from "@/context/AppContext";
 import { useAuthContext } from "@/context/AuthContext";
@@ -515,9 +516,20 @@ export default function Workout() {
               {/* Exercise info */}
               <p className="text-white/50 text-xs font-medium uppercase tracking-wider mb-0.5">{activeExercise?.phaseLabel}</p>
               <p className="text-white font-semibold text-lg leading-tight">{exerciseTitle}</p>
-              {exerciseCue && (
-                <p className="text-white/70 text-sm mt-1">{exerciseCue}</p>
-              )}
+
+              {/* Instruction cues: alignment, breath, modification */}
+              {activeExercise?.exercise && (() => {
+                const cues = getExerciseCues(activeExercise.exercise, activeExercise.activeModification);
+                return (
+                  <div className="mt-1.5 space-y-0.5 max-w-md">
+                    <p className="text-white/65 text-xs leading-relaxed">↔ {cues.alignment}</p>
+                    <p className="text-white/65 text-xs leading-relaxed">🌬 {cues.breath}</p>
+                    {cues.modification && (
+                      <p className="text-white/55 text-xs leading-relaxed italic">⚡ {cues.modification}</p>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Safety note */}
               {safetyNote && (
