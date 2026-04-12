@@ -334,7 +334,20 @@ export function buildSession(request: SessionRequest): E2Result {
     }
   }
 
-  return {
+  // ── Quick-profile peak cap ──────────────
+  if (quick_modifiers && quick_modifiers.max_peak > 0) {
+    const peakPoses = selected.filter(sp => (sp.exercise.var_rank ?? 0) >= 3);
+    if (peakPoses.length > quick_modifiers.max_peak) {
+      // Sort peaks by score ascending — remove lowest-scoring ones
+      peakPoses.sort((a, b) => a.clinical_score - b.clinical_score);
+      const toRemove = peakPoses.slice(0, peakPoses.length - quick_modifiers.max_peak);
+      const removeIds = new Set(toRemove.map(sp => sp.exercise.id));
+      const filtered = selected.filter(sp => !removeIds.has(sp.exercise.id));
+      selected.length = 0;
+      selected.push(...filtered);
+    }
+  }
+
     selected_poses: selected, session_size: selected.length, cumulative_load: diversity.cumulative_load,
     load_ceiling: load_ceil, var_rank_ceiling: vr_ceiling,
     diversity_stats: { area_counts: diversity.area_counts, pose_family_counts: diversity.pose_family_counts, movement_dir_counts: diversity.movement_dir_counts, rest_count: diversity.rest_count, brth_count: diversity.brth_count },
