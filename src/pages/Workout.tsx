@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import PhaseHeader from "@/components/PhaseHeader";
+import { getExerciseCues } from "@/lib/exerciseCues";
 import { useParams, useNavigate } from "react-router-dom";
 import { useApp } from "@/context/AppContext";
 import { useAuthContext } from "@/context/AuthContext";
