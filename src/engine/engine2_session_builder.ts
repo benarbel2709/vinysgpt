@@ -8,6 +8,13 @@ export type ProgressionStage = 1 | 2 | 3;
 export type ExperienceLevel = 'beginner' | 'intermediate' | 'advanced';
 export type SessionDuration = 10 | 20 | 30 | 45;
 
+export interface QuickModifiers {
+  max_var_rank_reduction: number;
+  max_peak: number;
+  caution_penalty: number;
+  diversity_weight: number;
+}
+
 export interface SessionRequest {
   user_profile: UserProfile;
   stage: ProgressionStage;
@@ -20,6 +27,8 @@ export interface SessionRequest {
   ageGroup?: string;
   /** Condition keys — drives scoring for systemic flows (empty user_profile) */
   conditions?: string[];
+  /** Quick-profile modifiers — conservative session tuning */
+  quick_modifiers?: QuickModifiers;
 }
 
 export interface SelectedPose {
@@ -230,10 +239,15 @@ function applySystemicScoring(pool: SuitedPose[], mods: SystemicModifiers): Suit
 }
 
 export function buildSession(request: SessionRequest): E2Result {
-  const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0, ageGroup, conditions = [] } = request;
+  const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0, ageGroup, conditions = [], quick_modifiers } = request;
   let target       = targetSize(duration_minutes, target_size_override);
-  const vr_ceiling = VAR_RANK_CEILING[stage][experience_level];
+  let vr_ceiling   = VAR_RANK_CEILING[stage][experience_level];
   let load_ceil    = target * LOAD_CEILING_MULTIPLIER[experience_level];
+
+  // ── Quick-profile var_rank reduction ──────────────
+  if (quick_modifiers) {
+    vr_ceiling = Math.max(1, vr_ceiling - quick_modifiers.max_var_rank_reduction);
+  }
 
   // ── Irritability adjustments (applied as final layer) ──────────────
   const useIrritabilityBias = irritability >= 3;
@@ -317,6 +331,20 @@ export function buildSession(request: SessionRequest): E2Result {
     if (bp) {
       const sp: SelectedPose = { exercise: bp.exercise, clinical_score: bp.clinical_score, caution_flag: bp.caution_flag, caution_areas: bp.caution_areas, active_modification: '', was_simplified: false };
       selected.push(sp); selected_ids.add(bp.exercise.id); incrementDiversity(diversity, sp);
+    }
+  }
+
+  // ── Quick-profile peak cap ──────────────
+  if (quick_modifiers && quick_modifiers.max_peak > 0) {
+    const peakPoses = selected.filter(sp => (sp.exercise.var_rank ?? 0) >= 3);
+    if (peakPoses.length > quick_modifiers.max_peak) {
+      // Sort peaks by score ascending — remove lowest-scoring ones
+      peakPoses.sort((a, b) => a.clinical_score - b.clinical_score);
+      const toRemove = peakPoses.slice(0, peakPoses.length - quick_modifiers.max_peak);
+      const removeIds = new Set(toRemove.map(sp => sp.exercise.id));
+      const filtered = selected.filter(sp => !removeIds.has(sp.exercise.id));
+      selected.length = 0;
+      selected.push(...filtered);
     }
   }
 

@@ -13,6 +13,7 @@ import type {
   ExperienceLevel,
   SessionDuration,
   SelectedPose,
+  QuickModifiers,
 } from './engine2_session_builder';
 import type {
   SequencedPose,
@@ -23,6 +24,15 @@ import { generateSession } from './engine3_sequencer';
 import { PHASE_LABELS, PHASE_DESCRIPTIONS } from './engine3_sequencer';
 
 // ─── Public types ────────────────────────────────────────────────────────────
+
+/** Quick assessment shape from the 5-question flow */
+export interface QuickAssessmentData {
+  primary_area: string;
+  movement_profile: string;
+  irritability: number;
+  goal_preference: string;
+  safety_flags: string[];
+}
 
 /** Minimal input the UI needs to provide */
 export interface SessionServiceInput {
@@ -42,6 +52,8 @@ export interface SessionServiceInput {
   ageGroup?: string;
   /** Condition keys from profile — used for systemic flow scoring */
   conditions?: string[];
+  /** Quick-profile modifiers for conservative session tuning */
+  quick_modifiers?: QuickModifiers;
 }
 
 /** A single exercise ready for the workout player */
@@ -147,6 +159,19 @@ export function mapDiagnosticToUserProfile(diagnosticResult: {
   }
 
   return profiles;
+}
+
+/**
+ * Maps a quick assessment result to a V2 UserProfile.
+ * Used for the Quick Start track — produces a single ActiveAreaProfile.
+ */
+export function mapQuickAssessmentToUserProfile(qa: QuickAssessmentData): UserProfile {
+  const area = (qa.primary_area === 'GEN' ? 'LB' : qa.primary_area) as BodyArea;
+  return [{
+    area,
+    primary: qa.movement_profile,
+    secondary: null,
+  }];
 }
 
 /**
@@ -258,6 +283,7 @@ export function createSession(input: SessionServiceInput): PlayableSession {
     irritability: input.irritability,
     ageGroup: input.ageGroup,
     conditions: input.conditions,
+    quick_modifiers: input.quick_modifiers,
   };
 
   const result: FullSessionResult = generateSession(request);
