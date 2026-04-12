@@ -348,6 +348,7 @@ export function buildSession(request: SessionRequest): E2Result {
     }
   }
 
+  return {
     selected_poses: selected, session_size: selected.length, cumulative_load: diversity.cumulative_load,
     load_ceiling: load_ceil, var_rank_ceiling: vr_ceiling,
     diversity_stats: { area_counts: diversity.area_counts, pose_family_counts: diversity.pose_family_counts, movement_dir_counts: diversity.movement_dir_counts, rest_count: diversity.rest_count, brth_count: diversity.brth_count },
