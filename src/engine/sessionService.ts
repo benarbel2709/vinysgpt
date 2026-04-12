@@ -283,6 +283,7 @@ export function createSession(input: SessionServiceInput): PlayableSession {
     irritability: input.irritability,
     ageGroup: input.ageGroup,
     conditions: input.conditions,
+    quick_modifiers: input.quick_modifiers,
   };
 
   const result: FullSessionResult = generateSession(request);
