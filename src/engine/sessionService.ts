@@ -159,6 +159,19 @@ export function mapDiagnosticToUserProfile(diagnosticResult: {
 }
 
 /**
+ * Maps a quick assessment result to a V2 UserProfile.
+ * Used for the Quick Start track — produces a single ActiveAreaProfile.
+ */
+export function mapQuickAssessmentToUserProfile(qa: QuickAssessmentData): UserProfile {
+  const area = (qa.primary_area === 'GEN' ? 'LB' : qa.primary_area) as BodyArea;
+  return [{
+    area,
+    primary: qa.movement_profile,
+    secondary: null,
+  }];
+}
+
+/**
  * Derives progression stage from irritability level.
  * High irritability → stage 1 (foundation/gentle)
  * Low irritability → stage 3 (progressed)

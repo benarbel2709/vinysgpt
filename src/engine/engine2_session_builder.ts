@@ -239,10 +239,15 @@ function applySystemicScoring(pool: SuitedPose[], mods: SystemicModifiers): Suit
 }
 
 export function buildSession(request: SessionRequest): E2Result {
-  const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0, ageGroup, conditions = [] } = request;
+  const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0, ageGroup, conditions = [], quick_modifiers } = request;
   let target       = targetSize(duration_minutes, target_size_override);
-  const vr_ceiling = VAR_RANK_CEILING[stage][experience_level];
+  let vr_ceiling   = VAR_RANK_CEILING[stage][experience_level];
   let load_ceil    = target * LOAD_CEILING_MULTIPLIER[experience_level];
+
+  // ── Quick-profile var_rank reduction ──────────────
+  if (quick_modifiers) {
+    vr_ceiling = Math.max(1, vr_ceiling - quick_modifiers.max_var_rank_reduction);
+  }
 
   // ── Irritability adjustments (applied as final layer) ──────────────
   const useIrritabilityBias = irritability >= 3;
