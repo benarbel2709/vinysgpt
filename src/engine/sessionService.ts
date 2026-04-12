@@ -13,7 +13,7 @@ import type {
   ExperienceLevel,
   SessionDuration,
   SelectedPose,
-} from './engine2_session_builder';
+import type { QuickModifiers } from './engine2_session_builder';
 import type {
   SequencedPose,
   SessionPhase,
@@ -51,6 +51,8 @@ export interface SessionServiceInput {
   ageGroup?: string;
   /** Condition keys from profile — used for systemic flow scoring */
   conditions?: string[];
+  /** Quick-profile modifiers for conservative session tuning */
+  quick_modifiers?: QuickModifiers;
 }
 
 /** A single exercise ready for the workout player */
