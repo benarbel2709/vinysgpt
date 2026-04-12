@@ -55,8 +55,7 @@ export default function Plan() {
 
   useEffect(() => { window.scrollTo({ top: 0, left: 0, behavior: "instant" }); }, []);
 
-  const localCompleted = plan?.sessions.filter((s) => s.status === "done").length || 0;
-  const completedCount = user ? weekly.completed : localCompleted;
+  const completedCount = weekly.completed;
   const totalSessions = plan?.sessions.length || 0;
   const progressPct = totalSessions > 0 ? (completedCount / totalSessions) * 100 : 0;
 
