@@ -8,6 +8,7 @@ type EventName =
   | "session_completed"
   | "checkin_completed"
   | "plan_generated"
+  | "quick_assessment_completed"
   | "flare_mode_toggled"
   | "mode_switched"
   | "page_view";
