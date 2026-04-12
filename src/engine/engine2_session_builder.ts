@@ -13,6 +13,8 @@ export interface QuickModifiers {
   max_peak: number;
   caution_penalty: number;
   diversity_weight: number;
+  /** When true, boost REST/MOBILITY categories for low-info profiles */
+  low_info_fallback?: boolean;
 }
 
 export interface SessionRequest {
@@ -29,6 +31,8 @@ export interface SessionRequest {
   conditions?: string[];
   /** Quick-profile modifiers — conservative session tuning */
   quick_modifiers?: QuickModifiers;
+  /** Safety flags from quick assessment (PREG, INJURY, RADICULAR, POST_SURGERY) */
+  safety_flags?: string[];
 }
 
 export interface SelectedPose {
@@ -82,6 +86,8 @@ const MAX_SAME_POSE_FAMILY  = 2;
 const MAX_SAME_MOVEMENT_DIR = 2;
 const AREA_DOMINANCE_LIMIT  = 0.40;
 const CLINICAL_OVERRIDE_SCORE = 3;
+/** Goal preference must not dominate more than 30% of session composition */
+const GOAL_PREFERENCE_WEIGHT_CAP = 0.3;
 
 interface DiversityState {
   area_counts: Record<string, number>;
@@ -239,37 +245,57 @@ function applySystemicScoring(pool: SuitedPose[], mods: SystemicModifiers): Suit
 }
 
 export function buildSession(request: SessionRequest): E2Result {
-  const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0, ageGroup, conditions = [], quick_modifiers } = request;
+  const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0, ageGroup, conditions = [], quick_modifiers, safety_flags = [] } = request;
   let target       = targetSize(duration_minutes, target_size_override);
   let vr_ceiling   = VAR_RANK_CEILING[stage][experience_level];
   let load_ceil    = target * LOAD_CEILING_MULTIPLIER[experience_level];
+  let effectiveMaxPeak = quick_modifiers?.max_peak ?? Infinity;
 
   // ── Quick-profile var_rank reduction ──────────────
   if (quick_modifiers) {
     vr_ceiling = Math.max(1, vr_ceiling - quick_modifiers.max_var_rank_reduction);
   }
 
+  // ── Safety flags adjustments ──────────────
+  if (safety_flags.includes('RADICULAR')) {
+    effectiveMaxPeak = Math.max(0, effectiveMaxPeak - 1);
+    vr_ceiling = Math.max(1, Math.floor(vr_ceiling * 0.9));
+  }
+  if (safety_flags.includes('PREG')) {
+    vr_ceiling = Math.max(1, Math.floor(vr_ceiling * 0.9));
+  }
+  if (safety_flags.includes('POST_SURGERY')) {
+    effectiveMaxPeak = Math.max(0, effectiveMaxPeak - 1);
+    vr_ceiling = Math.max(1, Math.floor(vr_ceiling * 0.9));
+  }
+  if (safety_flags.includes('INJURY')) {
+    vr_ceiling = Math.max(1, Math.floor(vr_ceiling * 0.9));
+  }
+
+  // ── Low-info fallback: boost REST/MOBILITY ──────────────
+  const isLowInfoFallback = quick_modifiers?.low_info_fallback === true;
+
   // ── Irritability adjustments (applied as final layer) ──────────────
   const useIrritabilityBias = irritability >= 3;
   if (useIrritabilityBias) {
-    load_ceil = Math.floor(load_ceil * 0.75); // reduce load ceiling by 25%
+    load_ceil = Math.floor(load_ceil * 0.75);
   }
   if (irritability >= 4) {
-    target = Math.max(3, target - 1); // remove one exercise from session
+    target = Math.max(3, target - 1);
   }
 
   // ── Secondary profile conservatism ──────────────
   const hasSecondaryProfile = user_profile.some(ap => ap.secondary != null);
   if (hasSecondaryProfile) {
-    load_ceil = Math.floor(load_ceil * 0.85); // 15% more conservative load ceiling
+    load_ceil = Math.floor(load_ceil * 0.85);
   }
 
   // ── Age group adjustments (stack with other modifiers) ──────────────
   const isOlderAdult = ageGroup === '60_69' || ageGroup === '70_plus';
   if (ageGroup === '70_plus') {
-    load_ceil = Math.floor(load_ceil * 0.80); // reduce by 20%
+    load_ceil = Math.floor(load_ceil * 0.80);
   } else if (ageGroup === '60_69') {
-    load_ceil = Math.floor(load_ceil * 0.90); // reduce by 10%
+    load_ceil = Math.floor(load_ceil * 0.90);
   }
 
   // ── Systemic condition modifiers (only when no body-area profile) ──
@@ -288,9 +314,49 @@ export function buildSession(request: SessionRequest): E2Result {
   if (isSystemicFlow && systemicMods) {
     candidate_pool = applySystemicScoring(candidate_pool, systemicMods);
   }
+
+  // ── PREG: exclude prone exercises ──────────────
+  if (safety_flags.includes('PREG')) {
+    candidate_pool = candidate_pool.filter(p => {
+      const name = p.exercise.name.toLowerCase();
+      const family = p.exercise.pose_family.toLowerCase();
+      return !name.includes('prone') && !family.includes('prone');
+    });
+  }
+
+  // ── RADICULAR: boost stabilisation/control poses ──────────────
+  if (safety_flags.includes('RADICULAR')) {
+    candidate_pool = candidate_pool.map(p => {
+      const hasControl = p.exercise.goal_tag.some(t => t.toLowerCase().includes('control') || t.toLowerCase().includes('stability'));
+      const cat = p.exercise.movement_category;
+      const isStabilisation = cat === 'Stability / Core' || cat === 'Balance';
+      if (hasControl || isStabilisation) {
+        return { ...p, clinical_score: Math.round(p.clinical_score * 1.5 * 100) / 100 };
+      }
+      return p;
+    });
+    // Re-sort after boost
+    candidate_pool.sort((a, b) => b.clinical_score !== a.clinical_score ? b.clinical_score - a.clinical_score : (a.var_rank ?? 99) - (b.var_rank ?? 99));
+  }
+
+  // ── Low-info fallback: boost Restorative + Hip Mobility (mobility proxy) ──
+  if (isLowInfoFallback) {
+    candidate_pool = candidate_pool.map(p => {
+      const cat = p.exercise.movement_category;
+      if (cat === 'Restorative' || cat === 'Hip Mobility' || cat === 'Breath') {
+        return { ...p, clinical_score: p.clinical_score + 2 };
+      }
+      return p;
+    });
+    candidate_pool.sort((a, b) => b.clinical_score !== a.clinical_score ? b.clinical_score - a.clinical_score : (a.var_rank ?? 99) - (b.var_rank ?? 99));
+  }
+
+  // ── Goal preference cap: limit goal-preference-aligned poses to 30% of session ──
+  const goalPreferenceMaxCount = Math.max(1, Math.floor(target * GOAL_PREFERENCE_WEIGHT_CAP));
+
   candidate_pool = candidate_pool.slice(0, pool_size);
 
-  // When irritability >= 3 OR older adult, bias toward simpler exercises by preferring lower var_rank
+  // When irritability >= 3 OR older adult, bias toward simpler exercises
   if (useIrritabilityBias || isOlderAdult) {
     candidate_pool.sort((a, b) => ((a.exercise.var_rank ?? 0) - (b.exercise.var_rank ?? 0)) || (b.clinical_score - a.clinical_score));
   }
@@ -334,13 +400,12 @@ export function buildSession(request: SessionRequest): E2Result {
     }
   }
 
-  // ── Quick-profile peak cap ──────────────
-  if (quick_modifiers && quick_modifiers.max_peak > 0) {
+  // ── Peak cap (quick_modifiers + safety_flags combined) ──────────────
+  if (effectiveMaxPeak < Infinity) {
     const peakPoses = selected.filter(sp => (sp.exercise.var_rank ?? 0) >= 3);
-    if (peakPoses.length > quick_modifiers.max_peak) {
-      // Sort peaks by score ascending — remove lowest-scoring ones
+    if (peakPoses.length > effectiveMaxPeak) {
       peakPoses.sort((a, b) => a.clinical_score - b.clinical_score);
-      const toRemove = peakPoses.slice(0, peakPoses.length - quick_modifiers.max_peak);
+      const toRemove = peakPoses.slice(0, peakPoses.length - Math.max(0, effectiveMaxPeak));
       const removeIds = new Set(toRemove.map(sp => sp.exercise.id));
       const filtered = selected.filter(sp => !removeIds.has(sp.exercise.id));
       selected.length = 0;

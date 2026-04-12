@@ -253,13 +253,31 @@ export default function Plan() {
 
         {/* Quick profile badge */}
         {isQuickProfile && quickCount < 3 && (
-          <div className="text-center space-y-1">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
-              Session {quickCount + 1} of 3 — Quick Profile{quickCount === 2 ? " — last session before full setup" : ""}
-            </span>
-            <p className="text-xs text-muted-foreground">
-              You are on a quick profile — complete the full assessment for better personalisation.
-            </p>
+          <div className="space-y-2">
+            <div className="text-center">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
+                Session {quickCount + 1} of 3 · Quick Profile{quickCount === 2 ? " — last session" : ""}
+              </span>
+            </div>
+            {quickCount < 2 ? (
+              <QuickProfileNudge
+                message="You're on a quick profile — complete the full assessment for better personalisation."
+                dismissable
+                onComplete={() => {
+                  updateState({ quickAssessment: null, onboardingCompleted: false });
+                  navigate("/onboarding");
+                }}
+              />
+            ) : (
+              <QuickProfileNudge
+                message="This is your last quick session. Complete the full assessment anytime to unlock unlimited personalised sessions."
+                dismissable={false}
+                onComplete={() => {
+                  updateState({ quickAssessment: null, onboardingCompleted: false });
+                  navigate("/onboarding");
+                }}
+              />
+            )}
           </div>
         )}
 
@@ -477,6 +495,35 @@ export default function Plan() {
         </DialogContent>
       </Dialog>
     </Layout>
+  );
+}
+
+/* ── Quick Profile Nudge ── */
+
+function QuickProfileNudge({ message, dismissable, onComplete }: { message: string; dismissable: boolean; onComplete: () => void }) {
+  const [dismissed, setDismissed] = useState(false);
+  if (dismissed) return null;
+  return (
+    <div className="rounded-xl px-4 py-3 flex items-center gap-3 bg-primary/5 border border-primary/15">
+      <div className="flex-1 min-w-0">
+        <p className="text-xs text-muted-foreground">{message}</p>
+      </div>
+      <button
+        onClick={onComplete}
+        className="shrink-0 text-xs font-medium text-primary hover:text-primary/80 transition-colors whitespace-nowrap"
+      >
+        Complete setup →
+      </button>
+      {dismissable && (
+        <button
+          aria-label="Dismiss"
+          className="text-muted-foreground hover:text-foreground shrink-0"
+          onClick={() => setDismissed(true)}
+        >
+          <X size={14} />
+        </button>
+      )}
+    </div>
   );
 }
 

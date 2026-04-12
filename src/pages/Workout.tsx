@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useApp } from "@/context/AppContext";
 import { useAuthContext } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { createSession, buildSessionInput, mapQuickAssessmentToUserProfile, mapIrritabilityToStage, mapMinutesToDuration } from "@/engine/sessionService";
+import { createSession, buildSessionInput, mapQuickAssessmentToUserProfile, mapIrritabilityToStage, mapMinutesToDuration, detectLowInfoProfile } from "@/engine/sessionService";
 import type { PlayableExercise, PlayableSession, SessionServiceInput } from "@/engine/sessionService";
 import { MASTER_EXERCISES } from "@/data/masterExercises";
 import { HELPED_MOST_LABELS } from "@/constants/conditions";
@@ -149,13 +149,16 @@ export default function Workout() {
       let input: SessionServiceInput;
       const qa = state.quickAssessment;
       if (qa && qa.assessment_type === 'quick') {
+        const baseModifiers = { max_var_rank_reduction: 1, max_peak: 1, caution_penalty: 0.5, diversity_weight: 0.4 };
+        const effectiveModifiers = detectLowInfoProfile(qa as any, baseModifiers);
         input = {
           userProfile: mapQuickAssessmentToUserProfile(qa as any),
           stage: mapIrritabilityToStage(qa.irritability),
           experienceLevel: 'beginner',
           durationMinutes: mapMinutesToDuration(state.profile.minutesPerSession || 20),
           irritability: qa.irritability,
-          quick_modifiers: { max_var_rank_reduction: 1, max_peak: 1, caution_penalty: 0.5, diversity_weight: 0.4 },
+          quick_modifiers: effectiveModifiers,
+          safety_flags: qa.safety_flags || [],
         };
       } else {
         input = buildSessionInput(state.profile as any);
