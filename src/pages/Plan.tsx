@@ -82,11 +82,24 @@ export default function Plan() {
 
   // ── Handlers ──
 
+  const isQuickProfile = state.quickAssessment?.assessment_type === "quick";
+  const quickCount = state.quickSessionCount || 0;
+  const [showQuickGate, setShowQuickGate] = useState(false);
+
   const handleStartNextPractice = () => {
+    // Gate: quick-profile users after 3 sessions
+    if (isQuickProfile && quickCount >= 3) {
+      setShowQuickGate(true);
+      return;
+    }
     const effectiveCompleted = user ? weekly.completed : completedCount;
     if (effectiveCompleted >= weekly.target) {
       setShowWeeklyDone(true);
       return;
+    }
+    // Increment quick session count
+    if (isQuickProfile) {
+      updateState({ quickSessionCount: quickCount + 1 });
     }
     // V2: on-demand session — navigate to workout without a session ID
     navigate("/workout");
