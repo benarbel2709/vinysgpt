@@ -321,6 +321,59 @@ export default function OnboardingWizard() {
     navigate("/plan");
   };
 
+  const handleQuickComplete = () => {
+    const AREA_MAP: Record<string, ConditionKey> = {
+      LB: "back_pain", NK: "neck_pain", SH: "shoulder_pain", KN: "knee_pain",
+      HI: "hip_pain", AN: "ankle_pain", GEN: "general_yoga",
+    };
+    const condKey = AREA_MAP[qaArea] || "general_yoga";
+    const flags = qaFlags.filter(f => f !== "NONE");
+
+    updateProfile({
+      conditions: [condKey],
+      energyLevel: "medium",
+      flareToday: false,
+      sessionsPerWeek: 3,
+      minutesPerSession: 20,
+      practiceTime: "morning",
+      closingPreference: "savasana",
+      availableEquipment: ["mat"],
+      restrictions: flags.includes("PREG") ? ["Currently pregnant"] : [],
+    } as any);
+
+    const assessmentId = `assessment_${Date.now()}`;
+    const assessment: Assessment = {
+      id: assessmentId,
+      createdAt: new Date().toISOString(),
+      type: "generic",
+      data: { mainIssue: condKey, pain: qaIrritability * 2, limits: "", equipment: ["mat"], redFlags: [] },
+    };
+
+    updateState({
+      disclaimerAccepted: true,
+      onboardingCompleted: true,
+      assessments: [...state.assessments, assessment],
+      userProfile: qaArea !== "GEN" ? [qaArea] : [],
+      stage: 1,
+      session_count: 0,
+      experienceLevel: "intermediate",
+      sessionDuration: 20,
+      quickAssessment: {
+        assessment_type: "quick",
+        confidence_level: "low",
+        primary_area: qaArea,
+        movement_profile: qaMovement,
+        irritability: qaIrritability,
+        goal_preference: qaGoal,
+        safety_flags: flags,
+      },
+      quickSessionCount: 0,
+    });
+
+    trackEvent("quick_assessment_completed", { area: qaArea });
+    navigate("/plan");
+  };
+
   const handleNext = () => {
     if (step === 0 && selectedBodyZones.length > 0 && !isSystemicFlow) {
       setSelectedArea(selectedBodyZones[0]);
