@@ -498,6 +498,35 @@ export default function Plan() {
   );
 }
 
+/* ── Quick Profile Nudge ── */
+
+function QuickProfileNudge({ message, dismissable, onComplete }: { message: string; dismissable: boolean; onComplete: () => void }) {
+  const [dismissed, setDismissed] = useState(false);
+  if (dismissed) return null;
+  return (
+    <div className="rounded-xl px-4 py-3 flex items-center gap-3 bg-primary/5 border border-primary/15">
+      <div className="flex-1 min-w-0">
+        <p className="text-xs text-muted-foreground">{message}</p>
+      </div>
+      <button
+        onClick={onComplete}
+        className="shrink-0 text-xs font-medium text-primary hover:text-primary/80 transition-colors whitespace-nowrap"
+      >
+        Complete setup →
+      </button>
+      {dismissable && (
+        <button
+          aria-label="Dismiss"
+          className="text-muted-foreground hover:text-foreground shrink-0"
+          onClick={() => setDismissed(true)}
+        >
+          <X size={14} />
+        </button>
+      )}
+    </div>
+  );
+}
+
 /* ── Sub-components ── */
 
 function NavBar({ onStart, onAccountClick, onLibraryClick }: { onStart: () => void; onAccountClick: () => void; onLibraryClick: () => void }) {
