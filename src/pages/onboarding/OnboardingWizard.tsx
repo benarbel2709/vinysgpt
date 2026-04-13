@@ -427,7 +427,7 @@ export default function OnboardingWizard() {
   };
 
   const STEP_TITLES = [
-    "Where do you feel discomfort?",
+    "Where does your body need support?",
     "Body diagnostic",
     "Here's what we found",
     isSystemicFlow
@@ -442,15 +442,17 @@ export default function OnboardingWizard() {
     "You're all set.",
   ];
 
-  const BODY_AREAS = [
-    { id: "LB", label: "Lower Back", desc: "Pain, stiffness, sciatica or disc symptoms", icon: "🔹", available: true },
-    { id: "HIP", label: "Hip", desc: "Hip joint, groin, outer hip or mobility issues", icon: "🔹", available: true },
-    { id: "KNEE", label: "Knee", desc: "Kneecap pain, instability, inner or outer knee", icon: "🔹", available: true },
-    { id: "ANKLE", label: "Ankle & Foot", desc: "Achilles, plantar fascia or ankle instability", icon: "🔹", available: true },
-    { id: "SHLDR", label: "Shoulder", desc: "Rotator cuff, frozen shoulder, impingement", icon: "🔹", available: true },
-    { id: "NECK", label: "Neck", desc: "Cervical stiffness, tension headaches, radiating pain", icon: "🔹", available: true },
-    { id: "UBACK", label: "Upper Back", desc: "Thoracic stiffness, postural fatigue, rib pain", icon: "🔹", available: true },
-    { id: "WRIST", label: "Wrist & Hand", desc: "Carpal tunnel, repetitive strain, grip weakness", icon: "🔹", available: true },
+  const BODY_AREAS_UPPER = [
+    { id: "NECK", label: "Neck", desc: "Pain, stiffness, or headaches", icon: "neck" },
+    { id: "SHLDR", label: "Shoulder", desc: "Pain or restricted movement", icon: "shoulder" },
+    { id: "UBACK", label: "Upper Back", desc: "Mid-back tightness or aching", icon: "upper-back" },
+    { id: "WRIST", label: "Wrist & Hand", desc: "Pain, tingling, or grip issues", icon: "wrist" },
+  ];
+  const BODY_AREAS_LOWER = [
+    { id: "LB", label: "Lower Back", desc: "Lumbar pain or stiffness", icon: "lower-back" },
+    { id: "HIP", label: "Hip", desc: "Pain or restricted range", icon: "hip" },
+    { id: "KNEE", label: "Knee", desc: "Knee pain or instability", icon: "knee" },
+    { id: "ANKLE", label: "Ankle & Foot", desc: "Ankle pain or balance issues", icon: "ankle" },
   ];
 
   // Profile summary data
