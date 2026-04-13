@@ -562,10 +562,6 @@ function NavBar({ onStart, onAccountClick, onLibraryClick }: { onStart: () => vo
           >
             <UserCircle size={20} />
           </button>
-          <Button variant="hero" size="sm" onClick={onStart} className="text-sm px-5">
-            <span className="lg:hidden">Start</span>
-            <span className="hidden lg:inline">Start next practice</span>
-          </Button>
         </div>
       </div>
     </header>
