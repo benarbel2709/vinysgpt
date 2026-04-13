@@ -74,6 +74,9 @@ export default function CheckinPage() {
 
     updateState({ checkins: [...state.checkins, checkin], currentPlan: plan });
 
+    // Persist "after" values so next session's "before" can pre-populate
+    localStorage.setItem("vinys_last_checkin_after", JSON.stringify({ pain: painAfter, fatigue: fatigueAfter }));
+
     // Save to Supabase
     if (user) {
       await supabase.from("user_checkins").insert({
