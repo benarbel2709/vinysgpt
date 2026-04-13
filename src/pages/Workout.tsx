@@ -18,6 +18,19 @@ import { toast } from "@/hooks/use-toast";
 import { trackEvent } from "@/lib/analytics";
 import universalVideo from "@/assets/exercises/universal-fallback.mp4";
 import ExerciseAnimationV8 from "@/components/animations/ExerciseAnimationV8";
+import type { SessionPhase } from "@/engine/engine3_sequencer";
+
+/** Phase-coloured gradient backgrounds */
+function getPhaseGradient(phase: SessionPhase): string {
+  switch (phase) {
+    case 'arrival':     return 'linear-gradient(135deg, #1A4A4A, #2D7A7A)';
+    case 'preparation': return 'linear-gradient(135deg, #7A4A1A, #C4782A)';
+    case 'main_build':  return 'linear-gradient(135deg, #1A4A2A, #2D7A4A)';
+    case 'peak':        return 'linear-gradient(135deg, #1A4A2A, #2D7A4A)';
+    case 'closure':     return 'linear-gradient(135deg, #2A1A4A, #4A3A7A)';
+    default:            return 'linear-gradient(135deg, #1A4A4A, #2D7A7A)';
+  }
+}
 
 /* ─── Slider field ─── */
 function SliderField({ label, value, onChange, minLabel, maxLabel }: {
