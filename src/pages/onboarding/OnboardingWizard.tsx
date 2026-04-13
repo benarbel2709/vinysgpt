@@ -117,8 +117,9 @@ export default function OnboardingWizard() {
   const { state, updateProfile, updateState } = useApp();
   const navigate = useNavigate();
   const profile = state.profile;
+  const [searchParams] = useSearchParams();
 
-  const [step, setStep] = useState(-1); // -1 = track selection
+  const [step, setStep] = useState(() => searchParams.get("track") === "full" ? 0 : -1);
 
   useEffect(() => { document.title = "Build Your Plan — Vinys"; }, []);
   const [selectedArea, setSelectedArea] = useState<string | null>(null);

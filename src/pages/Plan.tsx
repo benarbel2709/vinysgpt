@@ -268,7 +268,7 @@ export default function Plan() {
                 dismissable={false}
                 onComplete={() => {
                   updateState({ quickAssessment: null, onboardingCompleted: false });
-                  navigate("/onboarding");
+                  navigate("/onboarding?track=full");
                 }}
               />
             )}
