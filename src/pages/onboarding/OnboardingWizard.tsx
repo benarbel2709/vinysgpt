@@ -12,7 +12,7 @@ import BrandLogo from "@/components/BrandLogo";
 import DurationSelector from "@/components/onboarding/DurationSelector";
 import FlowProgress from "@/components/FlowProgress";
 import { Button } from "@/components/ui/button";
-import { X, Check, Pencil, Clock, Lock, ChevronLeft, AlertTriangle } from "lucide-react";
+import { X, Check, Pencil, Clock, Lock, ChevronLeft, AlertTriangle, Flower2, Wind, Zap, BatteryLow, Brain } from "lucide-react";
 import { useState as useStateReact } from "react";
 import {
   Dialog,
@@ -427,7 +427,7 @@ export default function OnboardingWizard() {
   };
 
   const STEP_TITLES = [
-    "Where do you feel discomfort?",
+    "Where does your body need support?",
     "Body diagnostic",
     "Here's what we found",
     isSystemicFlow
@@ -442,15 +442,17 @@ export default function OnboardingWizard() {
     "You're all set.",
   ];
 
-  const BODY_AREAS = [
-    { id: "LB", label: "Lower Back", desc: "Pain, stiffness, sciatica or disc symptoms", icon: "🔹", available: true },
-    { id: "HIP", label: "Hip", desc: "Hip joint, groin, outer hip or mobility issues", icon: "🔹", available: true },
-    { id: "KNEE", label: "Knee", desc: "Kneecap pain, instability, inner or outer knee", icon: "🔹", available: true },
-    { id: "ANKLE", label: "Ankle & Foot", desc: "Achilles, plantar fascia or ankle instability", icon: "🔹", available: true },
-    { id: "SHLDR", label: "Shoulder", desc: "Rotator cuff, frozen shoulder, impingement", icon: "🔹", available: true },
-    { id: "NECK", label: "Neck", desc: "Cervical stiffness, tension headaches, radiating pain", icon: "🔹", available: true },
-    { id: "UBACK", label: "Upper Back", desc: "Thoracic stiffness, postural fatigue, rib pain", icon: "🔹", available: true },
-    { id: "WRIST", label: "Wrist & Hand", desc: "Carpal tunnel, repetitive strain, grip weakness", icon: "🔹", available: true },
+  const BODY_AREAS_UPPER = [
+    { id: "NECK", label: "Neck", desc: "Pain, stiffness, or headaches", icon: "neck" },
+    { id: "SHLDR", label: "Shoulder", desc: "Pain or restricted movement", icon: "shoulder" },
+    { id: "UBACK", label: "Upper Back", desc: "Mid-back tightness or aching", icon: "upper-back" },
+    { id: "WRIST", label: "Wrist & Hand", desc: "Pain, tingling, or grip issues", icon: "wrist" },
+  ];
+  const BODY_AREAS_LOWER = [
+    { id: "LB", label: "Lower Back", desc: "Lumbar pain or stiffness", icon: "lower-back" },
+    { id: "HIP", label: "Hip", desc: "Pain or restricted range", icon: "hip" },
+    { id: "KNEE", label: "Knee", desc: "Knee pain or instability", icon: "knee" },
+    { id: "ANKLE", label: "Ankle & Foot", desc: "Ankle pain or balance issues", icon: "ankle" },
   ];
 
   // Profile summary data
@@ -753,72 +755,114 @@ export default function OnboardingWizard() {
           );
         })()}
 
-        {/* ═══ STEP 0: Body silhouette + systemic cards ═══ */}
+        {/* ═══ STEP 0: Card-based body area + systemic selector ═══ */}
         {step === 0 && (() => {
           const SYSTEMIC_CONDITIONS = [
-            { id: "MENO", label: "Menopause & Hormonal Changes", conditionKey: "menopause" as ConditionKey, color: "#9B4A6F" },
-            { id: "LCOVID", label: "Long COVID & Post-Viral Fatigue", conditionKey: "long_covid" as ConditionKey, color: "#4A7B7B" },
-            { id: "FIBRO", label: "Fibromyalgia", conditionKey: "fibromyalgia" as ConditionKey, color: "#7B4A9B" },
-            { id: "CFS", label: "Chronic Fatigue (ME/CFS)", conditionKey: "chronic_fatigue_syndrome" as ConditionKey, color: "#9B7B4A" },
-            { id: "STRESS", label: "General Stress & Anxiety", conditionKey: "stress_anxiety" as ConditionKey, color: "#4A6B9B" },
+            { id: "MENO", label: "Menopause & Hormonal Changes", desc: "Hot flashes, joint pain, mood or energy shifts", conditionKey: "menopause" as ConditionKey, lucideIcon: "Flower2" },
+            { id: "LCOVID", label: "Long COVID & Post-Viral Fatigue", desc: "Fatigue, breathlessness, or lingering symptoms", conditionKey: "long_covid" as ConditionKey, lucideIcon: "Wind" },
+            { id: "FIBRO", label: "Fibromyalgia", desc: "Widespread pain, fatigue, or sensitivity", conditionKey: "fibromyalgia" as ConditionKey, lucideIcon: "Zap" },
+            { id: "CFS", label: "Chronic Fatigue (ME/CFS)", desc: "Low energy, post-exertional malaise", conditionKey: "chronic_fatigue_syndrome" as ConditionKey, lucideIcon: "Battery" },
+            { id: "STRESS", label: "General Stress & Anxiety", desc: "Tension, sleep issues, nervous system overload", conditionKey: "stress_anxiety" as ConditionKey, lucideIcon: "Brain" },
           ];
 
+          const AREA_ICONS: Record<string, React.ReactNode> = {
+            "neck": <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a5 5 0 0 0-5 5v2a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5z"/><path d="M10 14v8"/><path d="M14 14v8"/></svg>,
+            "shoulder": <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 6v6"/><path d="M6 12c0-4 2-6 6-6s6 2 6 6"/><path d="M4 14h16"/></svg>,
+            "upper-back": <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v18"/><path d="M8 7h8"/><path d="M8 11h8"/><path d="M9 15h6"/></svg>,
+            "wrist": <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 13"/></svg>,
+            "lower-back": <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3c-2 4-4 6-4 10s2 8 4 8 4-4 4-8-2-6-4-10z"/></svg>,
+            "hip": <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="10" r="4"/><path d="M8 14l-4 8"/><path d="M16 14l4 8"/></svg>,
+            "knee": <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v7"/><circle cx="12" cy="12" r="3"/><path d="M12 15v7"/></svg>,
+            "ankle": <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v10"/><path d="M12 12l-4 6h8l-4-6z"/><path d="M6 20h12"/></svg>,
+          };
+
+          const SYSTEMIC_ICONS: Record<string, React.ReactNode> = {
+            "Flower2": <Flower2 size={18} />,
+            "Wind": <Wind size={18} />,
+            "Zap": <Zap size={18} />,
+            "Battery": <BatteryLow size={18} />,
+            "Brain": <Brain size={18} />,
+          };
+
+          const renderAreaCard = (area: { id: string; label: string; desc: string; icon: string }) => {
+            const isSelected = selectedBodyZones.includes(area.id);
+            return (
+              <button
+                key={area.id}
+                onClick={() => toggleBodyZone(area.id)}
+                className={`flex items-start gap-3 p-3.5 rounded-2xl border text-left transition-all duration-150 ${
+                  isSelected
+                    ? "border-primary bg-primary/8 shadow-sm"
+                    : "border-border bg-card hover:border-primary/30"
+                }`}
+              >
+                <div className={`shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
+                  isSelected ? "bg-primary/15 text-primary" : "bg-muted/50 text-muted-foreground"
+                }`}>
+                  {AREA_ICONS[area.icon]}
+                </div>
+                <div className="min-w-0">
+                  <p className={`text-sm font-semibold leading-tight ${isSelected ? "text-foreground" : "text-foreground"}`}>{area.label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{area.desc}</p>
+                </div>
+              </button>
+            );
+          };
+
           return (
-            <div className="w-full" style={{ marginTop: "12px", maxWidth: "800px", margin: "12px auto 0" }}>
-              <p className="text-muted-foreground text-center text-[14px] mb-5 leading-relaxed">
-                Tap one or more areas on the body, then press Continue.
+            <div className="w-full" style={{ marginTop: "12px", maxWidth: "720px", margin: "12px auto 0" }}>
+              <p className="text-muted-foreground text-center text-[14px] mb-6 leading-relaxed">
+                Select the area you want to assess, or choose a whole-body condition below.
               </p>
 
-              {/* Body illustration */}
-              <BodySilhouetteSelector
-                selectedZones={selectedBodyZones}
-                onToggleZone={toggleBodyZone}
-              />
-
-              {/* Next button for body zones */}
-              <div className="flex justify-center mt-5 mb-6">
-                <Button
-                  onClick={handleNext}
-                  disabled={selectedBodyZones.length === 0}
-                  className="px-8 py-2.5 text-[15px] font-semibold rounded-xl"
-                >
-                  Continue
-                </Button>
+              {/* UPPER BODY */}
+              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground mb-2.5">Upper Body</p>
+              <div className="grid grid-cols-2 gap-2.5 mb-5">
+                {BODY_AREAS_UPPER.map(renderAreaCard)}
               </div>
 
-              {/* Systemic conditions */}
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#7A8E89", textTransform: "uppercase" as const, marginBottom: 10 }}>
-                WHOLE-BODY & SYSTEMIC CONDITIONS
+              {/* LOWER BODY */}
+              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground mb-2.5">Lower Body</p>
+              <div className="grid grid-cols-2 gap-2.5 mb-5">
+                {BODY_AREAS_LOWER.map(renderAreaCard)}
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                {SYSTEMIC_CONDITIONS.map(cond => {
-                  const accent = cond.color;
-                  return (
-                    <button
-                      key={cond.id}
-                      onClick={() => {
-                        setSelectedArea(cond.id);
-                        setIsSystemicFlow(true);
-                        setSystemicConditionKey(cond.conditionKey);
-                        setSelected([cond.conditionKey]);
-                        setTimeout(() => setStep(3), 200);
-                      }}
-                      style={{
-                        padding: "12px 14px", borderRadius: 14,
-                        border: "1.5px solid #E4DDD6",
-                        background: "#FFFFFF",
-                        textAlign: "left" as const, cursor: "pointer",
-                        transition: "all 0.15s ease",
-                        WebkitTapHighlightColor: "transparent",
-                        boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-                        display: "flex", alignItems: "center", gap: 10,
-                      }}
-                    >
-                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: accent, flexShrink: 0 }} />
-                      <span style={{ fontSize: 14, fontWeight: 600, color: "#1C2B26", lineHeight: 1.3 }}>{cond.label}</span>
-                    </button>
-                  );
-                })}
+
+              {/* Continue button for body zones */}
+              {selectedBodyZones.length > 0 && (
+                <div className="flex justify-center mb-6">
+                  <Button
+                    onClick={handleNext}
+                    className="px-8 py-2.5 text-[15px] font-semibold rounded-xl"
+                  >
+                    Continue
+                  </Button>
+                </div>
+              )}
+
+              {/* WHOLE-BODY & SYSTEMIC CONDITIONS */}
+              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground mb-2.5">Whole-Body & Systemic Conditions</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {SYSTEMIC_CONDITIONS.map(cond => (
+                  <button
+                    key={cond.id}
+                    onClick={() => {
+                      setSelectedArea(cond.id);
+                      setIsSystemicFlow(true);
+                      setSystemicConditionKey(cond.conditionKey);
+                      setSelected([cond.conditionKey]);
+                      setTimeout(() => setStep(3), 200);
+                    }}
+                    className="flex items-start gap-3 p-3.5 rounded-2xl border border-border bg-card text-left hover:border-primary/30 transition-all duration-150"
+                  >
+                    <div className="shrink-0 w-9 h-9 rounded-xl flex items-center justify-center bg-muted/50 text-muted-foreground">
+                      {SYSTEMIC_ICONS[cond.lucideIcon]}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold leading-tight text-foreground">{cond.label}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{cond.desc}</p>
+                    </div>
+                  </button>
+                ))}
               </div>
             </div>
           );
