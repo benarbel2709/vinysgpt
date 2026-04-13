@@ -255,7 +255,7 @@ export default function Plan() {
             </div>
             {quickCount < 2 ? (
               <QuickProfileNudge
-                message="You're on a quick profile — complete the full assessment for better personalisation."
+                message="You're on a quick profile — complete the full assessment to unlock your full personalised plan."
                 dismissable
                 onComplete={() => {
                   updateState({ quickAssessment: null, onboardingCompleted: false });
@@ -264,7 +264,7 @@ export default function Plan() {
               />
             ) : (
               <QuickProfileNudge
-                message="This is your last quick session. Complete the full assessment anytime to unlock unlimited personalised sessions."
+                message="This is your last quick session. Complete the full assessment to unlock your full personalised plan."
                 dismissable={false}
                 onComplete={() => {
                   updateState({ quickAssessment: null, onboardingCompleted: false });
@@ -498,25 +498,24 @@ function QuickProfileNudge({ message, dismissable, onComplete }: { message: stri
   const [dismissed, setDismissed] = useState(false);
   if (dismissed) return null;
   return (
-    <div className="rounded-xl px-4 py-3 flex items-center gap-3 bg-primary/5 border border-primary/15">
-      <div className="flex-1 min-w-0">
-        <p className="text-xs text-muted-foreground">{message}</p>
+    <div className="rounded-xl px-4 py-4 bg-primary/5 border border-primary/15 space-y-3">
+      <div className="flex items-start gap-2">
+        <div className="flex-1 min-w-0">
+          <p className="text-sm text-foreground font-medium">{message}</p>
+        </div>
+        {dismissable && (
+          <button
+            aria-label="Dismiss"
+            className="text-muted-foreground hover:text-foreground shrink-0"
+            onClick={() => setDismissed(true)}
+          >
+            <X size={14} />
+          </button>
+        )}
       </div>
-      <button
-        onClick={onComplete}
-        className="shrink-0 text-xs font-medium text-primary hover:text-primary/80 transition-colors whitespace-nowrap"
-      >
-        Complete setup →
-      </button>
-      {dismissable && (
-        <button
-          aria-label="Dismiss"
-          className="text-muted-foreground hover:text-foreground shrink-0"
-          onClick={() => setDismissed(true)}
-        >
-          <X size={14} />
-        </button>
-      )}
+      <Button onClick={onComplete} variant="default" className="w-full">
+        Complete Full Assessment
+      </Button>
     </div>
   );
 }
