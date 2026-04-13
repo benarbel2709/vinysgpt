@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useApp } from "@/context/AppContext";
 import { useAuthContext } from "@/context/AuthContext";
@@ -42,10 +42,19 @@ export default function CheckinPage() {
   const { user } = useAuthContext();
   const navigate = useNavigate();
 
-  const [painBefore, setPainBefore] = useState(5);
-  const [painAfter, setPainAfter] = useState(3);
-  const [fatigueBefore, setFatigueBefore] = useState(5);
-  const [fatigueAfter, setFatigueAfter] = useState(4);
+  // Pre-populate "before" from last session's "after" values, default to 0
+  const lastAfter = useMemo(() => {
+    try {
+      const raw = localStorage.getItem("vinys_last_checkin_after");
+      if (raw) return JSON.parse(raw) as { pain: number; fatigue: number };
+    } catch {}
+    return null;
+  }, []);
+
+  const [painBefore, setPainBefore] = useState(lastAfter?.pain ?? 0);
+  const [painAfter, setPainAfter] = useState(0);
+  const [fatigueBefore, setFatigueBefore] = useState(lastAfter?.fatigue ?? 0);
+  const [fatigueAfter, setFatigueAfter] = useState(0);
   const [tooMuch, setTooMuch] = useState(false);
   const [helpedMost, setHelpedMost] = useState<HelpedMost>("breath");
   const [saved, setSaved] = useState(false);
@@ -64,6 +73,9 @@ export default function CheckinPage() {
     }
 
     updateState({ checkins: [...state.checkins, checkin], currentPlan: plan });
+
+    // Persist "after" values so next session's "before" can pre-populate
+    localStorage.setItem("vinys_last_checkin_after", JSON.stringify({ pain: painAfter, fatigue: fatigueAfter }));
 
     // Save to Supabase
     if (user) {
