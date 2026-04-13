@@ -18,6 +18,19 @@ import { toast } from "@/hooks/use-toast";
 import { trackEvent } from "@/lib/analytics";
 import universalVideo from "@/assets/exercises/universal-fallback.mp4";
 import ExerciseAnimationV8 from "@/components/animations/ExerciseAnimationV8";
+import type { SessionPhase } from "@/engine/engine3_sequencer";
+
+/** Phase-coloured gradient backgrounds */
+function getPhaseGradient(phase: SessionPhase): string {
+  switch (phase) {
+    case 'arrival':     return 'linear-gradient(135deg, #1A4A4A, #2D7A7A)';
+    case 'preparation': return 'linear-gradient(135deg, #7A4A1A, #C4782A)';
+    case 'main_build':  return 'linear-gradient(135deg, #1A4A2A, #2D7A4A)';
+    case 'peak':        return 'linear-gradient(135deg, #1A4A2A, #2D7A4A)';
+    case 'closure':     return 'linear-gradient(135deg, #2A1A4A, #4A3A7A)';
+    default:            return 'linear-gradient(135deg, #1A4A4A, #2D7A7A)';
+  }
+}
 
 /* ─── Slider field ─── */
 function SliderField({ label, value, onChange, minLabel, maxLabel }: {
@@ -457,22 +470,12 @@ export default function Workout() {
           className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-500 ${videoReady ? 'opacity-100' : 'opacity-0'}`}
         />
 
-        {/* SVG pose fallback + spinner while video loads */}
+        {/* Phase-coloured gradient fallback while video loads */}
         {!videoReady && activeExercise && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-[1]">
-            <div className="w-[60%] max-w-[280px]">
-              <ExerciseAnimationV8
-                exercise={{
-                  id: activeExercise.id,
-                  name_he: activeExercise.name,
-                  category: activeExercise.movementCategory?.toLowerCase().includes("breath") ? "breath"
-                    : activeExercise.movementCategory?.toLowerCase().includes("release") ? "release"
-                    : activeExercise.movementCategory?.toLowerCase().includes("stabil") ? "stability"
-                    : "mobility",
-                } as any}
-                large
-              />
-            </div>
+          <div className="absolute inset-0 flex flex-col items-center justify-center z-[1]"
+            style={{ background: getPhaseGradient(activeExercise.phase) }}>
+            <p className="text-white/60 text-xs font-semibold uppercase tracking-[0.2em] mb-2">{activeExercise.phaseLabel}</p>
+            <p className="text-white text-2xl md:text-3xl font-bold text-center px-8 leading-tight">{activeExercise.name.split(' — ')[0]}</p>
             <div className="absolute bottom-3 right-3">
               <Loader2 size={20} className="animate-spin text-white/60" />
             </div>
@@ -633,11 +636,11 @@ export default function Workout() {
                     />
                     {block.exercises.map((ex, i) => (
                       <div key={ex.id} className={`relative flex items-start gap-3 py-2.5 px-3 ${i < block.exercises.length - 1 ? "border-b border-white/10" : ""}`}>
-                        {!ex.videoId && (
-                          <div className="shrink-0 w-12 h-12 rounded-lg flex items-center justify-center bg-white/10 px-1">
-                            <span className="text-white/60 text-[8px] font-medium leading-tight text-center line-clamp-2">{ex.name.split(' — ')[0]}</span>
-                          </div>
-                        )}
+                        <div className="shrink-0 w-12 h-12 rounded-lg flex flex-col items-center justify-center px-1"
+                          style={{ background: getPhaseGradient(ex.phase) }}>
+                          <span className="text-white/70 text-[5px] font-bold uppercase tracking-wider leading-none mb-0.5">{ex.phaseLabel}</span>
+                          <span className="text-white text-[7px] font-semibold leading-tight text-center line-clamp-2">{ex.name.split(' — ')[0]}</span>
+                        </div>
                         <span className="text-white/30 text-xs font-mono w-5 text-right shrink-0 mt-1">{ex.position}</span>
                         <div className="flex-1 min-w-0">
                           <span className="text-white/90 text-sm font-medium block truncate">{ex.name}</span>
