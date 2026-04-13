@@ -590,19 +590,19 @@ export default function OnboardingWizard() {
               {/* RIGHT — Full assessment */}
               <button
                 onClick={() => setStep(0)}
-                className="text-left p-6 rounded-2xl border-2 border-border hover:border-foreground/30 transition-all"
+                className="text-left p-6 rounded-2xl border-2 border-secondary bg-secondary/5 hover:bg-secondary/10 transition-all"
               >
-                <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">Most precise</span>
+                <span className="text-[10px] font-bold tracking-widest text-secondary uppercase">Most precise</span>
                 <h3 className="font-bold text-foreground text-lg mt-2 mb-2">Map your movement first</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                   A guided movement assessment so every session is precisely matched to how your body actually moves — from day one.
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-4">
                   {["~8 minutes", "Complete movement profile", "Highest accuracy from session 1"].map(t => (
-                    <span key={t} className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-muted text-muted-foreground">{t}</span>
+                    <span key={t} className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-secondary/10 text-secondary">{t}</span>
                   ))}
                 </div>
-                <span className="inline-flex items-center justify-center px-5 py-2 rounded-full border-2 border-foreground text-foreground text-sm font-semibold">
+                <span className="inline-flex items-center justify-center px-5 py-2 rounded-full bg-secondary text-secondary-foreground text-sm font-semibold">
                   Take the full assessment
                 </span>
               </button>
