@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import VinysDiagnostic from "@/components/VinysDiagnostic";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import BodySilhouetteSelector from "@/components/onboarding/BodySilhouetteSelector";
 import { useApp } from "@/context/AppContext";
 import type { ConditionKey, EnergyLevel } from "@/constants/conditions";
