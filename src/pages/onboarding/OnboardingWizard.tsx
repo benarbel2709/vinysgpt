@@ -12,7 +12,7 @@ import BrandLogo from "@/components/BrandLogo";
 import DurationSelector from "@/components/onboarding/DurationSelector";
 import FlowProgress from "@/components/FlowProgress";
 import { Button } from "@/components/ui/button";
-import { X, Check, Pencil, Clock, Lock, ChevronLeft, AlertTriangle } from "lucide-react";
+import { X, Check, Pencil, Clock, Lock, ChevronLeft, AlertTriangle, Flower2, Wind, Zap, BatteryLow, Brain } from "lucide-react";
 import { useState as useStateReact } from "react";
 import {
   Dialog,
