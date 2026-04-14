@@ -1,18 +1,16 @@
 import { motion } from "framer-motion";
-import { ShieldCheck, Filter, TrendingUp, Clock } from "lucide-react";
+import { ShieldCheck, Heart, TrendingUp } from "lucide-react";
 
 const STEPS = [
-  { num: 1, title: "Tell Vinys about you", desc: "Select your condition, discomfort level, current capacity, available time, and any equipment you have." },
-  { num: 2, title: "Your session is built instantly", desc: "Vinys assembles a structured session from a therapeutic movement library matched to your condition." },
-  { num: 3, title: "Practice at your own pace", desc: "Follow guided movement demonstrations and breath cues — no prior yoga experience needed." },
-  { num: 4, title: "Your practice evolves with you", desc: "After each session, note how your body felt. Your next session adjusts based on that feedback." },
+  { num: 1, title: "Tell us about your body", desc: "Conditions, energy level, available time." },
+  { num: 2, title: "Get your personalised session", desc: "Built instantly from a therapeutic movement library." },
+  { num: 3, title: "Practice and evolve", desc: "Each session adapts based on how your body responds." },
 ];
 
-const HIGHLIGHTS = [
-  { icon: ShieldCheck, text: "Every session is assembled from a movement library matched to your specific condition." },
-  { icon: Filter, text: "Movements that may conflict with certain conditions are excluded automatically." },
-  { icon: TrendingUp, text: "Your practice evolves slowly and deliberately, based on real feedback — not an arbitrary schedule." },
-  { icon: Clock, text: "Sessions are designed for real life — including the days when energy is low." },
+const DIFFERENTIATORS = [
+  { icon: ShieldCheck, title: "Safety-first movement filtering", desc: "Movements that conflict with your condition are excluded automatically." },
+  { icon: Heart, title: "Condition-aware sessions", desc: "Every session is assembled from exercises matched to your specific needs." },
+  { icon: TrendingUp, title: "Adapts over time", desc: "Your practice evolves based on real feedback — not an arbitrary schedule." },
 ];
 
 export default function GuidedWalkthrough() {
@@ -23,8 +21,8 @@ export default function GuidedWalkthrough() {
           How it works
         </h2>
 
-        {/* 4 numbered steps */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-[960px] mx-auto mb-14">
+        {/* 3 numbered steps */}
+        <div className="grid sm:grid-cols-3 gap-6 max-w-[800px] mx-auto mb-12">
           {STEPS.map((step, i) => (
             <motion.div
               key={step.num}
@@ -37,19 +35,19 @@ export default function GuidedWalkthrough() {
               <div className="w-10 h-10 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center text-base font-bold mx-auto mb-3">
                 {step.num}
               </div>
-              <h3 className="font-display font-bold text-secondary text-[15px] mb-2">{step.title}</h3>
+              <h3 className="font-display font-bold text-secondary text-[15px] mb-1.5">{step.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed px-2">{step.desc}</p>
             </motion.div>
           ))}
         </div>
 
-        {/* Key highlights */}
-        <div className="max-w-[640px] mx-auto border-t border-border/50 pt-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground text-center mb-5">
-            Built with safety in mind
+        {/* Why it's different row */}
+        <div className="border-t border-border/50 pt-8 max-w-[800px] mx-auto">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground text-center mb-6">
+            Why it's different
           </p>
-          <div className="grid sm:grid-cols-2 gap-4">
-            {HIGHLIGHTS.map((h, i) => (
+          <div className="grid sm:grid-cols-3 gap-5">
+            {DIFFERENTIATORS.map((d, i) => (
               <motion.div
                 key={i}
                 className="flex items-start gap-3"
@@ -58,8 +56,11 @@ export default function GuidedWalkthrough() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.3, delay: i * 0.05 }}
               >
-                <h.icon size={16} className="text-secondary flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-muted-foreground leading-relaxed">{h.text}</p>
+                <d.icon size={16} className="text-secondary flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground mb-0.5">{d.title}</p>
+                  <p className="text-[13px] text-muted-foreground leading-relaxed">{d.desc}</p>
+                </div>
               </motion.div>
             ))}
           </div>
