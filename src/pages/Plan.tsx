@@ -304,34 +304,28 @@ export default function Plan() {
           </div>
         </div>
 
-        {/* SECONDARY ITEMS — max 2-3 passive cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Conditions summary */}
-          <div className="rounded-2xl bg-surface-warm p-5">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-foreground">My conditions</h3>
-              <button
-                onClick={() => { setPendingConditions([]); setConditionSearch(""); setShowAddCondition(true); }}
-                className="text-foreground/40 hover:text-foreground transition-colors"
-              >
-                <Plus size={16} />
-              </button>
-            </div>
-            {conditions.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5">
-                {conditions.map((c) => (
-                  <span key={c} className="px-3 py-1 rounded-full text-xs font-medium border border-border text-foreground">
-                    {conditionLabel(c)}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-muted-foreground">No conditions selected</p>
-            )}
+        {/* SECONDARY ITEMS */}
+        <div className="rounded-2xl bg-surface-warm p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-foreground">My conditions</h3>
+            <button
+              onClick={() => { setPendingConditions([]); setConditionSearch(""); setShowAddCondition(true); }}
+              className="text-foreground/40 hover:text-foreground transition-colors"
+            >
+              <Plus size={16} />
+            </button>
           </div>
-
-          {/* Quick Check-In */}
-          <QuickCheckinCard hasCompletedSessions={completedCount > 0} />
+          {conditions.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5">
+              {conditions.map((c) => (
+                <span key={c} className="px-3 py-1 rounded-full text-xs font-medium border border-border text-foreground">
+                  {conditionLabel(c)}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">No conditions selected</p>
+          )}
         </div>
 
         {/* Restart program */}

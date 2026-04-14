@@ -347,7 +347,7 @@ export default function Workout() {
     }
 
     setIsPlaying(false);
-    setEndStep("choice");
+    setEndStep("checkin");
   };
 
   const closingPref = state.profile.closingPreference || "savasana";
@@ -673,75 +673,24 @@ export default function Workout() {
         </div>
       )}
 
-      {/* ===== COMPLETION OVERLAY (choice) ===== */}
-      {endStep === "choice" && (
-        <div className="fixed inset-0 z-[60]">
-          <div className="absolute inset-0 backdrop-blur-xl bg-black/25" />
-          <div className="absolute inset-0 flex items-center justify-center p-6">
-            <div className="text-center max-w-md w-full">
-              <h1 className="text-white text-4xl md:text-5xl font-semibold leading-tight">Practice<br />complete!</h1>
-              <p className="text-white/70 text-sm mt-4">Tell us how you felt — it helps us adapt your next practice session.</p>
-              <div className="mt-8 space-y-3">
-                <button onClick={() => setEndStep("checkin")} className="w-full rounded-full py-3.5 px-6 bg-white text-black font-medium hover:bg-white/90 transition-colors text-base">Quick check-in</button>
-                <button onClick={() => setEndStep("summary")} className="w-full rounded-full py-3.5 px-6 bg-white/20 text-white font-medium border border-white/20 backdrop-blur-md hover:bg-white/25 transition-colors text-base">Finish practice</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ===== CHECKIN OVERLAY ===== */}
+      {/* ===== POST-SESSION CHECK-IN INTERSTITIAL ===== */}
       {endStep === "checkin" && (
         <div className="fixed inset-0 z-[65]">
-          <div className="absolute inset-0 backdrop-blur-xl bg-black/35" />
+          <div className="absolute inset-0 backdrop-blur-xl bg-black/50" />
           <div className="absolute inset-0 flex items-center justify-center p-4">
-            <div className="w-[min(92vw,680px)] max-h-[78vh] rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl overflow-hidden flex flex-col text-white">
-              <div className="flex items-center justify-between px-6 pt-5 pb-3">
-                <div>
-                  <h3 className="text-xl font-semibold text-white">Quick Check-In</h3>
-                  <p className="text-white/60 text-sm mt-1">Helps adapt your next session.</p>
-                </div>
-                <button onClick={() => setEndStep("choice")} className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/15 transition-colors text-white flex-shrink-0">
-                  <X size={18} />
-                </button>
+            <div className="w-[min(92vw,440px)] rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl overflow-hidden text-white">
+              <div className="px-6 pt-6 pb-2 text-center">
+                <p className="text-white/50 text-xs font-semibold uppercase tracking-[0.15em] mb-1">Practice complete</p>
+                <h3 className="text-xl font-semibold text-white">How do you feel?</h3>
+                <p className="text-white/50 text-sm mt-1">This helps us adapt your next session.</p>
               </div>
-              <div className="flex-1 overflow-y-auto overscroll-contain px-6 pb-4">
-                <div className="space-y-4">
-                  <SliderField label="Pain before" value={painBefore} onChange={setPainBefore} minLabel="None" maxLabel="Severe" />
-                  <SliderField label="Pain after" value={painAfter} onChange={setPainAfter} minLabel="None" maxLabel="Severe" />
-                  <SliderField label="Fatigue before" value={fatigueBefore} onChange={setFatigueBefore} minLabel="None" maxLabel="Severe" />
-                  <SliderField label="Fatigue after" value={fatigueAfter} onChange={setFatigueAfter} minLabel="None" maxLabel="Severe" />
-                </div>
-                {!showMore && (
-                  <button onClick={() => setShowMore(true)} className="mt-4 text-sm text-white/60 hover:text-white/80 underline underline-offset-2 transition-colors">More options</button>
-                )}
-                {showMore && (
-                  <div className="mt-4 space-y-4">
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <div onClick={() => setTooMuch(!tooMuch)}
-                        className={`w-12 h-7 rounded-full transition-colors relative cursor-pointer flex-shrink-0 ${tooMuch ? "bg-destructive" : "bg-white/20"}`}>
-                        <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-md transition-all ${tooMuch ? "right-0.5" : "right-[calc(100%-1.625rem)]"}`} />
-                      </div>
-                      <span className="text-sm font-medium text-white">Was it too much?</span>
-                    </label>
-                    <div className="space-y-2">
-                      <span className="text-sm font-medium text-white">What helped most?</span>
-                      <div className="flex gap-2">
-                        {HELPED_OPTIONS.map((opt) => (
-                          <button key={opt} onClick={() => setHelpedMost(opt)}
-                            className={`flex-1 text-xs py-2 rounded-full border font-medium transition-all ${
-                              helpedMost === opt ? "border-white bg-white/20 text-white" : "border-white/20 bg-white/5 text-white/60 hover:border-white/40"
-                            }`}>
-                            {HELPED_MOST_LABELS[opt]}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
+              <div className="px-6 py-5 space-y-5">
+                <SliderField label="Pain level" value={painAfter} onChange={setPainAfter} minLabel="None" maxLabel="Severe" />
+                <SliderField label="Energy level" value={fatigueAfter} onChange={setFatigueAfter} minLabel="Exhausted" maxLabel="Energised" />
               </div>
-              <div className="px-6 py-4 border-t border-white/10">
-                <button onClick={handleCheckinSave} className="w-full rounded-full py-3 bg-white text-black font-medium hover:bg-white/90 transition-colors">Save & continue</button>
+              <div className="px-6 pb-6 space-y-2">
+                <button onClick={handleCheckinSave} className="w-full rounded-full py-3.5 bg-white text-black font-medium hover:bg-white/90 transition-colors text-base">Save & finish</button>
+                <button onClick={() => setEndStep("summary")} className="w-full text-center text-white/40 text-sm hover:text-white/60 transition-colors py-2">Skip</button>
               </div>
             </div>
           </div>
