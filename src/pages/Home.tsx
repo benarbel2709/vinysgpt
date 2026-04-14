@@ -17,6 +17,7 @@ import ViniyogaSection from "@/components/home/ViniyogaSection";
 import ConsistencyOverIntensity from "@/components/home/ConsistencyOverIntensity";
 import LongTermProgression from "@/components/home/LongTermProgression";
 import FAQSection from "@/components/home/FAQSection";
+import WaitlistSignup from "@/components/home/WaitlistSignup";
 import FinalCTA from "@/components/home/FinalCTA";
 import MarketingFooter from "@/components/home/MarketingFooter";
 
