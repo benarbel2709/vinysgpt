@@ -282,6 +282,9 @@ export default function Plan() {
           style={{ background: "#4A7B6F" }}
         >
           <Play size={32} className="mx-auto mb-3 text-white" />
+          <span className="block text-white/70 text-xs mb-1">
+            Session {completedCount + 1} · {state.profile.conditions?.[0] ? (CONDITION_LABELS[state.profile.conditions[0]] || state.profile.conditions[0]) : "General Wellness"}
+          </span>
           <span className="block text-white text-xl font-bold">Start practice</span>
           <span className="block text-white/70 text-sm mt-1.5">
             {state.profile.minutesPerSession} min · {state.profile.energyLevel === "high" ? "Vigorous" : state.profile.energyLevel === "medium" ? "Moderate" : "Gentle"}
