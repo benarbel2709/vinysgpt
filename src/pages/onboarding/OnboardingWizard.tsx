@@ -599,7 +599,7 @@ export default function OnboardingWizard() {
                   A guided movement assessment so every session is precisely matched to how your body actually moves — from day one.
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-4">
-                  {["~8 minutes", "Complete movement profile", "Highest accuracy from session 1"].map(t => (
+                  {["~8 minutes", "Complete movement profile", "Most personalised from day one"].map(t => (
                     <span key={t} className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-secondary/10 text-secondary">{t}</span>
                   ))}
                 </div>

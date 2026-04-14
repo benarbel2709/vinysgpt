@@ -67,7 +67,7 @@ export default function WaitlistSignup() {
           className="font-display font-bold text-foreground mb-2"
           style={{ fontSize: "clamp(22px, 2.5vw, 28px)" }}
         >
-          Most personalised from day one
+          Join the waitlist
         </h2>
         <p className="text-muted-foreground mb-6 text-sm leading-relaxed max-w-[420px] mx-auto">
           Be the first to know when Vinys opens for early access. No spam — just one email when we're ready.
