@@ -392,11 +392,11 @@
   .vinys-container { padding-left: 100px; padding-right: 100px; }
 }
 .vinys-section {
-  padding-top: 40px;
-  padding-bottom: 40px;
+  padding-top: 36px;
+  padding-bottom: 36px;
 }
 @media (min-width: 769px) {
-  .vinys-section { padding-top: 64px; padding-bottom: 64px; }
+  .vinys-section { padding-top: 52px; padding-bottom: 52px; }
 }
 .vinys-card {
   background-color: hsl(40, 40%, 98%);
