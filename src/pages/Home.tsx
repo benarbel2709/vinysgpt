@@ -10,6 +10,7 @@ import WhoVinysIsFor from "@/components/home/WhoVinysIsFor";
 import ConditionsSection from "@/components/home/ConditionsSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import TrustCredibility from "@/components/home/TrustCredibility";
+import WhoBuiltVinys from "@/components/home/WhoBuiltVinys";
 import ViniyogaSection from "@/components/home/ViniyogaSection";
 import ConsistencyOverIntensity from "@/components/home/ConsistencyOverIntensity";
 import LongTermProgression from "@/components/home/LongTermProgression";
@@ -58,6 +59,7 @@ export default function Home() {
         <WhoVinysIsFor />
         <ConditionsSection />
         <TestimonialsSection />
+        <WhoBuiltVinys />
         <TrustCredibility />
         <ViniyogaSection />
         <ConsistencyOverIntensity />
