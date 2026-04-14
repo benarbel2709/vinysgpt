@@ -585,7 +585,7 @@ export default function OnboardingWizard() {
                   Start practicing
                 </span>
                 <p className="text-[11px] text-muted-foreground mt-3 leading-snug">
-                  After 3 sessions we will invite you to complete your full profile.
+                  After 3 sessions, you'll have the option to build your full profile.
                 </p>
               </button>
               {/* RIGHT — Full assessment */}
