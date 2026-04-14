@@ -619,47 +619,51 @@ export default function Workout() {
       {showPreview && !isEnded && (
         <div className="fixed inset-0 z-[55]">
           <div className="absolute inset-0 backdrop-blur-xl bg-black/60" />
-          <div className="absolute inset-0 flex items-center justify-center p-6">
-            <div className="text-center max-w-md w-full">
-              <p className="text-white/50 text-sm font-medium uppercase tracking-wider mb-2">Session Preview</p>
-              <h1 className="text-white text-3xl md:text-4xl font-semibold mb-2">
-                Your Practice
-              </h1>
-              <p className="text-white/60 text-sm mb-6">{exercises.length} exercises · {sessionDurationMinutes} min</p>
-              <div className="rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md p-4 mb-8 max-h-[40vh] overflow-y-auto text-left">
-                {(playableSession?.phases || []).map((block) => (
-                  <div key={block.phase}>
-                    <PhaseHeader
-                      phaseName={block.label}
-                      description={block.description}
-                      poseCount={block.exercises.length}
-                    />
-                    {block.exercises.map((ex, i) => (
-                      <div key={ex.id} className={`relative flex items-start gap-3 py-2.5 px-3 ${i < block.exercises.length - 1 ? "border-b border-white/10" : ""}`}>
-                        <div className="shrink-0 w-12 h-12 rounded-lg flex flex-col items-center justify-center px-1"
-                          style={{ background: getPhaseGradient(ex.phase) }}>
-                          <span className="text-white/70 text-[5px] font-bold uppercase tracking-wider leading-none mb-0.5">{ex.phaseLabel}</span>
-                          <span className="text-white text-[7px] font-semibold leading-tight text-center line-clamp-2">{ex.name.split(' — ')[0]}</span>
-                        </div>
-                        <span className="text-white/30 text-xs font-mono w-5 text-right shrink-0 mt-1">{ex.position}</span>
-                        <div className="flex-1 min-w-0">
-                          <span className="text-white/90 text-sm font-medium block truncate">{ex.name}</span>
-                          {ex.wasSimplified && (
-                            <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ backgroundColor: "rgba(13,148,136,0.15)", color: "#0D9488" }}>
-                              Simplified for you
+          <div className="absolute inset-0 flex flex-col p-6">
+            <div className="flex-1 flex items-center justify-center overflow-hidden">
+              <div className="text-center max-w-md w-full">
+                <p className="text-white/50 text-sm font-medium uppercase tracking-wider mb-2">Session Preview</p>
+                <h1 className="text-white text-3xl md:text-4xl font-semibold mb-2">
+                  Your Practice
+                </h1>
+                <p className="text-white/60 text-sm mb-6">{exercises.length} exercises · {sessionDurationMinutes} min</p>
+                <div className="rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md p-4 max-h-[40vh] overflow-y-auto text-left">
+                  {(playableSession?.phases || []).map((block) => (
+                    <div key={block.phase}>
+                      <PhaseHeader
+                        phaseName={block.label}
+                        description={block.description}
+                        poseCount={block.exercises.length}
+                      />
+                      {block.exercises.map((ex, i) => (
+                        <div key={ex.id} className={`relative flex items-start gap-3 py-2.5 px-3 ${i < block.exercises.length - 1 ? "border-b border-white/10" : ""}`}>
+                          <div className="shrink-0 w-12 h-12 rounded-lg flex flex-col items-center justify-center px-1"
+                            style={{ background: getPhaseGradient(ex.phase) }}>
+                            <span className="text-white/70 text-[5px] font-bold uppercase tracking-wider leading-none mb-0.5">{ex.phaseLabel}</span>
+                            <span className="text-white text-[7px] font-semibold leading-tight text-center line-clamp-2">{ex.name.split(' — ')[0]}</span>
+                          </div>
+                          <span className="text-white/30 text-xs font-mono w-5 text-right shrink-0 mt-1">{ex.position}</span>
+                          <div className="flex-1 min-w-0">
+                            <span className="text-white/90 text-sm font-medium block truncate">{ex.name}</span>
+                            {ex.wasSimplified && (
+                              <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ backgroundColor: "rgba(13,148,136,0.15)", color: "#0D9488" }}>
+                                Simplified for you
+                              </span>
+                            )}
+                          </div>
+                          {ex.activeModification && (
+                            <span className="shrink-0 px-2 py-0.5 rounded-md text-[10px] font-semibold text-white leading-tight max-w-[140px] truncate" style={{ backgroundColor: "#F59E0B" }}>
+                              {ex.activeModification}
                             </span>
                           )}
                         </div>
-                        {ex.activeModification && (
-                          <span className="shrink-0 px-2 py-0.5 rounded-md text-[10px] font-semibold text-white leading-tight max-w-[140px] truncate" style={{ backgroundColor: "#F59E0B" }}>
-                            {ex.activeModification}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ))}
+                      ))}
+                    </div>
+                  ))}
+                </div>
               </div>
+            </div>
+            <div className="flex-shrink-0 pt-4 pb-2 flex justify-center">
               <button onClick={() => { setShowPreview(false); setIsPlaying(true); }}
                 className="w-full max-w-xs rounded-full py-3.5 px-6 bg-white text-black font-medium hover:bg-white/90 transition-colors text-base">
                 Begin practice →
