@@ -544,26 +544,29 @@ function NavBar({ onStart, onAccountClick, onLibraryClick }: { onStart: () => vo
             onClick={onLibraryClick}
             aria-label="Open library"
             title="Open library"
-            className="hidden lg:flex w-10 h-10 rounded-full items-center justify-center text-foreground/60 hover:text-foreground transition-colors"
-            style={{ background: "rgba(255,255,255,0.5)", border: "1px solid rgba(0,0,0,0.08)" }}
+            className="hidden lg:flex w-10 h-10 rounded-full items-center justify-center text-foreground/60 hover:text-foreground transition-colors flex-col gap-0.5"
+            style={{ background: "rgba(255,255,255,0.5)", border: "1px solid rgba(0,0,0,0.08)", height: "auto", padding: "8px 0 4px" }}
           >
-            <LayoutGrid size={20} />
+            <LayoutGrid size={18} />
+            <span className="text-[9px] font-medium leading-none">Sessions</span>
           </button>
           <button
             onClick={() => nav("/settings")}
             aria-label="Settings"
-            className="w-10 h-10 rounded-full flex items-center justify-center text-foreground/60 hover:text-foreground transition-colors"
-            style={{ background: "rgba(255,255,255,0.5)", border: "1px solid rgba(0,0,0,0.08)" }}
+            className="w-10 rounded-full flex items-center justify-center text-foreground/60 hover:text-foreground transition-colors flex-col gap-0.5"
+            style={{ background: "rgba(255,255,255,0.5)", border: "1px solid rgba(0,0,0,0.08)", height: "auto", padding: "8px 0 4px" }}
           >
-            <Settings size={20} />
+            <Settings size={18} />
+            <span className="text-[9px] font-medium leading-none">Settings</span>
           </button>
           <button
             onClick={onAccountClick}
             aria-label="Account"
-            className="w-10 h-10 rounded-full flex items-center justify-center text-foreground/60 hover:text-foreground transition-colors"
-            style={{ background: "rgba(255,255,255,0.5)", border: "1px solid rgba(0,0,0,0.08)" }}
+            className="w-10 rounded-full flex items-center justify-center text-foreground/60 hover:text-foreground transition-colors flex-col gap-0.5"
+            style={{ background: "rgba(255,255,255,0.5)", border: "1px solid rgba(0,0,0,0.08)", height: "auto", padding: "8px 0 4px" }}
           >
-            <UserCircle size={20} />
+            <UserCircle size={18} />
+            <span className="text-[9px] font-medium leading-none">Account</span>
           </button>
         </div>
       </div>
