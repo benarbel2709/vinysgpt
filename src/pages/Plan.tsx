@@ -255,7 +255,7 @@ export default function Plan() {
             </div>
             {quickCount < 2 ? (
               <QuickProfileNudge
-                message="You're on a quick profile — complete the full assessment to unlock your full personalised plan."
+                message="You're all set. After 3 sessions, you'll have the option to deepen your plan."
                 dismissable
                 onComplete={() => {
                   updateState({ quickAssessment: null, onboardingCompleted: false });
