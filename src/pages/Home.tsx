@@ -69,6 +69,7 @@ export default function Home() {
         <ConsistencyOverIntensity />
         <LongTermProgression />
         <FAQSection />
+        <WaitlistSignup />
         <FinalCTA />
         <MarketingFooter />
       </div>
