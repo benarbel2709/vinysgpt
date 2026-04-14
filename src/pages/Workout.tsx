@@ -347,7 +347,7 @@ export default function Workout() {
     }
 
     setIsPlaying(false);
-    setEndStep("choice");
+    setEndStep("checkin");
   };
 
   const closingPref = state.profile.closingPreference || "savasana";
