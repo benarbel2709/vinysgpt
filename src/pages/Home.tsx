@@ -54,10 +54,7 @@ export default function Home() {
         <HomeHero />
         <GuidedWalkthrough />
         <SocialProof />
-        <WhyThisApproachWorks />
         <WhatMakesVinysDifferent />
-        <SafetyArchitecture />
-        <SessionFlowVisual />
         <WhoVinysIsFor />
         <ConditionsSection />
         <TestimonialsSection />
