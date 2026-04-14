@@ -250,7 +250,7 @@ export default function Plan() {
           <div className="space-y-2">
             <div className="text-center">
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
-                Session {quickCount + 1} of 3 · Quick Profile{quickCount === 2 ? " — last session" : ""}
+                Session {quickCount + 1} of 3 · Starter Plan{quickCount === 2 ? " — last session" : ""}
               </span>
             </div>
             {quickCount < 2 ? (
