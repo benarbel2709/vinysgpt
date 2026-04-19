@@ -256,16 +256,10 @@ function resolveConditionProfiles(conditions: string[]): ConditionProfileV2[] {
 }
 
 function isSpinalFlexionPose(exercise: Exercise): boolean {
-  const text = `${exercise.name} ${exercise.pose_family} ${exercise.clinical_rationale}`.toLowerCase();
-
-  if (text.includes('spinal flexion')) return true;
-  if (text.includes('forward fold')) return true;
-  if (text.includes("child's pose")) return true;
-  if (text.includes('knees to chest')) return true;
-  if (text.includes('paschimottanasana')) return true;
-  if (text.includes('uttanasana')) return true;
-
-  return exercise.movement_direction === 'Flexion' && exercise.movement_category === 'Spinal Mobility';
+  // Per spec: filter strictly on the canonical movement_direction enum.
+  // The osteoporotic spine must avoid ANY pose tagged as Flexion-direction
+  // (forward folds, knees-to-chest, child's pose, lateral folds, seated folds).
+  return exercise.movement_direction === 'Flexion';
 }
 
 function isHighImpactPose(exercise: Exercise): boolean {
