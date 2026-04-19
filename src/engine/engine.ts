@@ -189,6 +189,32 @@ export function buildPool(
     }
   }
 
+  // Step 4b — Clinical safety extensions (osteoporosis et al.)
+  // avoidSpinalFlexion: stricter than avoidFlexion — checks spine.motion explicitly.
+  if (primary.contraRules.avoidSpinalFlexion) {
+    pool = pool.filter(e => e.spine?.motion !== "flexion" && !e.contra.avoidFlexion);
+  }
+  // avoidHighImpact: exclude any exercise tagged as / belonging to a "highImpact" set.
+  if (primary.contraRules.avoidHighImpact) {
+    pool = pool.filter(e => {
+      const ps: any = (e as any).poseSet;
+      if (Array.isArray(ps) && ps.includes("highImpact")) return false;
+      if (typeof ps === "string" && ps === "highImpact") return false;
+      const tags: any = (e as any).tags;
+      if (tags && tags.highImpact === true) return false;
+      return true;
+    });
+  }
+  // Generic excludedPoseSets at the contra level (string-based, future-proof).
+  const excluded = primary.contraRules.excludedPoseSets;
+  if (excluded && excluded.length > 0) {
+    pool = pool.filter(e => {
+      const ps: any = (e as any).poseSet;
+      const list: string[] = Array.isArray(ps) ? ps : (typeof ps === "string" ? [ps] : []);
+      return !excluded.some(set => list.includes(set));
+    });
+  }
+
   // Step 5 — Mode filters
   if (user.mode === "flare") {
     pool = pool.filter(e => e.tags.flareSafe || e.tags.flareStability);
