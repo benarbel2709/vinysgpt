@@ -12,7 +12,7 @@ import BrandLogo from "@/components/BrandLogo";
 import DurationSelector from "@/components/onboarding/DurationSelector";
 import FlowProgress from "@/components/FlowProgress";
 import { Button } from "@/components/ui/button";
-import { X, Check, Pencil, Clock, Lock, ChevronLeft, AlertTriangle, Flower2, Wind, Zap, BatteryLow, Brain } from "lucide-react";
+import { X, Check, Pencil, Clock, Lock, ChevronLeft, AlertTriangle, Flower2, Wind, Zap, BatteryLow, Brain, Bone, HeartPulse, Flower } from "lucide-react";
 import { useState as useStateReact } from "react";
 import {
   Dialog,
@@ -764,6 +764,9 @@ export default function OnboardingWizard() {
             { id: "FIBRO", label: "Fibromyalgia", desc: "Widespread pain, fatigue, or sensitivity", conditionKey: "fibromyalgia" as ConditionKey, lucideIcon: "Zap" },
             { id: "CFS", label: "Chronic Fatigue (ME/CFS)", desc: "Low energy, post-exertional malaise", conditionKey: "chronic_fatigue_syndrome" as ConditionKey, lucideIcon: "Battery" },
             { id: "STRESS", label: "General Stress & Anxiety", desc: "Tension, sleep issues, nervous system overload", conditionKey: "stress_anxiety" as ConditionKey, lucideIcon: "Brain" },
+            { id: "OSTEO", label: "Osteoporosis", desc: "Bone density loss. Focus: bone loading, posture, fall prevention", conditionKey: "osteoporosis" as ConditionKey, lucideIcon: "Bone" },
+            { id: "POTS", label: "Dysautonomia / POTS", desc: "Orthostatic intolerance. Focus: supine postures, gentle progression", conditionKey: "dysautonomia_pots" as ConditionKey, lucideIcon: "HeartPulse" },
+            { id: "ENDO", label: "Endometriosis", desc: "Pelvic pain and fatigue cycles. Focus: gentle movement, pelvic release", conditionKey: "endometriosis" as ConditionKey, lucideIcon: "Flower" },
           ];
 
           const AREA_ICONS: Record<string, React.ReactNode> = {
@@ -783,6 +786,9 @@ export default function OnboardingWizard() {
             "Zap": <Zap size={18} />,
             "Battery": <BatteryLow size={18} />,
             "Brain": <Brain size={18} />,
+            "Bone": <Bone size={18} />,
+            "HeartPulse": <HeartPulse size={18} />,
+            "Flower": <Flower size={18} />,
           };
 
           const renderAreaCard = (area: { id: string; label: string; desc: string; icon: string }) => {
