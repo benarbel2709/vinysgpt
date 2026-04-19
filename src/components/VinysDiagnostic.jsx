@@ -1606,12 +1606,16 @@ export default function VinysDiagnostic({ onComplete, initialArea = null }) {
 
         {postureIdx > 0 && (
           <p className="mt-4 text-center text-[13px] text-muted-foreground italic">
-            {postureIdx === totalPostures - 1
-              ? AFFIRMATIONS[AFFIRMATIONS.length - 1]
-              : AFFIRMATIONS[Math.min(
-                  Math.floor((postureIdx - 1) / Math.max(totalPostures - 2, 1) * (AFFIRMATIONS.length - 1)),
-                  AFFIRMATIONS.length - 2
-                )]}
+          {(() => {
+              const currentPosture = postureIdx + 1;
+              const msgIndex = currentPosture === totalPostures
+                ? AFFIRMATIONS.length - 1
+                : Math.min(
+                    Math.floor((currentPosture - 1) / (totalPostures - 1) * (AFFIRMATIONS.length - 1)),
+                    AFFIRMATIONS.length - 2
+                  );
+              return AFFIRMATIONS[msgIndex];
+            })()}
           </p>
         )}
       </Shell>
