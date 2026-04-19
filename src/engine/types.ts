@@ -158,6 +158,13 @@ export interface ContraV2 {
   avoidSupineLong: boolean;
   avoidEndRangeStretching?: boolean;
   avoidHighAbdominalLoad?: boolean;
+  // ── Clinical safety extensions (osteoporosis et al.) ──
+  /** Strict spinal-flexion exclusion (vertebral fracture risk). Stricter than avoidFlexion. */
+  avoidSpinalFlexion?: boolean;
+  /** Exclude jumping / plyometric / hopping transitions. */
+  avoidHighImpact?: boolean;
+  /** Exclude any pose whose poseSet membership matches any of these set names. */
+  excludedPoseSets?: string[];
 }
 
 export interface ExerciseV2 {
