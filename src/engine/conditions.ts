@@ -226,7 +226,12 @@ export const CONDITION_PROFILES: Record<ConditionIdV2, ConditionProfileV2> = {
     relevanceKey: "backPain",
     requiredTags: ["universalSafe"],
     excludedPoseSets: [],
-    contraRules: { avoidFlexion: true },
+    contraRules: {
+      avoidFlexion: true,
+      avoidSpinalFlexion: true,
+      avoidHighImpact: true,
+      excludedPoseSets: ["highImpact"],
+    },
     notes: "Bone fragility. Exclude high-impact and spinal flexion. Prioritise weight-bearing for bone density.",
     boneLoadingBonus: 2,
   },
