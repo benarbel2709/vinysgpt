@@ -3,6 +3,8 @@ import type { Exercise, MovementCategory } from '../data/exercises_v2';
 import { EXERCISES_V2, findExercise } from '../data/exercises_v2';
 import type { SuitedPose, UserProfile } from './engine1_suitability';
 import { runEngine1, filterByVarRankCeiling } from './engine1_suitability';
+import { CONDITION_PROFILES, LEGACY_CONDITION_MAP } from './conditions';
+import type { ConditionIdV2, ConditionProfileV2 } from './types';
 
 export type ProgressionStage = 1 | 2 | 3;
 export type ExperienceLevel = 'beginner' | 'intermediate' | 'advanced';
@@ -244,6 +246,48 @@ function applySystemicScoring(pool: SuitedPose[], mods: SystemicModifiers): Suit
   return rescored;
 }
 
+function resolveConditionProfiles(conditions: string[]): ConditionProfileV2[] {
+  return conditions
+    .map((condition) => {
+      const mapped = (LEGACY_CONDITION_MAP as Record<string, ConditionIdV2 | undefined>)[condition] ?? (condition as ConditionIdV2);
+      return CONDITION_PROFILES[mapped];
+    })
+    .filter((profile): profile is ConditionProfileV2 => Boolean(profile));
+}
+
+function isSpinalFlexionPose(exercise: Exercise): boolean {
+  const text = `${exercise.name} ${exercise.pose_family} ${exercise.clinical_rationale}`.toLowerCase();
+
+  if (text.includes('spinal flexion')) return true;
+  if (text.includes('forward fold')) return true;
+  if (text.includes("child's pose")) return true;
+  if (text.includes('knees to chest')) return true;
+  if (text.includes('paschimottanasana')) return true;
+  if (text.includes('uttanasana')) return true;
+
+  return exercise.movement_direction === 'Flexion' && exercise.movement_category === 'Spinal Mobility';
+}
+
+function isHighImpactPose(exercise: Exercise): boolean {
+  const text = `${exercise.name} ${exercise.pose_family} ${exercise.load_type} ${exercise.clinical_rationale} ${exercise.user_benefit}`.toLowerCase();
+  return ['highimpact', 'high impact', 'jump', 'jumping', 'hop', 'hopping', 'plyometric', 'plyometrics'].some((term) => text.includes(term));
+}
+
+function applyConditionSafetyFilters(pool: SuitedPose[], conditions: string[]): SuitedPose[] {
+  const profiles = resolveConditionProfiles(conditions);
+  if (profiles.length === 0) return pool;
+
+  return pool.filter(({ exercise }) => {
+    for (const profile of profiles) {
+      const contra = profile.contraRules;
+      if (contra.avoidSpinalFlexion && isSpinalFlexionPose(exercise)) return false;
+      if (contra.avoidHighImpact && isHighImpactPose(exercise)) return false;
+      if (contra.excludedPoseSets?.includes('highImpact') && isHighImpactPose(exercise)) return false;
+    }
+    return true;
+  });
+}
+
 export function buildSession(request: SessionRequest): E2Result {
   const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0, ageGroup, conditions = [], quick_modifiers, safety_flags = [] } = request;
   let target       = targetSize(duration_minutes, target_size_override);
@@ -313,7 +357,10 @@ export function buildSession(request: SessionRequest): E2Result {
   let candidate_pool = filterByVarRankCeiling(e1.eligible_pool, vr_ceiling);
   if (isSystemicFlow && systemicMods) {
     candidate_pool = applySystemicScoring(candidate_pool, systemicMods);
+    candidate_pool = applyConditionSafetyFilters(candidate_pool, conditions);
   }
+
+  const guaranteedPool = isSystemicFlow ? candidate_pool : e1.eligible_pool;
 
   // ── PREG: exclude prone exercises ──────────────
   if (safety_flags.includes('PREG')) {
@@ -386,14 +433,14 @@ export function buildSession(request: SessionRequest): E2Result {
   }
 
   if (diversity.rest_count === 0) {
-    const rp = findGuaranteedPose('Restorative', e1.eligible_pool, selected_ids);
+    const rp = findGuaranteedPose('Restorative', guaranteedPool, selected_ids);
     if (rp) {
       const sp: SelectedPose = { exercise: rp.exercise, clinical_score: rp.clinical_score, caution_flag: rp.caution_flag, caution_areas: rp.caution_areas, active_modification: '', was_simplified: false };
       selected.push(sp); selected_ids.add(rp.exercise.id); incrementDiversity(diversity, sp);
     }
   }
   if (diversity.brth_count === 0) {
-    const bp = findGuaranteedPose('Breath', e1.eligible_pool, selected_ids);
+    const bp = findGuaranteedPose('Breath', guaranteedPool, selected_ids);
     if (bp) {
       const sp: SelectedPose = { exercise: bp.exercise, clinical_score: bp.clinical_score, caution_flag: bp.caution_flag, caution_areas: bp.caution_areas, active_modification: '', was_simplified: false };
       selected.push(sp); selected_ids.add(bp.exercise.id); incrementDiversity(diversity, sp);
