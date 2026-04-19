@@ -492,3 +492,49 @@ describe("Migration Log", () => {
     expect(Array.isArray(log.removedInvalidExercises)).toBe(true);
   });
 });
+
+// ═══════════════════════════════════
+// OSTEOPOROSIS CLINICAL SAFETY FLAGS
+// ═══════════════════════════════════
+
+describe("Osteoporosis clinical safety flags", () => {
+  it("profile declares avoidSpinalFlexion, avoidHighImpact, excludedPoseSets and boneLoadingBonus", () => {
+    const p = CONDITION_PROFILES.osteoporosis;
+    expect(p.contraRules.avoidSpinalFlexion).toBe(true);
+    expect(p.contraRules.avoidHighImpact).toBe(true);
+    expect(p.contraRules.excludedPoseSets).toEqual(["highImpact"]);
+    expect(p.boneLoadingBonus).toBe(2);
+  });
+
+  it("buildPool for osteoporosis contains zero spine-flexion exercises", () => {
+    const catalog = getCatalogV2();
+    const user = makeUser({ primaryCondition: "osteoporosis" });
+    const pool = buildPool(user, catalog);
+    expect(pool.length).toBeGreaterThan(0);
+    for (const e of pool) {
+      expect(e.spine?.motion).not.toBe("flexion");
+      expect(e.contra.avoidFlexion).not.toBe(true);
+    }
+  });
+
+  it("buildPool for osteoporosis contains zero highImpact poseSet members", () => {
+    const catalog = getCatalogV2();
+    const user = makeUser({ primaryCondition: "osteoporosis" });
+    const pool = buildPool(user, catalog);
+    for (const e of pool) {
+      const ps: any = (e as any).poseSet;
+      const list: string[] = Array.isArray(ps) ? ps : (typeof ps === "string" ? [ps] : []);
+      expect(list.includes("highImpact")).toBe(false);
+    }
+  });
+
+  it("all condition profiles still build a non-empty pool — regression check", () => {
+    const catalog = getCatalogV2();
+    const ids = Object.keys(CONDITION_PROFILES) as ConditionIdV2[];
+    for (const id of ids) {
+      const user = makeUser({ primaryCondition: id });
+      const pool = buildPool(user, catalog);
+      expect(pool.length, `pool for ${id} should be non-empty`).toBeGreaterThan(0);
+    }
+  });
+});
