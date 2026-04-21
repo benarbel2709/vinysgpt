@@ -637,7 +637,7 @@ export default function OnboardingWizard() {
           const QA_GOAL = [
             { code: "BREATH", label: "Gentle breathing and calming movement" },
             { code: "MOBILITY", label: "Stretching and opening up" },
-            { code: "STRENGTH", label: "Building strength and stability" },
+            { code: "STABILITY", label: "Steadiness & control" },
             { code: "REST", label: "Slow, restorative rest" },
             { code: "NONE", label: "Not sure yet" },
           ];
