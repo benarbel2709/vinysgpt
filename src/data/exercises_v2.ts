@@ -251,7 +251,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "One knee forward reduces hip flexion on that side. Asymmetrical position increases SI joint demand. LI: low load but asymmetrical — monitor. NE/FL: SI joint asymmetry may provoke — monitor.",
     user_benefit: "The asymmetrical leg position adds a gentle challenge to your pelvis and SI joint, building the motor control needed for activities that require one-sided stability like walking and climbing stairs.",
-    video_id: null,
+    video_id: "tabletop_one_knee_forward.mp4",
   },
   {
     id: "v2_007",
@@ -1166,7 +1166,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Hip flexion dominant — lumbar typically neutral or in slight extension, not true lumbar flexion. ST and LI benefit from functional loading. NE: cumulative standing load — monitor symptom spread and reduce hold time as needed. FL: lumbar generally protected in neutral; risk increases with fatigue-related anterior tilt — use shallow version and monitor alignment.",
     user_benefit: "Builds functional leg and core strength in a standing position, training the muscles you need for sitting down, standing up, and everyday weight-bearing activities.",
-    video_id: null,
+    video_id: "chair_classic.mp4",
   },
   {
     id: "v2_049",
@@ -1190,7 +1190,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Reduced depth significantly lowers lumbar demand. FL now accessible — minimal disc load at shallow depth. NE: reduced load — monitor symptom spread. ST and LI benefit.",
     user_benefit: "A shallower version that reduces demand on your knees and back while still building functional leg strength — accessible for bodies still building capacity.",
-    video_id: null,
+    video_id: "chair_shallow.mp4",
   },
   {
     id: "v2_050",
@@ -1213,7 +1213,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Block activates adductors and improves pelvic control — helps maintain neutral alignment. ST and LI benefit from added medial chain activation. NE/FL: same cautions as classic.",
     user_benefit: "Activates your inner thighs alongside leg strengthening, improving pelvic alignment and adding medial chain support that benefits your knees and lower back.",
-    video_id: null,
+    video_id: "chair_block_between_thighs.mp4",
   },
   {
     id: "v2_051",
@@ -1235,7 +1235,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Arms by sides eliminates overhead shoulder and lumbar extension demand. FL: arms down removes thoracic extension component — more accessible. NE: reduced upper chain load — monitor. ST and LI benefit.",
     user_benefit: "Removes the overhead arm position, reducing demand on your shoulders and lower back while maintaining all the functional leg strengthening benefits.",
-    video_id: null,
+    video_id: "chair_arms_down.mp4",
   },
   {
     id: "v2_052",
@@ -1257,7 +1257,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Arms at 90° creates moderate thoracic demand without full overhead. Intermediate option between arms-down and classic. NE/FL: same cautions as classic.",
     user_benefit: "Positions your arms at a moderate height, creating an intermediate level of upper body engagement that bridges the gap between arms-down and full overhead.",
-    video_id: null,
+    video_id: "chair_arms_at_90.mp4",
   },
   {
     id: "v2_053",
@@ -1279,7 +1279,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Pressing block adds shoulder and thoracic engagement — increases overall stability demand. NE/FL: same cautions as classic.",
     user_benefit: "Pressing a block adds shoulder and thoracic engagement, increasing the overall stability challenge while building integrated upper and lower body strength.",
-    video_id: null,
+    video_id: "chair_hands_pressing_block.mp4",
   },
   {
     id: "v2_054",
@@ -1303,7 +1303,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Most accessible Chair Pose equivalent. Dynamic sit-to-stand eliminates sustained loaded hold. All back profiles accessible. FL and NE: brief dynamic flexion without sustained hold significantly reduces provocation risk.",
     user_benefit: "The most accessible chair pose equivalent — the dynamic sit-to-stand movement builds functional strength without sustained holds, making it gentle on sensitive backs.",
-    video_id: null,
+    video_id: "chair_dynamic_sit_to_stand.mp4",
   },
   {
     id: "v2_055",
@@ -1445,7 +1445,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Anterior pelvic tilt from hip asymmetry drives lumbar extension tendency — not always active lumbar extension. EX, LI, ST benefit from functional strength. NE: lumbar extension position with hip asymmetry may increase neural tension — monitor symptom spread. FL: arms overhead deepens anterior tilt — teach neutral pelvis; use hands on hips if tilt cannot be controlled.",
     user_benefit: "Builds functional standing strength with an asymmetrical stance, strengthening your legs, hips, and core while improving your ability to support your spine under load.",
-    video_id: null,
+    video_id: "w1_classic.mp4",
   },
   {
     id: "v2_061",
@@ -1468,7 +1468,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Hands on hips removes overhead shoulder and lumbar extension demand. FL: easier to maintain neutral pelvis — accessible with monitoring. NE: reduced upper chain load — monitor. EX, LI, ST benefit.",
     user_benefit: "Removes the overhead arm demand, making it easier to maintain good spinal alignment while building the same functional leg and hip strength.",
-    video_id: null,
+    video_id: "w1_hands_on_hips.mp4",
   },
   {
     id: "v2_062",
@@ -1492,7 +1492,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Shorter stride reduces hip extension range and anterior pelvic tilt — FL more accessible. NE: reduced anterior chain tension — monitor symptom spread. EX, LI, ST benefit.",
     user_benefit: "A shorter stride reduces the demand on your hips and back, making this powerful standing pose more accessible while still building functional strength.",
-    video_id: null,
+    video_id: "w1_short_stance.mp4",
   },
   {
     id: "v2_063",
@@ -1538,7 +1538,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Most accessible. Chair under hands reduces load — all back profiles accessible. FL and NE: supported position minimises provocation. Excellent entry for deconditioned presentations.",
     user_benefit: "The most accessible Warrior I — the chair reduces load so that everyone can participate in this functional strengthening pose, regardless of current capacity.",
-    video_id: null,
+    video_id: "w1_chair_supported.mp4",
   },
   {
     id: "v2_065",
@@ -1587,7 +1587,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Wide stance with lumbar generally neutral. EX, LI, ST benefit from functional strength. NE: sustained standing posture — monitor cumulative load and symptom spread. FL: lumbar neutral in Warrior II — risk arises with fatigue and sustained hold causing positional drift; shorten hold time if alignment is lost.",
     user_benefit: "Builds whole-body strength and endurance in a wide stance, training the lateral hip chain and medial knee support that protect your joints during everyday activities.",
-    video_id: null,
+    video_id: "w2_classic.mp4",
   },
   {
     id: "v2_067",
@@ -1610,7 +1610,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Hands on hips removes shoulder demand — easier to maintain lumbar alignment. FL accessible with monitoring. NE: reduced upper chain load — monitor. EX, LI, ST benefit.",
     user_benefit: "Removes shoulder demand so you can focus on maintaining spinal alignment and building leg strength, making this pose more accessible for sensitive shoulders.",
-    video_id: null,
+    video_id: "w2_hands_on_hips.mp4",
   },
   {
     id: "v2_068",
@@ -1634,7 +1634,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Shorter stride reduces hip and lumbar demand. FL accessible with alignment monitoring. NE: reduced posterior chain tension. EX, LI, ST benefit.",
     user_benefit: "A shorter stride reduces overall demand while maintaining the functional strengthening benefits, making this powerful pose accessible for a wider range of bodies.",
-    video_id: null,
+    video_id: "w2_short_stance.mp4",
   },
   {
     id: "v2_069",
@@ -1679,7 +1679,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Chair under front thigh supports hip flexion — reduces lumbar demand. FL accessible. NE: reduced load — monitor. Good for extended holds.",
     user_benefit: "The chair under your front thigh supports your hip, reducing spinal demand and allowing longer holds for deeper strengthening of your legs and lateral hip chain.",
-    video_id: null,
+    video_id: "w2_chair_under_front_thigh.mp4",
   },
   {
     id: "v2_071",
@@ -1703,7 +1703,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Most accessible. Chair support allows all back profiles to participate. FL and NE: minimal load in supported position.",
     user_benefit: "The most accessible Warrior II — chair support makes this functional strengthening pose available to everyone, including those with sensitive backs or low energy levels.",
-    video_id: null,
+    video_id: "w2_chair_supported.mp4",
   },
   {
     id: "v2_072",
@@ -1866,7 +1866,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Single-leg balance requires active pelvic stabilisation — lateral lumbar and hip chain demand. ST and LI benefit from functional balance training. NE: prolonged single-leg standing can increase cumulative neural load — monitor symptom spread.",
     user_benefit: "Challenges your single-leg balance, building the ankle, hip, and core stability that keeps you steady on your feet and reduces fall risk.",
-    video_id: null,
+    video_id: "tree_classic.mp4",
   },
   {
     id: "v2_079",
@@ -1890,7 +1890,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Foot on calf below knee — same lumbar demands as classic. ST and LI benefit. NE: same single-leg load — monitor.",
     user_benefit: "Foot placed on your calf offers a moderate hip opening while training the same valuable single-leg balance that supports daily activities and prevents falls.",
-    video_id: null,
+    video_id: "tree_foot_on_calf.mp4",
   },
   {
     id: "v2_080",
@@ -1938,7 +1938,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Chair provides solid balance support — all back profiles accessible. NE: balance support significantly reduces neural load during single-leg standing — monitor.",
     user_benefit: "The chair provides reliable support while you develop your balance, letting you focus on building single-leg stability at your own pace.",
-    video_id: null,
+    video_id: "tree_holding_chair.mp4",
   },
   {
     id: "v2_082",
@@ -1962,7 +1962,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Lifted foot toes rest on floor — lateral anchor reduces balance demand. NE: reduced sway with ground contact — monitor. ST and LI benefit.",
     user_benefit: "Keeping your toes touching the ground provides a subtle anchor that makes balance training more accessible while still challenging your stabilising muscles.",
-    video_id: null,
+    video_id: "tree_toes_on_floor.mp4",
   },
   {
     id: "v2_083",
@@ -1985,7 +1985,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Seated Tree removes all balance and standing demand. All back profiles accessible. Good introduction to hip external rotation pattern without standing load.",
     user_benefit: "A seated version that introduces hip external rotation without any balance demand — an excellent starting point for developing hip mobility and awareness.",
-    video_id: null,
+    video_id: "tree_seated.mp4",
   },
   {
     id: "v2_084",
@@ -2008,7 +2008,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Most accessible. Side-lying position removes all standing and sitting demands. All back profiles accessible. Excellent for highly deconditioned or acute presentations.",
     user_benefit: "The most accessible version — lying on your side removes all standing and balance demands, making hip rotation mobility work available to everyone.",
-    video_id: null,
+    video_id: "tree_side_lying.mp4",
   },
   {
     id: "v2_085",
@@ -2100,7 +2100,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Bottom foot on wall — fixed hip angle, zero arm effort. NE: fixed angle allows neural monitoring without movement — accessible with careful positioning. EX, LI, ST benefit from long effortless hold.",
     user_benefit: "Your foot rests against the wall, creating a stable, effortless hip-opening stretch that requires no arm strength — perfect for long, restorative holds.",
-    video_id: null,
+    video_id: "figure_4_foot_on_wall_2.mp4",
   },
   {
     id: "v2_089",
@@ -3149,7 +3149,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Bolster under trunk reduces depth of spinal flexion. FL now accessible — bolster reduces posterior disc pressure. NE: elevated position reduces sciatic chain tension — caution remains, monitor.",
     user_benefit: "A bolster under your torso reduces the depth of the fold, making this deeply restorative pose accessible while still providing calming spinal release and hip opening.",
-    video_id: null,
+    video_id: "child_s_pose_with_bolster.mp4",
   },
   {
     id: "v2_133",
@@ -3219,7 +3219,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Hip hinge with spine elongated — fundamentally different from full spinal flexion. Posterior disc pressure low with neutral lumbar. EX, ST, LI benefit from posterior chain lengthening without disc load. NE: hamstring tension transmits sciatic chain tension — monitor for leg symptom spread. FL: neutral spine is protective — caution if lumbar rounds under fatigue.",
     user_benefit: "A hip hinge with a long spine that stretches your posterior chain while protecting your lower back — fundamentally different from a full forward fold and much safer for sensitive spines.",
-    video_id: null,
+    video_id: "supported_ff_classic.mp4",
   },
   {
     id: "v2_136",
@@ -3242,7 +3242,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Blocks raise hand height — reduces hamstring demand, maintains spinal elongation. FL: easier to maintain neutral lumbar — caution reduces to monitoring. NE: reduced sciatic chain tension — accessible with monitoring.",
     user_benefit: "Blocks raise your hand height so your spine can stay long, reducing hamstring demand and making this posterior chain stretch more accessible and safer for your back.",
-    video_id: null,
+    video_id: "supported_ff_blocks.mp4",
   },
   {
     id: "v2_137",
@@ -3265,7 +3265,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Shorter stance reduces hamstring demand — spine easier to elongate. FL: reduced posterior disc pressure — caution. NE: reduced sciatic chain tension — accessible with monitoring.",
     user_benefit: "A shorter stance reduces the stretch intensity, allowing your spine to maintain better alignment while still getting meaningful posterior chain lengthening.",
-    video_id: null,
+    video_id: "supported_ff_short_stance.mp4",
   },
   {
     id: "v2_138",
@@ -3450,7 +3450,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Most accessible. Seated trunk lean back with knees bent and feet grounded. All back profiles accessible — minimal posterior disc pressure. Excellent entry for all profiles. FL and NE: brief low-load flexion without sustained hold — well tolerated.",
     user_benefit: "The most accessible core lean-back — simply leaning your trunk back slightly while seated builds abdominal engagement with minimal load on your spine.",
-    video_id: null,
+    video_id: "navasana_seated_lean_back.mp4",
   },
   {
     id: "v2_146",
@@ -3775,7 +3775,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Hands on hips removes overhead demand — easier to maintain spinal neutral. ST and LI benefit from balance training without shoulder load. NE: cumulative lumbar and posterior chain load — monitor symptom spread. FL: spine neutral — caution only if alignment lost under fatigue.",
     user_benefit: "Hands on your hips removes shoulder demand while maintaining the powerful single-leg balance and strength training that builds whole-body functional stability.",
-    video_id: null,
+    video_id: "w3_hands_on_hips.mp4",
   },
   {
     id: "v2_160",
@@ -3798,7 +3798,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Prayer hands at chest — moderate upper demand without full overhead. Intermediate option. NE/FL: same cautions as classic — hands on hips preferred.",
     user_benefit: "Prayer hands at your chest provide a moderate upper body position, balancing the demands of this challenging single-leg pose without full overhead load.",
-    video_id: null,
+    video_id: "w3_hands_at_heart.mp4",
   },
   {
     id: "v2_161",
@@ -3822,7 +3822,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "",
     user_benefit: "Chair support reduces the balance challenge, allowing you to focus on developing single-leg hip and spinal alignment without fear of falling.",
-    video_id: null,
+    video_id: "w3_chair_supported.mp4",
   },
   {
     id: "v2_162",
@@ -3991,7 +3991,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Passive thoracic rotation in quadruped — low lumbar demand. MO, ST, EX, RO benefit significantly from isolated thoracic rotation. CO: sustained rotational hold — keep transitions dynamic or reduce hold time. NE: monitor for referred thoracic symptoms.",
     user_benefit: "A gentle lying-down rotation that specifically targets your thoracic spine, improving mid-back rotational mobility with minimal lower back demand.",
-    video_id: null,
+    video_id: "thread_classic.mp4",
   },
   {
     id: "v2_169",
@@ -4014,7 +4014,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Top arm extends overhead — increases thoracic rotation range. MO, ST, EX, RO benefit from deeper rotation. CO: increased rotation-compression — caution. NE: increased upper limb neural tension with overhead arm — monitor.",
     user_benefit: "Extending your top arm overhead increases the rotational range and adds a shoulder stretch, providing a deeper version of this thoracic mobility exercise.",
-    video_id: null,
+    video_id: "thread_extended_arm.mp4",
   },
   {
     id: "v2_170",
@@ -4037,7 +4037,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Blanket or bolster under shoulder/head — reduces rotational depth and cervical pressure. CO now accessible — reduced sustained compression. NE: monitor for thoracic referred symptoms.",
     user_benefit: "A blanket or bolster under your shoulder reduces the rotation depth, making this thoracic mobility exercise more comfortable and accessible for sensitive areas.",
-    video_id: null,
+    video_id: "thread_supported_blanket.mp4",
   },
   {
     id: "v2_171",
@@ -4061,7 +4061,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Most accessible. Seated thoracic rotation — all upper back profiles accessible including CO. No quadruped demands. NE: even seated thoracic rotation may produce referred symptoms — monitor.",
     user_benefit: "The most accessible version — a seated rotation that improves your thoracic mobility without any floor demands, suitable for all back profiles.",
-    video_id: null,
+    video_id: "thread_seated_chair.mp4",
   },
   {
     id: "v2_172",
@@ -4085,7 +4085,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Kneeling lateral spinal flexion — QL and lateral chain stretch. EX, ST, LI benefit from lateral chain mobility. NE: lateral flexion under kneeling load — monitor cumulative load and symptom spread. FL: lateral flexion increases disc shear when combined with any forward tendency — caution; use chair version.",
     user_benefit: "A kneeling side bend that stretches your lateral chain — the muscles along the side of your body — improving lateral flexibility and reducing one-sided tightness.",
-    video_id: null,
+    video_id: "gate_classic.mp4",
   },
   {
     id: "v2_173",
@@ -4108,7 +4108,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Block raises lower hand — reduces lateral flexion depth and disc shear. FL now accessible — reduced lateral load. NE: reduced range — caution remains; monitor.",
     user_benefit: "A block under your hand reduces the side-bend depth, making this lateral stretch more accessible while still improving side-body flexibility.",
-    video_id: null,
+    video_id: "gate_block_under_hand.mp4",
   },
   {
     id: "v2_174",
@@ -4131,7 +4131,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Shorter extended leg reduces lateral reach and hip abduction demand. FL accessible — reduced lateral disc shear. NE: reduced demand — caution; monitor.",
     user_benefit: "A shorter extended leg reduces the intensity of the stretch, making lateral mobility work more manageable while still targeting your side-body tissues.",
-    video_id: null,
+    video_id: "gate_short_extended_leg.mp4",
   },
   {
     id: "v2_175",
@@ -4155,7 +4155,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Most accessible. Seated lateral flexion — all back profiles accessible including FL and NE. Removes all kneeling demand. Excellent for all back-sensitive profiles.",
     user_benefit: "The most accessible lateral stretch — a seated side bend that gently opens your side body with no kneeling demand, suitable for everyone.",
-    video_id: null,
+    video_id: "gate_seated.mp4",
   },
   {
     id: "v2_176",
@@ -5413,7 +5413,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Full body sequential joint mobilisation in floor sitting. Warm-up sequence — appears at session opening in almost all sessions. Combines upper and lower body warm-up. Adapt range per profile at each joint.",
     user_benefit: "A comprehensive warm-up that gently mobilises every joint from neck to ankles, preparing your whole body for movement in a seated floor position.",
-    video_id: null,
+    video_id: "full_warmup_floor_seated.mp4",
   },
   {
     id: "v2_233",
@@ -5441,7 +5441,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Full body sequential joint mobilisation in standing. Warm-up sequence — appears at session opening in almost all sessions. Most dynamic version — adds postural and balance demand. Recommended for stable multi-profile presentations only.",
     user_benefit: "A full body warm-up in standing that adds gentle postural and balance challenge while mobilising all your joints for the session ahead.",
-    video_id: null,
+    video_id: "full_warmup_standing.mp4",
   },
   {
     id: "v2_234",
@@ -5469,7 +5469,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Full body sequential joint mobilisation on bolster or block. Warm-up sequence — appears at session opening in almost all sessions. Neutral hip position makes this the most versatile floor-based option.",
     user_benefit: "A comprehensive warm-up on a raised seat that supports neutral pelvic alignment while gently mobilising all your joints from head to toe.",
-    video_id: null,
+    video_id: "full_warmup_high_seat.mp4",
   },
   {
     id: "v2_235",
@@ -5497,7 +5497,7 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Most accessible full body warm-up. Chair provides complete support — suitable for all profiles without exception. Warm-up sequence — appears at session opening in almost all sessions. Default starting point for any session involving both upper and lower body work.",
     user_benefit: "The most accessible full body warm-up — complete chair support lets you gently wake up every joint in your body with total comfort, suitable for all conditions.",
-    video_id: null,
+    video_id: "full_warmup_chair.mp4",
   },
   {
     id: "v2_236",
@@ -5804,7 +5804,8 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Mild lumbar decompression in spinal extension. EX and stiff profiles benefit. FL: spine must stay long — not rounded. NE: monitor symptom spread.",
     user_benefit: "A whole-body stretch and strengthening pose that decompresses your spine while opening your shoulders, hamstrings, and calves — a versatile foundation of yoga practice.",
-    video_id: null,
+    // alt take (easier): "dd_classic_easier.mp4"
+    video_id: "dd_classic_normal.mp4",
   },
   {
     id: "v2_247",
@@ -5828,7 +5829,8 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Bent knees remove hamstring tension — spine can lengthen fully. FL now accessible as disc load reduced. Excellent for stiff lower back.",
     user_benefit: "Bent knees remove hamstring tension so your spine can lengthen fully, making this decompressive pose more accessible for tight hamstrings and sensitive lower backs.",
-    video_id: null,
+    // alt take (easier): "dd_bent_knees_easier.mp4"
+    video_id: "dd_bent_knees_normal.mp4",
   },
   {
     id: "v2_248",
@@ -5852,7 +5854,8 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Block height reduces wrist extension range. EX now accessible with careful monitoring. NN: monitor for tingling. Good bridge toward full DD.",
     user_benefit: "Blocks under your hands reduce wrist extension, making this decompressive pose accessible for sensitive wrists while maintaining all the spinal and shoulder benefits.",
-    video_id: null,
+    // alt take (easier): "dd_hands_on_blocks_easier.mp4"
+    video_id: "dd_hands_on_blocks_normal.mp4",
   },
   {
     id: "v2_249",
@@ -5879,7 +5882,8 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Spine closer to horizontal — excellent for all back profiles including sensitive ones. NE now accessible — reduced load and compression.",
     user_benefit: "Hands on the wall create a gentler angle that reduces load on your spine and shoulders, making the decompressive benefits of this pose accessible for almost everyone.",
-    video_id: null,
+    // alt take (easier): "downward_dog_wall_easier.mp4"
+    video_id: "downward_dog_wall_normal.mp4",
   },
   {
     id: "v2_250",
@@ -5902,7 +5906,8 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Chair removes deep flexion demands. All knee profiles can use safely. Excellent accessible version for pain profiles.",
     user_benefit: "The most accessible version — a chair supports your hands, removing deep flexion demands and making this stretch gentle enough for sensitive knees, ankles, and shoulders.",
-    video_id: null,
+    // alt take (easier): "dd_chair_supported_easier.mp4"
+    video_id: "dd_chair_supported_normal.mp4",
   },
   {
     id: "v2_251",
@@ -5926,7 +5931,8 @@ export const EXERCISES_V2: Exercise[] = [
   },
     clinical_rationale: "Single leg lift increases lumbar demand and torsion. Good for extension and mobility progressions. NE: lumbar torsion can provoke — avoid.",
     user_benefit: "A single raised leg adds challenge to your shoulder stability and hip strength, building the asymmetrical control your body needs for more advanced movement patterns.",
-    video_id: null,
+    // alt take (easier): "dd_three_legged_easier.mp4"
+    video_id: "dd_three_legged_normal.mp4",
   }
 ];
 
