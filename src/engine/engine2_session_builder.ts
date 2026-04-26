@@ -446,6 +446,41 @@ export function buildSession(request: SessionRequest): E2Result {
       }
       return bonus > 0 ? { ...p, clinical_score: p.clinical_score + bonus } : p;
     });
+    // ── Prompt 3: prior-session bias (preferPriorBias) ──
+    const priorIds = new Set(prior_session_pose_ids);
+    const priorBias = refined.preferPriorBias;
+    if (priorBias && priorBias > 0 && priorIds.size > 0) {
+      candidate_pool = candidate_pool.map(p =>
+        priorIds.has(p.exercise.id)
+          ? { ...p, clinical_score: p.clinical_score + priorBias }
+          : p
+      );
+    }
+
+    // ── Prompt 3: Var-Rank percentile drops (fallback when tag-based suppress
+    // doesn't match existing poses). low confidence → drop top 40% by var_rank
+    // within each movement_category; quick assessment → drop top 30%. Apply the
+    // larger drop when both apply.
+    const dropPct = Math.max(
+      confidence_level === 'low' ? 0.40 : 0,
+      assessment_type === 'quick' ? 0.30 : 0,
+    );
+    if (dropPct > 0) {
+      const byCat = new Map<string, SuitedPose[]>();
+      for (const p of candidate_pool) {
+        const k = String(p.exercise.movement_category);
+        if (!byCat.has(k)) byCat.set(k, []);
+        byCat.get(k)!.push(p);
+      }
+      const dropIds = new Set<string>();
+      for (const arr of byCat.values()) {
+        const ranked = [...arr].sort((a, b) => (b.exercise.var_rank ?? 0) - (a.exercise.var_rank ?? 0));
+        const dropN = Math.floor(ranked.length * dropPct);
+        for (let i = 0; i < dropN; i++) dropIds.add(ranked[i].exercise.id);
+      }
+      candidate_pool = candidate_pool.filter(p => !dropIds.has(p.exercise.id));
+    }
+
     candidate_pool.sort((a, b) => b.clinical_score !== a.clinical_score
       ? b.clinical_score - a.clinical_score
       : (a.var_rank ?? 99) - (b.var_rank ?? 99));
