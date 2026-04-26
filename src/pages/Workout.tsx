@@ -19,6 +19,7 @@ import { trackEvent } from "@/lib/analytics";
 import universalVideo from "@/assets/exercises/universal-fallback.mp4";
 import ExerciseAnimationV8 from "@/components/animations/ExerciseAnimationV8";
 import type { SessionPhase } from "@/engine/engine3_sequencer";
+import { pemReducer } from "@/engine/pem";
 
 /** Phase-coloured gradient backgrounds */
 function getPhaseGradient(phase: SessionPhase): string {
