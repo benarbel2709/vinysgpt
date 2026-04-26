@@ -44,11 +44,15 @@ Sentry.init({
     if (event.user) {
       event.user = { id: undefined, email: undefined, username: undefined, ip_address: undefined };
     }
-    if (event.request?.cookies) event.request.cookies = "[redacted]";
-    if (event.request?.headers) {
-      const h = event.request.headers as Record<string, string>;
-      for (const k of Object.keys(h)) {
-        if (/auth|cookie|token/i.test(k)) h[k] = "[redacted]";
+    if (event.request) {
+      if ((event.request as { cookies?: unknown }).cookies) {
+        (event.request as { cookies?: unknown }).cookies = "[redacted]";
+      }
+      const h = event.request.headers as Record<string, string> | undefined;
+      if (h) {
+        for (const k of Object.keys(h)) {
+          if (/auth|cookie|token/i.test(k)) h[k] = "[redacted]";
+        }
       }
     }
     event.extra = scrubPii(event.extra) as typeof event.extra;
