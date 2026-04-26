@@ -39,6 +39,36 @@ export default function Settings() {
   const [pendingImport, setPendingImport] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Account-deletion (Danger zone) state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteEmailInput, setDeleteEmailInput] = useState("");
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    if (deleteEmailInput.trim().toLowerCase() !== (user.email ?? "").toLowerCase()) {
+      toast({ title: "Email does not match", description: "Type your account email exactly to confirm.", variant: "destructive" });
+      return;
+    }
+    setDeleting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("delete-account", { body: {} });
+      if (error || !data?.ok) {
+        toast({ title: "Could not delete account", description: error?.message ?? "Please try again.", variant: "destructive" });
+        setDeleting(false);
+        return;
+      }
+      // Wipe local state and sign out
+      try { resetAll(); } catch { /* ignore */ }
+      try { localStorage.clear(); } catch { /* ignore */ }
+      await signOut();
+      window.location.href = "/";
+    } catch (e: any) {
+      toast({ title: "Could not delete account", description: e?.message ?? "Please try again.", variant: "destructive" });
+      setDeleting(false);
+    }
+  };
+
   const { practiceTime, closingPreference } = state.profile;
   const closing = closingPreference || "savasana";
 
@@ -212,6 +242,51 @@ export default function Settings() {
             </div>
           )}
         </div>
+
+        {/* Danger zone — permanent account deletion (GDPR right to erasure) */}
+        {user && (
+          <div className="card-premium p-6 space-y-4 mt-6 border border-destructive/30">
+            <h2 className="text-[15px] font-bold text-destructive flex items-center gap-2">
+              <ShieldAlert size={16} />Danger zone
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Permanently delete your account and all associated data: profile, check-ins,
+              conditions, generated plans, and activity history. <strong>This action is permanent
+              and cannot be undone.</strong>
+            </p>
+            {!showDeleteConfirm ? (
+              <Button
+                variant="outline-calm"
+                size="sm"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="gap-1.5 text-xs text-destructive border-destructive/40 hover:bg-destructive/10"
+              >
+                <Trash2 size={14} />Delete my account
+              </Button>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-sm text-foreground">
+                  Type your email <span className="font-mono font-medium">{user.email}</span> to confirm:
+                </p>
+                <Input
+                  type="email"
+                  value={deleteEmailInput}
+                  onChange={(e) => setDeleteEmailInput(e.target.value)}
+                  placeholder="your-email@example.com"
+                  disabled={deleting}
+                />
+                <div className="flex gap-2">
+                  <Button variant="stop" size="sm" onClick={handleDeleteAccount} disabled={deleting} className="flex-1">
+                    {deleting ? "Deleting…" : "Yes, permanently delete"}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => { setShowDeleteConfirm(false); setDeleteEmailInput(""); }} disabled={deleting} className="flex-1">
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </Layout>
   );
