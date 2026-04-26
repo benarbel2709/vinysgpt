@@ -896,6 +896,13 @@ export default function OnboardingWizard() {
                       setIsSystemicFlow(true);
                       setSystemicConditionKey(cond.conditionKey);
                       setSelected([cond.conditionKey]);
+                      // Reset unified systemic 5-question state on entry
+                      setSystemicStep(1);
+                      setSysSeverity("");
+                      setSysTriggers([]);
+                      setSysRecoveryPattern("");
+                      setSysTodayState("");
+                      setSysTodayRedFlags([]);
                       setTimeout(() => setStep(3), 200);
                     }}
                     className="flex items-start gap-3 p-3.5 rounded-2xl border border-border bg-card text-left hover:border-primary/30 transition-all duration-150"
