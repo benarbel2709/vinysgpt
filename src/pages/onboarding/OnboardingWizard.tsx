@@ -468,7 +468,7 @@ export default function OnboardingWizard() {
       experienceLevel: 'beginner',
       sessionDuration: 20,
     });
-    trackEvent("fast_track_systemic_completed", { condition: systemicConditionKey });
+    trackEvent("plan_generated", { condition: systemicConditionKey });
     navigate("/plan");
   };
 
