@@ -214,6 +214,9 @@ export default function Workout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playableSession]);
 
+  const isSoloSession = sessionId?.startsWith("solo_") ?? false;
+  const exercises = playableSession?.exercises || [];
+  const sessionDurationMinutes = playableSession?.durationMinutes || state.profile.minutesPerSession || 20;
 
   // Restore position from sessionStorage if available
   const savedPos = (() => {
