@@ -117,6 +117,8 @@ export interface Profile {
   assessment_type?: "quick" | "full";
   /** Confidence in the captured profile. */
   confidence_level?: "low" | "high";
+  /** v2.1 Prompt 3: pose IDs from the prior session (cap 1 session). Used by E2 for repeatCeiling + preferPriorBias. */
+  lastSessionPoseIds?: string[];
   irritability?: number;
   acuity?: "high" | "medium" | "low" | "unknown";
   mode?: "normal" | "easier" | "flare";
