@@ -296,7 +296,7 @@ function applyConditionSafetyFilters(pool: SuitedPose[], conditions: string[]): 
 }
 
 export function buildSession(request: SessionRequest): E2Result {
-  const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0, ageGroup, conditions = [], quick_modifiers, safety_flags = [] } = request;
+  const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0, ageGroup, conditions = [], quick_modifiers, safety_flags = [], systemic = null } = request;
   let target       = targetSize(duration_minutes, target_size_override);
   let vr_ceiling   = VAR_RANK_CEILING[stage][experience_level];
   let load_ceil    = target * LOAD_CEILING_MULTIPLIER[experience_level];
