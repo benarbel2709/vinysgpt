@@ -275,6 +275,16 @@ export default function Plan() {
           </div>
         )}
 
+        {/* Fast Track last-session warning (count === 2 → about to start 3rd) */}
+        {state.profile.fast_track_session_count === 2 && (
+          <div
+            role="alert"
+            className="rounded-xl border border-amber-300 bg-amber-50 text-amber-900 px-4 py-3 text-sm font-medium"
+          >
+            This is your last quick session — full onboarding is required to continue.
+          </div>
+        )}
+
         {/* PRIMARY CTA — Start Practice */}
         <button
           onClick={handleStartNextPractice}

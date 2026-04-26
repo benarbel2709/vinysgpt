@@ -53,7 +53,9 @@ function OnboardingGuard({ children }: { children: React.ReactNode }) {
 /** If onboarding is already completed, redirect /onboarding to /plan */
 function OnboardingRedirectGuard({ children }: { children: React.ReactNode }) {
   const { state } = useApp();
-  if (state.onboardingCompleted) {
+  // Hard wall override: ?track=full forces re-onboarding even if already completed.
+  const forceFullTrack = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("track") === "full";
+  if (state.onboardingCompleted && !forceFullTrack) {
     return <Navigate to="/plan" replace />;
   }
   return <>{children}</>;

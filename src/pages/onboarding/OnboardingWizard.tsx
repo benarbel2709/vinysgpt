@@ -119,9 +119,26 @@ export default function OnboardingWizard() {
   const profile = state.profile;
   const [searchParams] = useSearchParams();
 
-  const [step, setStep] = useState(() => searchParams.get("track") === "full" ? 0 : -1);
+  const isForcedFullTrack = searchParams.get("track") === "full";
+  const [step, setStep] = useState(() => isForcedFullTrack ? 0 : -1);
 
   useEffect(() => { document.title = "Build Your Plan — Vinys"; }, []);
+
+  // Hard wall: when arriving via ?track=full, reset onboarding state and clear
+  // quick-track assessment fields so the user starts the full systemic flow
+  // from the beginning. No back/skip/escape route.
+  useEffect(() => {
+    if (!isForcedFullTrack) return;
+    if (state.onboardingCompleted || profile.assessment_type || profile.confidence_level) {
+      updateState({ onboardingCompleted: false, quickAssessment: null });
+      updateProfile({
+        assessment_type: undefined,
+        confidence_level: undefined,
+        fast_track_session_count: 0,
+      } as any);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isForcedFullTrack]);
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
   const [selectedBodyZones, setSelectedBodyZones] = useState<string[]>([]);
   const [selected, setSelected] = useState<ConditionKey[]>([]);
