@@ -25,9 +25,26 @@ interface Props {
 }
 
 export default function ExerciseVideoAnimation({ exercise, compact, large }: Props) {
-  const videoSrc = getVideoSrc(exercise);
+  const [videoSrc, setVideoSrc] = useState<string>(universalVideo);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoError, setVideoError] = useState(false);
+
+  // Resolve expert-uploaded video for this exercise; fall back to bundled universal.
+  useEffect(() => {
+    let cancelled = false;
+    setVideoError(false);
+    setVideoSrc(universalVideo);
+    getExerciseVideoUrl(exercise.id)
+      .then((url) => {
+        if (!cancelled && url) setVideoSrc(url);
+      })
+      .catch(() => {
+        // silent — keep fallback
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [exercise.id]);
 
   // Failed to load video — fall back to SVG
   if (videoError) {
