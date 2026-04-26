@@ -384,6 +384,17 @@ export default function Workout() {
       ...(justAdvanced ? { justAdvancedStage: true } : {}),
     });
 
+    // Prompt 5 Piece B: increment fast_track_session_count for quick users
+    if (state.profile.assessment_type === "quick") {
+      updateProfile({ fast_track_session_count: (state.profile.fast_track_session_count ?? 0) + 1 } as any);
+    }
+    // Prompt 5 Piece C: persist today_red_flags from this session's safety guard
+    if (safetyDecision?.kind === "proceed" && state.profile.systemic) {
+      updateProfile({
+        systemic: { ...state.profile.systemic, today_red_flags: safetyDecision.today_red_flags },
+      } as any);
+    }
+
     trackEvent("session_completed", { mode: "v2", exercises: exercises.length, duration: sessionDurationMinutes });
 
     if (user) {
