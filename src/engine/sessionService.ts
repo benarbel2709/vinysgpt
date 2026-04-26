@@ -59,6 +59,12 @@ export interface SessionServiceInput {
   safety_flags?: string[];
   /** Systemic onboarding block (v2.1) — enables tier-driven build when set + no body-area profile. */
   systemic?: SystemicProfile | null;
+  /** v2.1 Prompt 3: confidence cap input. */
+  confidence_level?: 'low' | 'high';
+  /** v2.1 Prompt 3: assessment-type cap input. */
+  assessment_type?: 'quick' | 'full';
+  /** v2.1 Prompt 3: prior session pose IDs (for repeatCeiling + preferPriorBias). */
+  prior_session_pose_ids?: string[];
 }
 
 /** A single exercise ready for the workout player */
