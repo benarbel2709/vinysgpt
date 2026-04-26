@@ -38,6 +38,45 @@ export type Database = {
         }
         Relationships: []
       }
+      exercise_videos: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          exercise_id: string
+          id: string
+          is_active: boolean
+          notes: string | null
+          quality: string | null
+          storage_path: string
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          exercise_id: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          quality?: string | null
+          storage_path: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          exercise_id?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          quality?: string | null
+          storage_path?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

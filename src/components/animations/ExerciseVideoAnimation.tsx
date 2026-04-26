@@ -4,18 +4,12 @@
  */
 
 import { Exercise } from "@/types";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ExerciseAnimationV7 from "./ExerciseAnimationV7";
+import { getExerciseVideoUrl } from "@/lib/exerciseVideoUrl";
 
-// Import universal fallback video
+// Bundled universal fallback (used until an expert video is uploaded for this exercise)
 import universalVideo from "@/assets/exercises/universal-fallback.mp4";
-
-/** Map exercise ID to a specific video, falling back to universal */
-function getVideoSrc(_exercise: Exercise): string {
-  // TODO: map specific exercise IDs to their dedicated videos here
-  // e.g. if (exercise.id === "breath_box") return breathBoxVideo;
-  return universalVideo;
-}
 
 const CAT_BG: Record<string, string> = {
   breath: "from-blue-50/60 to-blue-100/30",
@@ -31,9 +25,26 @@ interface Props {
 }
 
 export default function ExerciseVideoAnimation({ exercise, compact, large }: Props) {
-  const videoSrc = getVideoSrc(exercise);
+  const [videoSrc, setVideoSrc] = useState<string>(universalVideo);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoError, setVideoError] = useState(false);
+
+  // Resolve expert-uploaded video for this exercise; fall back to bundled universal.
+  useEffect(() => {
+    let cancelled = false;
+    setVideoError(false);
+    setVideoSrc(universalVideo);
+    getExerciseVideoUrl(exercise.id)
+      .then((url) => {
+        if (!cancelled && url) setVideoSrc(url);
+      })
+      .catch(() => {
+        // silent — keep fallback
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [exercise.id]);
 
   // Failed to load video — fall back to SVG
   if (videoError) {
