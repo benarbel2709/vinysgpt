@@ -719,6 +719,14 @@ export default function Workout() {
                   Your Practice
                 </h1>
                 <p className="text-white/60 text-sm mb-6">{exercises.length} exercises · {sessionDurationMinutes} min</p>
+                {/* Prompt 5 Piece B: last-quick-session banner (shown on session 3 onset, ftCount===2) */}
+                {isQuick && ftCount === 2 && !isSoloSession && (
+                  <div className="mb-4 mx-auto max-w-md rounded-xl border border-amber-300/40 bg-amber-500/15 backdrop-blur-md px-4 py-3 text-left">
+                    <p className="text-amber-100 text-sm font-medium">
+                      This is your last quick session — Full onboarding is required to continue.
+                    </p>
+                  </div>
+                )}
                 <div className="rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md p-4 max-h-[40vh] overflow-y-auto text-left">
                   {(playableSession?.phases || []).map((block) => (
                     <div key={block.phase}>
