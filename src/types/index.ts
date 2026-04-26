@@ -95,7 +95,7 @@ export interface SystemicProfile {
   recovery_pattern: RecoveryPattern;
   today_state: TodayState;
   today_red_flags: RedFlag[];
-  tier_history: { date: string; tier: Tier }[];
+  tier_history: { date: string; tier: Tier; reason?: string }[];
   pem_state: PemState;
   /** v2.1 Prompt 4: ISO timestamp of last completed session (for 48h proximity check). */
   prev_session_at?: string;

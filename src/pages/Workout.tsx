@@ -226,8 +226,12 @@ export default function Workout() {
     if (!sb || !sys) return;
     const today = new Date().toISOString().slice(0, 10);
     const last = sys.tier_history[sys.tier_history.length - 1];
-    if (last && last.date === today && last.tier === sb.tier) return; // dedupe same-day same-tier
-    const next = [...sys.tier_history, { date: today, tier: sb.tier }].slice(-50);
+    const reason = safetyDecision?.kind === "proceed" && safetyDecision.restorativeOverride
+      ? "flare_modal"
+      : undefined;
+    if (last && last.date === today && last.tier === sb.tier && last.reason === reason) return; // dedupe same-day same-tier same-reason
+    const entry = reason ? { date: today, tier: sb.tier, reason } : { date: today, tier: sb.tier };
+    const next = [...sys.tier_history, entry].slice(-50);
     updateProfile({ systemic: { ...sys, tier_history: next } });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playableSession]);
@@ -715,6 +719,14 @@ export default function Workout() {
                   Your Practice
                 </h1>
                 <p className="text-white/60 text-sm mb-6">{exercises.length} exercises · {sessionDurationMinutes} min</p>
+                {/* Prompt 5 Piece B: last-quick-session banner (shown on session 3 onset, ftCount===2) */}
+                {isQuick && ftCount === 2 && !isSoloSession && (
+                  <div className="mb-4 mx-auto max-w-md rounded-xl border border-amber-300/40 bg-amber-500/15 backdrop-blur-md px-4 py-3 text-left">
+                    <p className="text-amber-100 text-sm font-medium">
+                      This is your last quick session — Full onboarding is required to continue.
+                    </p>
+                  </div>
+                )}
                 <div className="rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md p-4 max-h-[40vh] overflow-y-auto text-left">
                   {(playableSession?.phases || []).map((block) => (
                     <div key={block.phase}>
