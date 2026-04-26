@@ -184,6 +184,19 @@ export default function Workout() {
     }
   }, []); // Only generate once on mount
 
+  // ─── v2.1 Append tier to systemic.tier_history (cap 50) on each systemic build ───
+  useEffect(() => {
+    const sb = playableSession?.systemicBuild;
+    const sys = state.profile.systemic;
+    if (!sb || !sys) return;
+    const today = new Date().toISOString().slice(0, 10);
+    const last = sys.tier_history[sys.tier_history.length - 1];
+    if (last && last.date === today && last.tier === sb.tier) return; // dedupe same-day same-tier
+    const next = [...sys.tier_history, { date: today, tier: sb.tier }].slice(-50);
+    updateProfile({ systemic: { ...sys, tier_history: next } });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playableSession]);
+
   const isSoloSession = sessionId?.startsWith("solo_") ?? false;
   const exercises = playableSession?.exercises || [];
   const sessionDurationMinutes = playableSession?.durationMinutes || state.profile.minutesPerSession || 20;
