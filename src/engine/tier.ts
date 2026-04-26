@@ -81,6 +81,49 @@ export const MODEL_PARAMS: Record<SessionModel, ModelParams> = {
 export interface RefinedModelParams extends ModelParams {
   suppressTags: Set<string>;
   boostTags: Set<string>;
+  /** Max fraction of prior-session poses allowed to repeat in this session. Default 0.80 when absent. */
+  repeatCeiling?: number;
+  /** Score bonus added to candidates that appeared in the prior session. */
+  preferPriorBias?: number;
+}
+
+// ─── Confidence + Assessment-type caps (Prompt 3) ────────────────────────────
+
+export type ConfidenceLevel = "low" | "high";
+export type AssessmentType = "quick" | "full";
+
+export function applyConfidenceCaps(
+  p: RefinedModelParams,
+  c: ConfidenceLevel,
+): RefinedModelParams {
+  if (c === "high") return p;
+  return {
+    ...p,
+    suppressTags: new Set([...p.suppressTags, "experimental", "advanced", "stage_3"]),
+    repeatCeiling: 0.60,
+    preferPriorBias: 0.15,
+  };
+}
+
+export function applyAssessmentTypeCaps(
+  p: RefinedModelParams,
+  a: AssessmentType,
+  hasSystemic: boolean,
+): RefinedModelParams {
+  if (a === "quick") {
+    return {
+      ...p,
+      lengthMin: Math.min(p.lengthMin, 18),
+      loadCeiling: Math.min(p.loadCeiling, 0.75),
+      suppressTags: new Set([...p.suppressTags, "advanced", "stage_3", "demanding"]),
+    };
+  }
+  // a === "full"
+  if (hasSystemic) {
+    // Systemic-Full: complete intake, NOT biomechanical certainty. Stage-3 stays locked.
+    return { ...p, suppressTags: new Set([...p.suppressTags, "advanced", "stage_3"]) };
+  }
+  return p; // Body-area Full: passthrough
 }
 
 export function applyTriggerRefinements(
