@@ -255,6 +255,9 @@ export function buildSessionInput(profile: {
   ageGroup?: string;
   conditions?: string[];
   systemic?: SystemicProfile | null;
+  confidence_level?: 'low' | 'high';
+  assessment_type?: 'quick' | 'full';
+  lastSessionPoseIds?: string[];
 }): SessionServiceInput {
   const diagnostic = profile.diagnosticResult || {
     area: profile.diagnosticArea || 'LB',
@@ -273,6 +276,9 @@ export function buildSessionInput(profile: {
     ageGroup: profile.ageGroup,
     conditions: profile.conditions,
     systemic: profile.systemic ?? null,
+    confidence_level: profile.confidence_level,
+    assessment_type: profile.assessment_type,
+    prior_session_pose_ids: profile.lastSessionPoseIds ?? [],
   };
 }
 
