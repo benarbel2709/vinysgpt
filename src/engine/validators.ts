@@ -195,13 +195,26 @@ export function validateCatalog(catalog: ExerciseV2[]): ValidationError[] {
   return errors;
 }
 
-// ═══════════════════════════════════
-// SYSTEMIC PROFILE VALIDATION (v2.1)
-// ═══════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+// SYSTEMIC PROFILE VALIDATION (Vinys Systemic Pipeline v2.1)
+// Clinical lead-authored enums. Reject unknown values; do NOT coerce.
+// ═══════════════════════════════════════════════════════════════════
 
-const RECOVERY_PATTERNS = new Set(["fast", "moderate", "slow", "pem"]);
-const TODAY_STATES = new Set(["good", "baseline", "low", "flare"]);
-const PEM_STATES = new Set(["none", "mild", "moderate", "severe"]);
+const SEVERITY_VALUES = ["mild", "moderate", "significant", "severe"] as const;
+const TRIGGER_VALUES = ["effort", "duration", "stress", "poor_sleep", "upright", "breathing", "sensory"] as const;
+const RECOVERY_VALUES = ["better", "same_day", "worse_later", "crash"] as const;
+const TODAY_STATE_VALUES = ["better", "same", "worse", "much_worse"] as const;
+const RED_FLAG_VALUES = ["dizziness", "sob", "chest_pain", "flare"] as const;
+const TIER_VALUES = ["low", "moderate", "high"] as const;
+const PEM_STATE_VALUES = ["normal", "downgraded"] as const;
+
+const SEVERITY_SET = new Set<string>(SEVERITY_VALUES);
+const TRIGGER_SET = new Set<string>(TRIGGER_VALUES);
+const RECOVERY_SET = new Set<string>(RECOVERY_VALUES);
+const TODAY_STATE_SET = new Set<string>(TODAY_STATE_VALUES);
+const RED_FLAG_SET = new Set<string>(RED_FLAG_VALUES);
+const TIER_SET = new Set<string>(TIER_VALUES);
+const PEM_STATE_SET = new Set<string>(PEM_STATE_VALUES);
 
 export interface SystemicValidationInput {
   severity?: unknown;
@@ -214,8 +227,10 @@ export interface SystemicValidationInput {
 }
 
 /**
- * Validate the unified systemic onboarding block.
+ * Validate the unified systemic onboarding block against the v2.1 spec.
  * Returns an array of human-readable error messages; empty = valid.
+ *
+ * Rejects — does not coerce — any value outside the documented enum sets.
  */
 export function validateSystemicProfile(s: SystemicValidationInput | null | undefined): string[] {
   const errors: string[] = [];
@@ -224,32 +239,58 @@ export function validateSystemicProfile(s: SystemicValidationInput | null | unde
     return errors;
   }
 
-  if (typeof s.severity !== "number" || !Number.isInteger(s.severity) || s.severity < 1 || s.severity > 5) {
-    errors.push("systemic.severity must be an integer 1..5");
+  if (typeof s.severity !== "string" || !SEVERITY_SET.has(s.severity)) {
+    errors.push(`systemic.severity must be one of: ${SEVERITY_VALUES.join(", ")}`);
   }
 
-  if (!Array.isArray(s.triggers) || s.triggers.some(t => typeof t !== "string")) {
-    errors.push("systemic.triggers must be an array of strings");
+  if (!Array.isArray(s.triggers)) {
+    errors.push("systemic.triggers must be an array");
+  } else {
+    for (const t of s.triggers) {
+      if (typeof t !== "string" || !TRIGGER_SET.has(t)) {
+        errors.push(`systemic.triggers contains invalid value "${String(t)}"; allowed: ${TRIGGER_VALUES.join(", ")}`);
+      }
+    }
   }
 
-  if (typeof s.recovery_pattern !== "string" || !RECOVERY_PATTERNS.has(s.recovery_pattern)) {
-    errors.push(`systemic.recovery_pattern must be one of ${Array.from(RECOVERY_PATTERNS).join(", ")}`);
+  if (typeof s.recovery_pattern !== "string" || !RECOVERY_SET.has(s.recovery_pattern)) {
+    errors.push(`systemic.recovery_pattern must be one of: ${RECOVERY_VALUES.join(", ")}`);
   }
 
-  if (typeof s.today_state !== "string" || !TODAY_STATES.has(s.today_state)) {
-    errors.push(`systemic.today_state must be one of ${Array.from(TODAY_STATES).join(", ")}`);
+  if (typeof s.today_state !== "string" || !TODAY_STATE_SET.has(s.today_state)) {
+    errors.push(`systemic.today_state must be one of: ${TODAY_STATE_VALUES.join(", ")}`);
   }
 
-  if (!Array.isArray(s.today_red_flags) || s.today_red_flags.some(f => typeof f !== "string")) {
-    errors.push("systemic.today_red_flags must be an array of strings");
+  if (!Array.isArray(s.today_red_flags)) {
+    errors.push("systemic.today_red_flags must be an array");
+  } else {
+    for (const f of s.today_red_flags) {
+      if (typeof f !== "string" || !RED_FLAG_SET.has(f)) {
+        errors.push(`systemic.today_red_flags contains invalid value "${String(f)}"; allowed: ${RED_FLAG_VALUES.join(", ")}`);
+      }
+    }
   }
 
-  if (s.tier_history !== undefined && (!Array.isArray(s.tier_history) || s.tier_history.some(n => typeof n !== "number"))) {
-    errors.push("systemic.tier_history must be an array of numbers when present");
+  if (!Array.isArray(s.tier_history)) {
+    errors.push("systemic.tier_history must be an array of { date, tier } entries");
+  } else {
+    for (const entry of s.tier_history) {
+      if (!entry || typeof entry !== "object") {
+        errors.push("systemic.tier_history entries must be objects with { date, tier }");
+        continue;
+      }
+      const e = entry as { date?: unknown; tier?: unknown };
+      if (typeof e.date !== "string") {
+        errors.push("systemic.tier_history[].date must be a string");
+      }
+      if (typeof e.tier !== "string" || !TIER_SET.has(e.tier)) {
+        errors.push(`systemic.tier_history[].tier must be one of: ${TIER_VALUES.join(", ")}`);
+      }
+    }
   }
 
-  if (s.pem_state !== undefined && (typeof s.pem_state !== "string" || !PEM_STATES.has(s.pem_state))) {
-    errors.push(`systemic.pem_state must be one of ${Array.from(PEM_STATES).join(", ")}`);
+  if (typeof s.pem_state !== "string" || !PEM_STATE_SET.has(s.pem_state)) {
+    errors.push(`systemic.pem_state must be one of: ${PEM_STATE_VALUES.join(", ")}`);
   }
 
   return errors;
