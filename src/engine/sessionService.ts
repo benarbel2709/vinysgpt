@@ -22,6 +22,7 @@ import type {
 } from './engine3_sequencer';
 import { generateSession } from './engine3_sequencer';
 import { PHASE_LABELS, PHASE_DESCRIPTIONS } from './engine3_sequencer';
+import type { SystemicProfile, Tier } from '@/types';
 
 // ─── Public types ────────────────────────────────────────────────────────────
 
@@ -56,6 +57,8 @@ export interface SessionServiceInput {
   quick_modifiers?: QuickModifiers;
   /** Safety flags from quick assessment */
   safety_flags?: string[];
+  /** Systemic onboarding block (v2.1) — enables tier-driven build when set + no body-area profile. */
+  systemic?: SystemicProfile | null;
 }
 
 /** A single exercise ready for the workout player */
@@ -98,6 +101,8 @@ export interface PlayableSession {
   peakCount: number;
   cumulativeLoad: number;
   loadCeiling: number;
+  /** Present when this session was built from a systemic profile (v2.1). */
+  systemicBuild?: { tier: Tier; model: 'restore' | 'gentle' | 'build' };
 }
 
 // ─── Area code mapping ───────────────────────────────────────────────────────
@@ -243,6 +248,7 @@ export function buildSessionInput(profile: {
   minutesPerSession?: number;
   ageGroup?: string;
   conditions?: string[];
+  systemic?: SystemicProfile | null;
 }): SessionServiceInput {
   const diagnostic = profile.diagnosticResult || {
     area: profile.diagnosticArea || 'LB',
@@ -260,6 +266,7 @@ export function buildSessionInput(profile: {
     irritability,
     ageGroup: profile.ageGroup,
     conditions: profile.conditions,
+    systemic: profile.systemic ?? null,
   };
 }
 
@@ -311,6 +318,7 @@ export function createSession(input: SessionServiceInput): PlayableSession {
     conditions: input.conditions,
     quick_modifiers: input.quick_modifiers,
     safety_flags: input.safety_flags,
+    systemic: input.systemic ?? null,
   };
 
   const result: FullSessionResult = generateSession(request);
@@ -338,6 +346,9 @@ export function createSession(input: SessionServiceInput): PlayableSession {
     peakCount: e3.peak_count,
     cumulativeLoad: e2.cumulative_load,
     loadCeiling: e2.load_ceiling,
+    systemicBuild: e2.systemic_build
+      ? { tier: e2.systemic_build.tier, model: e2.systemic_build.model }
+      : undefined,
   };
 }
 
