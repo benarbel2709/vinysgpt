@@ -20,6 +20,7 @@ import universalVideo from "@/assets/exercises/universal-fallback.mp4";
 import ExerciseAnimationV8 from "@/components/animations/ExerciseAnimationV8";
 import type { SessionPhase } from "@/engine/engine3_sequencer";
 import { pemReducer } from "@/engine/pem";
+import PreSessionSafetyGuard, { type SafetyDecision } from "@/components/PreSessionSafetyGuard";
 
 /** Phase-coloured gradient backgrounds */
 function getPhaseGradient(phase: SessionPhase): string {
@@ -94,6 +95,20 @@ export default function Workout() {
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // ── Prompt 5 Piece B: 3-session gate — quick users redirected after 3 ──
+  const isQuick = state.profile.assessment_type === "quick";
+  const ftCount = state.profile.fast_track_session_count ?? 0;
+  useEffect(() => {
+    if (isQuick && ftCount >= 3 && !sessionId?.startsWith("solo_")) {
+      navigate("/onboarding?track=full", { replace: true });
+    }
+  }, [isQuick, ftCount, sessionId, navigate]);
+
+  // ── Prompt 5 Piece C: pre-session safety guard for systemic users ──
+  const needsSafetyGuard = state.profile.systemic !== null && !sessionId?.startsWith("solo_");
+  const [safetyDecision, setSafetyDecision] = useState<SafetyDecision | null>(null);
+  const safetyPassed = !needsSafetyGuard || (safetyDecision?.kind === "proceed");
+
   // ─── Generate V2 session on mount (or load solo exercise) ───
   const playableSession = useMemo<PlayableSession | null>(() => {
     // Check for solo exercise session from Exercise Library
@@ -159,7 +174,8 @@ export default function Workout() {
       console.warn("[Workout] Solo session parse error:", e);
     }
 
-    // Normal V2 session generation
+    // Normal V2 session generation — block until safety guard passes (Prompt 5 C)
+    if (needsSafetyGuard && safetyDecision?.kind !== "proceed") return null;
     try {
       let input: SessionServiceInput;
       const qa = state.quickAssessment;
@@ -176,9 +192,21 @@ export default function Workout() {
           safety_flags: qa.safety_flags || [],
         };
       } else {
+        // Apply pre-session safety overrides (Prompt 5 Piece C):
+        // - write today_red_flags from this morning's Q5
+        // - if flare-restorative override, force a restore-flavoured systemic profile
+        let sysForBuild = state.profile.systemic;
+        if (sysForBuild && safetyDecision?.kind === "proceed") {
+          sysForBuild = { ...sysForBuild, today_red_flags: safetyDecision.today_red_flags };
+          if (safetyDecision.restorativeOverride) {
+            // Force tier=low, model=restore by setting today_state=much_worse
+            // (deriveTier caps at "low") — keeps enum-driven derivation intact.
+            sysForBuild = { ...sysForBuild, today_state: "much_worse" };
+          }
+        }
         input = buildSessionInput({
           ...(state.profile as any),
-          systemic: state.profile.systemic,
+          systemic: sysForBuild,
           confidence_level: state.profile.confidence_level,
           assessment_type: state.profile.assessment_type,
           lastSessionPoseIds: state.profile.lastSessionPoseIds ?? [],
@@ -189,7 +217,7 @@ export default function Workout() {
       console.error("[Workout] Failed to generate V2 session:", err);
       return null;
     }
-  }, []); // Only generate once on mount
+  }, [safetyDecision]); // re-build when safety decision changes
 
   // ─── v2.1 Append tier to systemic.tier_history (cap 50) on each systemic build ───
   useEffect(() => {
@@ -356,6 +384,17 @@ export default function Workout() {
       ...(justAdvanced ? { justAdvancedStage: true } : {}),
     });
 
+    // Prompt 5 Piece B: increment fast_track_session_count for quick users
+    if (state.profile.assessment_type === "quick") {
+      updateProfile({ fast_track_session_count: (state.profile.fast_track_session_count ?? 0) + 1 } as any);
+    }
+    // Prompt 5 Piece C: persist today_red_flags from this session's safety guard
+    if (safetyDecision?.kind === "proceed" && state.profile.systemic) {
+      updateProfile({
+        systemic: { ...state.profile.systemic, today_red_flags: safetyDecision.today_red_flags },
+      } as any);
+    }
+
     trackEvent("session_completed", { mode: "v2", exercises: exercises.length, duration: sessionDurationMinutes });
 
     if (user) {
@@ -458,6 +497,11 @@ export default function Workout() {
     setShowExitConfirm(false);
     navigate("/plan");
   };
+
+  // Pre-session safety guard (Prompt 5 Piece C): block before any session render
+  if (needsSafetyGuard && !safetyPassed) {
+    return <PreSessionSafetyGuard onDecision={setSafetyDecision} />;
+  }
 
   // No session generated
   if (!playableSession || exercises.length === 0) {

@@ -139,6 +139,7 @@ export default function OnboardingWizard() {
   const [durationSelected, setDurationSelected] = useState(false);
   const [showStartOverConfirm, setShowStartOverConfirm] = useState(false);
   const [isSystemicFlow, setIsSystemicFlow] = useState(false);
+  const [isFastTrackSystemic, setIsFastTrackSystemic] = useState(false);
   const [systemicConditionKey, setSystemicConditionKey] = useState<ConditionKey | null>(null);
   const [localIrritability, setLocalIrritability] = useState(2);
   const [safetyFlags, setSafetyFlags] = useState<string[]>([]);
@@ -421,6 +422,56 @@ export default function OnboardingWizard() {
     navigate("/plan");
   };
 
+  // ── Prompt 5 Piece B: Fast Track systemic completion ──
+  const handleFastTrackSystemicComplete = () => {
+    if (!systemicConditionKey) return;
+    updateProfile({
+      conditions: [systemicConditionKey],
+      sessionsPerWeek: 3,
+      minutesPerSession: 20,
+      practiceTime: "morning",
+      closingPreference: "savasana",
+      availableEquipment: ["mat"],
+      restrictions: [],
+      diagnoses: [],
+      diagnosticResult: { area: 'SYSTEMIC', primary: 'ST', secondary: null },
+      diagnosticArea: 'SYSTEMIC',
+      diagnosticProfile: 'ST',
+      assessment_type: "quick",
+      confidence_level: "low",
+      fast_track_session_count: 0,
+      systemic: {
+        severity: sysSeverity as Exclude<typeof sysSeverity, "">,
+        triggers: [], // Fast Track skips Q2
+        recovery_pattern: sysRecoveryPattern as Exclude<typeof sysRecoveryPattern, "">,
+        today_state: sysTodayState as Exclude<typeof sysTodayState, "">,
+        today_red_flags: sysTodayRedFlags,
+        tier_history: [],
+        pem_state: "normal",
+        prev_session_at: undefined,
+        clean_streak: 0,
+      },
+    } as any);
+
+    const assessmentId = `assessment_${Date.now()}`;
+    const assessment: Assessment = {
+      id: assessmentId, createdAt: new Date().toISOString(), type: "generic",
+      data: { mainIssue: systemicConditionKey, pain: 5, limits: "", equipment: ["mat"], redFlags: [] },
+    };
+    updateState({
+      disclaimerAccepted: true,
+      onboardingCompleted: true,
+      assessments: [...state.assessments, assessment],
+      userProfile: [],
+      stage: 1,
+      session_count: 0,
+      experienceLevel: 'beginner',
+      sessionDuration: 20,
+    });
+    trackEvent("plan_generated", { condition: systemicConditionKey });
+    navigate("/plan");
+  };
+
   const handleNext = () => {
     if (step === 0 && selectedBodyZones.length > 0 && !isSystemicFlow) {
       setSelectedArea(selectedBodyZones[0]);
@@ -543,7 +594,7 @@ export default function OnboardingWizard() {
       {/* ── HEADER (logo + stepper + X in one row) ── */}
       <header className="shrink-0 z-50 w-full bg-background" style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
         <div className="flex items-center h-[56px] px-6 lg:px-[100px]">
-          {step > 0 || step === 10 ? (
+          {step > 0 || step === 10 || step === 11 ? (
             <button
               onClick={handleBack}
               className="flex items-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors p-2 -ml-2"
@@ -581,7 +632,7 @@ export default function OnboardingWizard() {
         className="flex-1 min-h-0 flex flex-col items-center overflow-y-auto overflow-x-hidden"
         style={{ maxWidth: "1100px", margin: "0 auto", width: "100%", padding: "0 24px 90px" }}
       >
-        {step >= 0 && step !== 1 && step !== 2 && step !== 6 && step !== 7 && step !== 8 && step !== 10 && !(step === 3 && isSystemicFlow) && (
+        {step >= 0 && step !== 1 && step !== 2 && step !== 6 && step !== 7 && step !== 8 && step !== 10 && step !== 11 && !(step === 3 && isSystemicFlow) && (
           <>
             <h1
               className="font-display text-foreground font-bold text-2xl text-center shrink-0"
@@ -727,6 +778,37 @@ export default function OnboardingWizard() {
                       </button>
                     ))}
                   </div>
+                  {/* Prompt 5 Piece B: Fast Track systemic entry */}
+                  <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground mt-6 mb-2 self-start">Whole-Body & Systemic</p>
+                  <div className="w-full flex flex-col gap-2">
+                    {[
+                      { key: "menopause" as ConditionKey, label: "Menopause & hormonal changes" },
+                      { key: "long_covid" as ConditionKey, label: "Long COVID / post-viral fatigue" },
+                      { key: "fibromyalgia" as ConditionKey, label: "Fibromyalgia" },
+                      { key: "chronic_fatigue_syndrome" as ConditionKey, label: "Chronic fatigue (ME/CFS)" },
+                      { key: "stress_anxiety" as ConditionKey, label: "Stress & anxiety" },
+                    ].map(c => (
+                      <button
+                        key={c.key}
+                        onClick={() => {
+                          setIsFastTrackSystemic(true);
+                          setIsSystemicFlow(true);
+                          setSystemicConditionKey(c.key);
+                          setSelected([c.key]);
+                          setSystemicStep(1);
+                          setSysSeverity("");
+                          setSysTriggers([]);
+                          setSysRecoveryPattern("");
+                          setSysTodayState("");
+                          setSysTodayRedFlags([]);
+                          setStep(11);
+                        }}
+                        className={optionBtn(false)}
+                      >
+                        <span className="text-sm font-medium text-foreground">{c.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </>
               )}
               {qaStep === 2 && (
@@ -791,6 +873,129 @@ export default function OnboardingWizard() {
               <div className="w-full mt-8">
                 <Button variant="hero" size="lg" className="w-full rounded-full" onClick={handleQANext} disabled={!canContinueQA()}>
                   {qaStep === 5 ? "Let's go →" : "Continue →"}
+                </Button>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* ═══ STEP 11: Fast Track systemic — 4 questions (Q1, Q3, Q4, Q5) ═══ */}
+        {step === 11 && isFastTrackSystemic && (() => {
+          // Map sub-step (1..4) → question kind: 1=Q1 severity, 2=Q3 recovery, 3=Q4 today, 4=Q5 redflags
+          const subStep = systemicStep > 4 ? 4 : systemicStep;
+          const Q1_OPTIONS = [
+            { value: "mild", label: "Mild" },
+            { value: "moderate", label: "Moderate" },
+            { value: "significant", label: "Significant" },
+            { value: "severe", label: "Severe" },
+          ] as const;
+          const Q3_OPTIONS = [
+            { value: "better", label: "Better" },
+            { value: "same_day", label: "Same-day recovery" },
+            { value: "worse_later", label: "Worse later" },
+            { value: "crash", label: "Crash" },
+          ] as const;
+          const Q4_OPTIONS = [
+            { value: "better", label: "Better" },
+            { value: "same", label: "Same" },
+            { value: "worse", label: "Worse" },
+            { value: "much_worse", label: "Much worse" },
+          ] as const;
+          const Q5_OPTIONS = [
+            { value: "dizziness", label: "Dizziness" },
+            { value: "sob", label: "Shortness of breath" },
+            { value: "chest_pain", label: "Chest pain" },
+            { value: "flare", label: "Flare" },
+          ] as const;
+          const TITLES = [
+            "How much do your symptoms affect your daily life?",
+            "How do you feel after activity?",
+            "How does your body feel today compared to usual?",
+            "Are you experiencing any of the following today?",
+          ];
+          const HELPER = [null, null, null, "Select all that apply — leave empty if none"];
+          const canContinue = () => {
+            if (subStep === 1) return !!sysSeverity;
+            if (subStep === 2) return !!sysRecoveryPattern;
+            if (subStep === 3) return !!sysTodayState;
+            if (subStep === 4) return Array.isArray(sysTodayRedFlags);
+            return false;
+          };
+          const onNext = () => {
+            if (subStep < 4) setSystemicStep(subStep + 1);
+            else handleFastTrackSystemicComplete();
+          };
+          const onBack = () => {
+            if (subStep > 1) setSystemicStep(subStep - 1);
+            else { setStep(10); setIsFastTrackSystemic(false); setIsSystemicFlow(false); setSystemicConditionKey(null); }
+          };
+          const toggleArr = <T extends string>(arr: T[], v: T): T[] =>
+            arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v];
+          const optBtn = (sel: boolean) =>
+            `w-full p-3.5 rounded-[12px] border-2 text-left transition-all ${sel ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/40"}`;
+          return (
+            <div className="w-full flex flex-col items-center" style={{ marginTop: "24px", maxWidth: "560px" }}>
+              <div className="w-full flex items-center justify-center gap-2 mb-4">
+                <span className="text-xs text-muted-foreground font-medium">Question {subStep} of 4</span>
+                <div className="w-24 h-1.5 rounded-full bg-foreground/10 overflow-hidden">
+                  <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(subStep / 4) * 100}%` }} />
+                </div>
+              </div>
+              <h2 className="font-display text-foreground font-bold text-xl text-center mb-2">{TITLES[subStep - 1]}</h2>
+              {HELPER[subStep - 1] && <p className="text-muted-foreground text-center text-sm mb-5">{HELPER[subStep - 1]}</p>}
+              {!HELPER[subStep - 1] && <div className="mb-3" />}
+
+              {subStep === 1 && (
+                <div className="w-full flex flex-col gap-2">
+                  {Q1_OPTIONS.map(o => (
+                    <button key={o.value} onClick={() => setSysSeverity(o.value)} className={optBtn(sysSeverity === o.value)}>
+                      <span className="text-sm font-medium text-foreground">{o.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {subStep === 2 && (
+                <div className="w-full flex flex-col gap-2">
+                  {Q3_OPTIONS.map(o => (
+                    <button key={o.value} onClick={() => setSysRecoveryPattern(o.value)} className={optBtn(sysRecoveryPattern === o.value)}>
+                      <span className="text-sm font-medium text-foreground">{o.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {subStep === 3 && (
+                <div className="w-full flex flex-col gap-2">
+                  {Q4_OPTIONS.map(o => (
+                    <button key={o.value} onClick={() => setSysTodayState(o.value)} className={optBtn(sysTodayState === o.value)}>
+                      <span className="text-sm font-medium text-foreground">{o.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {subStep === 4 && (
+                <div className="w-full flex flex-col gap-2">
+                  {Q5_OPTIONS.map(o => {
+                    const isChecked = sysTodayRedFlags.includes(o.value);
+                    return (
+                      <button
+                        key={o.value}
+                        onClick={() => setSysTodayRedFlags(prev => toggleArr(prev, o.value))}
+                        className={`w-full flex items-center gap-3 p-3.5 rounded-[12px] border-2 text-left transition-all ${isChecked ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/40"}`}
+                      >
+                        <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${isChecked ? "border-primary bg-primary" : "border-border bg-card"}`}>
+                          {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
+                        </div>
+                        <span className="text-sm font-medium text-foreground">{o.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              <div className="w-full flex items-center gap-3 mt-6">
+                <Button variant="outline" size="lg" className="flex-1 rounded-full" onClick={onBack}>Back</Button>
+                <Button variant="hero" size="lg" className="flex-1 rounded-full" onClick={onNext} disabled={!canContinue()}>
+                  {subStep === 4 ? "Let's go →" : "Next →"}
                 </Button>
               </div>
             </div>
@@ -1485,7 +1690,7 @@ export default function OnboardingWizard() {
       </div>
 
       {/* ── FIXED BOTTOM BUTTONS ── */}
-      {((step !== -1 && step !== 10 && step !== 1 && step !== 0 && step < 6 && !(step === 3 && isSystemicFlow)) || step === 7 || step === 8) && (
+      {((step !== -1 && step !== 10 && step !== 11 && step !== 1 && step !== 0 && step < 6 && !(step === 3 && isSystemicFlow)) || step === 7 || step === 8) && (
         <div
           className="fixed bottom-0 inset-x-0 z-40 pointer-events-none bg-background"
           style={{ paddingBottom: "40px", paddingTop: "16px", boxShadow: "0 -2px 8px rgba(0,0,0,0.04)" }}

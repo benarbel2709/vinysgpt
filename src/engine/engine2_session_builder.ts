@@ -12,6 +12,7 @@ import {
   type RefinedModelParams, type ConfidenceLevel, type AssessmentType,
 } from './tier';
 import { PEM_DOWNGRADE } from './pem';
+import { applyCombinedPath } from './combined';
 
 export type ProgressionStage = 1 | 2 | 3;
 export type ExperienceLevel = 'beginner' | 'intermediate' | 'advanced';
@@ -367,17 +368,17 @@ export function buildSession(request: SessionRequest): E2Result {
     load_ceil = Math.floor(load_ceil * systemicMods.loadCeilingMultiplier);
   }
 
-  // ── v2.1 Tier derivation (systemic flow with full systemic profile) ──
-  // Pipeline (Prompt 2 + Prompt 3):
-  //   1) baseModel = MODEL_PARAMS[TIER_TO_MODEL[deriveTier(systemic)]]
-  //   2) refined          = applyTriggerRefinements(baseModel, systemic.triggers)
-  //   3) afterConfidence  = applyConfidenceCaps(refined, profile.confidence_level)
-  //   4) afterAssessment  = applyAssessmentTypeCaps(afterConfidence, profile.assessment_type, profile.systemic !== null)
-  //   5) Use afterAssessment.* as final session-shape inputs.
+  // ── v2.1 Tier derivation (systemic profile present — Prompt 5: combined OK) ──
+  // Pipeline (Prompt 2 + Prompt 3 + Prompt 5):
+  //   - When profile.systemic !== null we ALWAYS derive a systemic RefinedModelParams,
+  //     even if a body-area diagnosis is also present.
+  //   - When body-area is also present (combined path): synthesize a body-area
+  //     RefinedModelParams from the current body-area-alone caps and merge with
+  //     applyCombinedPath() — most conservative wins, suppress union, allowed
+  //     intersection. Confidence + assessment caps run AFTER the merge.
+  //   - When systemic-only: behave as before (single tier-driven build).
   let systemicBuild: SystemicBuildInfo | undefined;
-  if (isSystemicFlow && systemic) {
-    // Prompt 4: PEM cross-session state. If pem_state === "downgraded",
-    // downgrade tier by one level AND force model = "restore" regardless of tier.
+  if (systemic) {
     const rawTier = deriveTier(systemic);
     const effectiveTier: Tier = systemic.pem_state === "downgraded"
       ? PEM_DOWNGRADE[rawTier]
@@ -388,12 +389,36 @@ export function buildSession(request: SessionRequest): E2Result {
       : TIER_TO_MODEL[effectiveTier];
     const model = sessionModel;
     const baseModel = MODEL_PARAMS[sessionModel];
-    const step2 = applyTriggerRefinements(baseModel, systemic.triggers);
+    const systemicAfterTriggers = applyTriggerRefinements(baseModel, systemic.triggers);
+
+    let merged: RefinedModelParams = systemicAfterTriggers;
+
+    // ── Prompt 5 Piece A: combined arbitration when body-area is also present ──
+    const hasBodyArea = user_profile.length > 0;
+    if (hasBodyArea) {
+      // Synthesize a body-area RefinedModelParams from the body-area-alone caps
+      // computed above (load_ceil already includes safety/age/secondary/quick adjusts).
+      // lengthMin proxy = duration_minutes; densityMax proxy = 0.80 (default body cap).
+      const bodyLoadCeilingNorm = Math.max(
+        0.05,
+        Math.min(1, load_ceil / Math.max(1, target * LOAD_CEILING_MULTIPLIER[experience_level])),
+      );
+      const bodyParams: RefinedModelParams = {
+        lengthMin: duration_minutes,
+        densityMax: 0.80,
+        loadCeiling: bodyLoadCeilingNorm,
+        allowedCategories: systemicAfterTriggers.allowedCategories, // body-area imposes no category whitelist
+        suppressTags: new Set<string>(),
+        boostTags: new Set<string>(),
+      };
+      merged = applyCombinedPath(bodyParams, systemicAfterTriggers);
+    }
+
     const step3 = confidence_level
-      ? applyConfidenceCaps(step2, confidence_level)
-      : step2;
+      ? applyConfidenceCaps(merged, confidence_level)
+      : merged;
     const step4 = assessment_type
-      ? applyAssessmentTypeCaps(step3, assessment_type, systemic !== null)
+      ? applyAssessmentTypeCaps(step3, assessment_type, true)
       : step3;
     const refined = step4;
     systemicBuild = { tier, model, refined };
