@@ -156,6 +156,13 @@ export default function OnboardingWizard() {
   const [qaGoal, setQaGoal] = useState<string>("");
   const [qaFlags, setQaFlags] = useState<string[]>([]);
   const [qaStep, setQaStep] = useState(1); // 1-5
+  // Unified systemic 5-question block (v2.1)
+  const [systemicStep, setSystemicStep] = useState<number>(1); // 1..5
+  const [sysSeverity, setSysSeverity] = useState<number>(0); // 1..5
+  const [sysTriggers, setSysTriggers] = useState<string[]>([]);
+  const [sysRecoveryPattern, setSysRecoveryPattern] = useState<"" | "fast" | "moderate" | "slow" | "pem">("");
+  const [sysTodayState, setSysTodayState] = useState<"" | "good" | "baseline" | "low" | "flare">("");
+  const [sysTodayRedFlags, setSysTodayRedFlags] = useState<string[]>([]);
 
   const toggle = useCallback((c: ConditionKey) => {
     setSelected((p) => (p.includes(c) ? p.filter((x) => x !== c) : [...p, c]));
