@@ -331,6 +331,9 @@ export function createSession(input: SessionServiceInput): PlayableSession {
     quick_modifiers: input.quick_modifiers,
     safety_flags: input.safety_flags,
     systemic: input.systemic ?? null,
+    confidence_level: input.confidence_level,
+    assessment_type: input.assessment_type,
+    prior_session_pose_ids: input.prior_session_pose_ids ?? [],
   };
 
   const result: FullSessionResult = generateSession(request);
