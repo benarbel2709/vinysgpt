@@ -11,6 +11,7 @@ import {
   applyTriggerRefinements, applyConfidenceCaps, applyAssessmentTypeCaps,
   type RefinedModelParams, type ConfidenceLevel, type AssessmentType,
 } from './tier';
+import { PEM_DOWNGRADE } from './pem';
 
 export type ProgressionStage = 1 | 2 | 3;
 export type ExperienceLevel = 'beginner' | 'intermediate' | 'advanced';
