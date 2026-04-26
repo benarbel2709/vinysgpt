@@ -879,6 +879,129 @@ export default function OnboardingWizard() {
           );
         })()}
 
+        {/* ═══ STEP 11: Fast Track systemic — 4 questions (Q1, Q3, Q4, Q5) ═══ */}
+        {step === 11 && isFastTrackSystemic && (() => {
+          // Map sub-step (1..4) → question kind: 1=Q1 severity, 2=Q3 recovery, 3=Q4 today, 4=Q5 redflags
+          const subStep = systemicStep > 4 ? 4 : systemicStep;
+          const Q1_OPTIONS = [
+            { value: "mild", label: "Mild" },
+            { value: "moderate", label: "Moderate" },
+            { value: "significant", label: "Significant" },
+            { value: "severe", label: "Severe" },
+          ] as const;
+          const Q3_OPTIONS = [
+            { value: "better", label: "Better" },
+            { value: "same_day", label: "Same-day recovery" },
+            { value: "worse_later", label: "Worse later" },
+            { value: "crash", label: "Crash" },
+          ] as const;
+          const Q4_OPTIONS = [
+            { value: "better", label: "Better" },
+            { value: "same", label: "Same" },
+            { value: "worse", label: "Worse" },
+            { value: "much_worse", label: "Much worse" },
+          ] as const;
+          const Q5_OPTIONS = [
+            { value: "dizziness", label: "Dizziness" },
+            { value: "sob", label: "Shortness of breath" },
+            { value: "chest_pain", label: "Chest pain" },
+            { value: "flare", label: "Flare" },
+          ] as const;
+          const TITLES = [
+            "How much do your symptoms affect your daily life?",
+            "How do you feel after activity?",
+            "How does your body feel today compared to usual?",
+            "Are you experiencing any of the following today?",
+          ];
+          const HELPER = [null, null, null, "Select all that apply — leave empty if none"];
+          const canContinue = () => {
+            if (subStep === 1) return !!sysSeverity;
+            if (subStep === 2) return !!sysRecoveryPattern;
+            if (subStep === 3) return !!sysTodayState;
+            if (subStep === 4) return Array.isArray(sysTodayRedFlags);
+            return false;
+          };
+          const onNext = () => {
+            if (subStep < 4) setSystemicStep(subStep + 1);
+            else handleFastTrackSystemicComplete();
+          };
+          const onBack = () => {
+            if (subStep > 1) setSystemicStep(subStep - 1);
+            else { setStep(10); setIsFastTrackSystemic(false); setIsSystemicFlow(false); setSystemicConditionKey(null); }
+          };
+          const toggleArr = <T extends string>(arr: T[], v: T): T[] =>
+            arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v];
+          const optBtn = (sel: boolean) =>
+            `w-full p-3.5 rounded-[12px] border-2 text-left transition-all ${sel ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/40"}`;
+          return (
+            <div className="w-full flex flex-col items-center" style={{ marginTop: "24px", maxWidth: "560px" }}>
+              <div className="w-full flex items-center justify-center gap-2 mb-4">
+                <span className="text-xs text-muted-foreground font-medium">Question {subStep} of 4</span>
+                <div className="w-24 h-1.5 rounded-full bg-foreground/10 overflow-hidden">
+                  <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(subStep / 4) * 100}%` }} />
+                </div>
+              </div>
+              <h2 className="font-display text-foreground font-bold text-xl text-center mb-2">{TITLES[subStep - 1]}</h2>
+              {HELPER[subStep - 1] && <p className="text-muted-foreground text-center text-sm mb-5">{HELPER[subStep - 1]}</p>}
+              {!HELPER[subStep - 1] && <div className="mb-3" />}
+
+              {subStep === 1 && (
+                <div className="w-full flex flex-col gap-2">
+                  {Q1_OPTIONS.map(o => (
+                    <button key={o.value} onClick={() => setSysSeverity(o.value)} className={optBtn(sysSeverity === o.value)}>
+                      <span className="text-sm font-medium text-foreground">{o.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {subStep === 2 && (
+                <div className="w-full flex flex-col gap-2">
+                  {Q3_OPTIONS.map(o => (
+                    <button key={o.value} onClick={() => setSysRecoveryPattern(o.value)} className={optBtn(sysRecoveryPattern === o.value)}>
+                      <span className="text-sm font-medium text-foreground">{o.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {subStep === 3 && (
+                <div className="w-full flex flex-col gap-2">
+                  {Q4_OPTIONS.map(o => (
+                    <button key={o.value} onClick={() => setSysTodayState(o.value)} className={optBtn(sysTodayState === o.value)}>
+                      <span className="text-sm font-medium text-foreground">{o.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {subStep === 4 && (
+                <div className="w-full flex flex-col gap-2">
+                  {Q5_OPTIONS.map(o => {
+                    const isChecked = sysTodayRedFlags.includes(o.value);
+                    return (
+                      <button
+                        key={o.value}
+                        onClick={() => setSysTodayRedFlags(prev => toggleArr(prev, o.value))}
+                        className={`w-full flex items-center gap-3 p-3.5 rounded-[12px] border-2 text-left transition-all ${isChecked ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/40"}`}
+                      >
+                        <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${isChecked ? "border-primary bg-primary" : "border-border bg-card"}`}>
+                          {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
+                        </div>
+                        <span className="text-sm font-medium text-foreground">{o.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              <div className="w-full flex items-center gap-3 mt-6">
+                <Button variant="outline" size="lg" className="flex-1 rounded-full" onClick={onBack}>Back</Button>
+                <Button variant="hero" size="lg" className="flex-1 rounded-full" onClick={onNext} disabled={!canContinue()}>
+                  {subStep === 4 ? "Let's go →" : "Next →"}
+                </Button>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* ═══ STEP 0: Card-based body area + systemic selector ═══ */}
         {step === 0 && (() => {
           const SYSTEMIC_CONDITIONS = [
