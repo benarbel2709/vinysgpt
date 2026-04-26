@@ -187,6 +187,7 @@ export const DEFAULT_APP_STATE: AppState = {
     energyLevel: "medium",
     closingPreference: "savasana",
     fast_track_session_count: 0,
+    systemic: null,
   },
   assessments: [],
   exerciseLibrary: [],
