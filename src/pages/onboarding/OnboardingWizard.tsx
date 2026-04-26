@@ -1015,211 +1015,199 @@ export default function OnboardingWizard() {
           );
         })()}
 
-        {/* ═══ STEP 3: Condition-specific clinical questions (systemic) ═══ */}
-        {step === 3 && isSystemicFlow && (
-          <div className="w-full text-left" style={{ marginTop: "24px", maxWidth: "560px" }}>
+        {/* ═══ STEP 3: Unified systemic 5-question flow (Vinys Pipeline v2.1) ═══
+            Same 5 questions for all systemic conditions. Enum values are
+            clinical-lead authored — DO NOT modify the stored string values. */}
+        {step === 3 && isSystemicFlow && (() => {
+          const Q1_OPTIONS: Array<{ value: "mild" | "moderate" | "significant" | "severe"; label: string }> = [
+            { value: "mild", label: "Mild" },
+            { value: "moderate", label: "Moderate" },
+            { value: "significant", label: "Significant" },
+            { value: "severe", label: "Severe" },
+          ];
+          const Q2_OPTIONS: Array<{ value: "effort" | "duration" | "stress" | "poor_sleep" | "upright" | "breathing" | "sensory"; label: string }> = [
+            { value: "effort", label: "Effort" },
+            { value: "duration", label: "Duration" },
+            { value: "stress", label: "Stress" },
+            { value: "poor_sleep", label: "Poor sleep" },
+            { value: "upright", label: "Upright" },
+            { value: "breathing", label: "Breathing" },
+            { value: "sensory", label: "Sensory" },
+          ];
+          const Q3_OPTIONS: Array<{ value: "better" | "same_day" | "worse_later" | "crash"; label: string }> = [
+            { value: "better", label: "Better" },
+            { value: "same_day", label: "Same-day recovery" },
+            { value: "worse_later", label: "Worse later" },
+            { value: "crash", label: "Crash" },
+          ];
+          const Q4_OPTIONS: Array<{ value: "better" | "same" | "worse" | "much_worse"; label: string }> = [
+            { value: "better", label: "Better" },
+            { value: "same", label: "Same" },
+            { value: "worse", label: "Worse" },
+            { value: "much_worse", label: "Much worse" },
+          ];
+          const Q5_OPTIONS: Array<{ value: "dizziness" | "sob" | "chest_pain" | "flare"; label: string }> = [
+            { value: "dizziness", label: "Dizziness" },
+            { value: "sob", label: "Shortness of breath" },
+            { value: "chest_pain", label: "Chest pain" },
+            { value: "flare", label: "Flare" },
+          ];
 
-            {/* ── MENOPAUSE ── */}
-            {systemicConditionKey === "menopause" && (
-              <>
-                
-                <div className="flex flex-col gap-2 mb-8">
-                  {([
-                    { value: "hot-flushes", label: "Hot flushes & temperature regulation" },
-                    { value: "joint-pain", label: "Joint stiffness & pain" },
-                    { value: "mood-sleep", label: "Mood & sleep" },
-                    { value: "low-energy", label: "Low energy & fatigue" },
-                  ] as const).map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={() => setMenopauseSymptom(opt.value)}
-                      className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${menopauseSymptom === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
-                    >
-                      <span className="text-sm font-medium text-foreground">{opt.label}</span>
+          const Q_TITLES = [
+            "How much do your symptoms affect your daily life?",
+            "What makes your symptoms worse?",
+            "How do you feel after activity?",
+            "How does your body feel today compared to usual?",
+            "Are you experiencing any of the following today?",
+          ];
+          const Q_HELPER = [
+            null,
+            "Select all that apply",
+            null,
+            null,
+            "Select all that apply — leave empty if none",
+          ];
+
+          const canContinueSys = () => {
+            if (systemicStep === 1) return !!sysSeverity;
+            if (systemicStep === 2) return Array.isArray(sysTriggers); // 0+ allowed
+            if (systemicStep === 3) return !!sysRecoveryPattern;
+            if (systemicStep === 4) return !!sysTodayState;
+            if (systemicStep === 5) return Array.isArray(sysTodayRedFlags); // 0+ allowed
+            return false;
+          };
+
+          const handleSysNext = () => {
+            if (systemicStep < 5) setSystemicStep(systemicStep + 1);
+            else handleNext(); // proceed to next main step (4)
+          };
+          const handleSysBack = () => {
+            if (systemicStep > 1) setSystemicStep(systemicStep - 1);
+            else handleBack();
+          };
+
+          const toggleArr = <T extends string>(arr: T[], v: T): T[] =>
+            arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v];
+
+          const optionBtn = (selected: boolean) =>
+            `w-full p-3.5 rounded-[12px] border-2 text-left transition-all ${selected ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`;
+
+          return (
+            <div className="w-full flex flex-col items-center" style={{ marginTop: "24px", maxWidth: "560px" }}>
+              {/* Sub-step progress */}
+              <div className="w-full flex items-center justify-center gap-2 mb-4">
+                <span className="text-xs text-muted-foreground font-medium">Question {systemicStep} of 5</span>
+                <div className="w-24 h-1.5 rounded-full bg-foreground/10 overflow-hidden">
+                  <div className="h-full rounded-full bg-secondary transition-all" style={{ width: `${(systemicStep / 5) * 100}%` }} />
+                </div>
+              </div>
+
+              <h2 className="font-display text-foreground font-bold text-xl text-center mb-2">
+                {Q_TITLES[systemicStep - 1]}
+              </h2>
+              {Q_HELPER[systemicStep - 1] && (
+                <p className="text-muted-foreground text-center text-sm mb-5">{Q_HELPER[systemicStep - 1]}</p>
+              )}
+              {!Q_HELPER[systemicStep - 1] && <div className="mb-3" />}
+
+              {/* Q1: Severity (single-select) */}
+              {systemicStep === 1 && (
+                <div className="w-full flex flex-col gap-2">
+                  {Q1_OPTIONS.map(o => (
+                    <button key={o.value} onClick={() => setSysSeverity(o.value)} className={optionBtn(sysSeverity === o.value)}>
+                      <span className="text-sm font-medium text-foreground">{o.label}</span>
                     </button>
                   ))}
                 </div>
+              )}
 
-                {/* Age group — REQUIRED for menopause */}
-                <p className="text-sm font-semibold text-foreground mb-3">What is your age group?</p>
-                <div className="flex flex-wrap gap-2">
-                  {AGE_GROUP_OPTIONS.map((ag) => (
-                    <button
-                      key={ag.value}
-                      onClick={() => setAgeGroup(prev => prev === ag.value ? "" : ag.value)}
-                      className={`px-4 py-2 rounded-[8px] border-2 text-sm font-medium transition-all ${ageGroup === ag.value ? "border-secondary bg-secondary/10 text-foreground" : "border-border bg-card text-foreground hover:border-secondary/40"}`}
-                    >
-                      {ag.label}
+              {/* Q2: Triggers (multi-select) */}
+              {systemicStep === 2 && (
+                <div className="w-full flex flex-col gap-2">
+                  {Q2_OPTIONS.map(o => {
+                    const isChecked = sysTriggers.includes(o.value);
+                    return (
+                      <button
+                        key={o.value}
+                        onClick={() => setSysTriggers(prev => toggleArr(prev, o.value))}
+                        className={`w-full flex items-center gap-3 p-3.5 rounded-[12px] border-2 text-left transition-all ${isChecked ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
+                      >
+                        <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${isChecked ? "border-secondary bg-secondary" : "border-border bg-card"}`}>
+                          {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
+                        </div>
+                        <span className="text-sm font-medium text-foreground">{o.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Q3: Recovery pattern (single-select) */}
+              {systemicStep === 3 && (
+                <div className="w-full flex flex-col gap-2">
+                  {Q3_OPTIONS.map(o => (
+                    <button key={o.value} onClick={() => setSysRecoveryPattern(o.value)} className={optionBtn(sysRecoveryPattern === o.value)}>
+                      <span className="text-sm font-medium text-foreground">{o.label}</span>
                     </button>
                   ))}
                 </div>
-              </>
-            )}
+              )}
 
-            {/* ── FIBROMYALGIA ── */}
-            {systemicConditionKey === "fibromyalgia" && (
-              <>
-                <p className="text-sm text-muted-foreground mb-4">This helps us calibrate the right intensity for today.</p>
-                <div className="flex flex-col gap-2 mb-8">
-                  {([
-                    { value: "flare-high", label: "Much higher — definite flare" },
-                    { value: "flare-slight", label: "Slightly higher than usual" },
-                    { value: "baseline", label: "About my usual level" },
-                    { value: "good-day", label: "Lower than usual — good day" },
-                  ] as const).map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={() => setFibroFlareState(opt.value)}
-                      className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${fibroFlareState === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
-                    >
-                      <span className="text-sm font-medium text-foreground">{opt.label}</span>
+              {/* Q4: Today state (single-select) */}
+              {systemicStep === 4 && (
+                <div className="w-full flex flex-col gap-2">
+                  {Q4_OPTIONS.map(o => (
+                    <button key={o.value} onClick={() => setSysTodayState(o.value)} className={optionBtn(sysTodayState === o.value)}>
+                      <span className="text-sm font-medium text-foreground">{o.label}</span>
                     </button>
                   ))}
                 </div>
+              )}
 
-                {/* Trajectory question */}
-                <div className="mb-8">
-                  <p className="text-sm font-semibold text-foreground mb-3">How has your condition been lately?</p>
-                  <div className="flex flex-col gap-2">
-                    {([
-                      { value: 1, label: "I'm actually improving", desc: "Feeling better — ready for a fuller practice" },
-                      { value: 3, label: "About the same", desc: "Steady — keep it balanced" },
-                      { value: 5, label: "I'm dipping", desc: "Symptoms are flaring — I need the gentlest approach" },
-                    ] as const).map((opt) => (
+              {/* Q5: Today red flags (multi-select, may be empty) */}
+              {systemicStep === 5 && (
+                <div className="w-full flex flex-col gap-2">
+                  {Q5_OPTIONS.map(o => {
+                    const isChecked = sysTodayRedFlags.includes(o.value);
+                    return (
                       <button
-                        key={opt.value}
-                        onClick={() => setLocalIrritability(opt.value)}
-                        className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${localIrritability === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
+                        key={o.value}
+                        onClick={() => setSysTodayRedFlags(prev => toggleArr(prev, o.value))}
+                        className={`w-full flex items-center gap-3 p-3.5 rounded-[12px] border-2 text-left transition-all ${isChecked ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
                       >
-                        <span className="font-semibold text-sm text-foreground">{opt.label}</span>
-                        <span className="text-xs text-muted-foreground ml-2">{opt.desc}</span>
+                        <div className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all ${isChecked ? "border-secondary bg-secondary" : "border-border bg-card"}`}>
+                          {isChecked && <Check size={12} className="text-white" strokeWidth={3} />}
+                        </div>
+                        <span className="text-sm font-medium text-foreground">{o.label}</span>
                       </button>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
+              )}
 
-                {/* Age group (optional) */}
-                <div>
-                  <p className="text-sm font-semibold text-foreground mb-3">What is your age group? <span className="font-normal text-muted-foreground">(optional)</span></p>
-                  <div className="flex flex-wrap gap-2">
-                    {AGE_GROUP_OPTIONS.map((ag) => (
-                      <button
-                        key={ag.value}
-                        onClick={() => setAgeGroup(prev => prev === ag.value ? "" : ag.value)}
-                        className={`px-4 py-2 rounded-[8px] border-2 text-sm font-medium transition-all ${ageGroup === ag.value ? "border-secondary bg-secondary/10 text-foreground" : "border-border bg-card text-foreground hover:border-secondary/40"}`}
-                      >
-                        {ag.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* ── LONG COVID & ME/CFS (shared) ── */}
-            {(systemicConditionKey === "long_covid" || systemicConditionKey === "chronic_fatigue_syndrome") && (
-              <>
-                <p className="text-sm text-muted-foreground mb-4">We'll pace your practice based on your current capacity.</p>
-
-                <div className="mb-8">
-                  <p className="text-xs text-muted-foreground mb-3">Post-exertional symptoms often appear 12–48 hours after activity</p>
-                  <div className="flex flex-col gap-2">
-                    {([
-                      { value: "very-low", label: "Very low — mostly resting" },
-                      { value: "low", label: "Low — light activity only" },
-                      { value: "moderate", label: "Moderate — managed some tasks" },
-                      { value: "good", label: "Good — fairly active" },
-                    ] as const).map((opt) => (
-                      <button
-                        key={opt.value}
-                        onClick={() => setFatigueEnergyYesterday(opt.value)}
-                        className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${fatigueEnergyYesterday === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
-                      >
-                        <span className="text-sm font-medium text-foreground">{opt.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Trajectory question */}
-                <div className="mb-8">
-                  <p className="text-sm font-semibold text-foreground mb-3">How has your condition been lately?</p>
-                  <div className="flex flex-col gap-2">
-                    {([
-                      { value: 1, label: "I'm actually improving", desc: "Feeling better — ready for a fuller practice" },
-                      { value: 3, label: "About the same", desc: "Steady — keep it balanced" },
-                      { value: 5, label: "I'm dipping", desc: "Symptoms are flaring — I need the gentlest approach" },
-                    ] as const).map((opt) => (
-                      <button
-                        key={opt.value}
-                        onClick={() => setLocalIrritability(opt.value)}
-                        className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${localIrritability === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
-                      >
-                        <span className="font-semibold text-sm text-foreground">{opt.label}</span>
-                        <span className="text-xs text-muted-foreground ml-2">{opt.desc}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Age group (optional) */}
-                <div>
-                  <p className="text-sm font-semibold text-foreground mb-3">What is your age group? <span className="font-normal text-muted-foreground">(optional)</span></p>
-                  <div className="flex flex-wrap gap-2">
-                    {AGE_GROUP_OPTIONS.map((ag) => (
-                      <button
-                        key={ag.value}
-                        onClick={() => setAgeGroup(prev => prev === ag.value ? "" : ag.value)}
-                        className={`px-4 py-2 rounded-[8px] border-2 text-sm font-medium transition-all ${ageGroup === ag.value ? "border-secondary bg-secondary/10 text-foreground" : "border-border bg-card text-foreground hover:border-secondary/40"}`}
-                      >
-                        {ag.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* ── STRESS & ANXIETY ── */}
-            {systemicConditionKey === "stress_anxiety" && (
-              <>
-                <p className="text-sm text-muted-foreground mb-4">We'll match your practice to how your nervous system feels right now.</p>
-                <div className="flex flex-col gap-2 mb-8">
-                  {([
-                    { value: "wound-up", label: "Wound up or anxious" },
-                    { value: "depleted", label: "Exhausted or depleted" },
-                    { value: "mixed", label: "A mix of both" },
-                  ] as const).map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={() => setStressAnxietyState(opt.value)}
-                      className={`w-full p-3 rounded-[12px] border-2 text-left transition-all ${stressAnxietyState === opt.value ? "border-secondary bg-secondary/10" : "border-border bg-card hover:border-secondary/40"}`}
-                    >
-                      <span className="text-sm font-medium text-foreground">{opt.label}</span>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Age group (optional) */}
-                <div>
-                  <p className="text-sm font-semibold text-foreground mb-3">What is your age group? <span className="font-normal text-muted-foreground">(optional)</span></p>
-                  <div className="flex flex-wrap gap-2">
-                    {AGE_GROUP_OPTIONS.map((ag) => (
-                      <button
-                        key={ag.value}
-                        onClick={() => setAgeGroup(prev => prev === ag.value ? "" : ag.value)}
-                        className={`px-4 py-2 rounded-[8px] border-2 text-sm font-medium transition-all ${ageGroup === ag.value ? "border-secondary bg-secondary/10 text-foreground" : "border-border bg-card text-foreground hover:border-secondary/40"}`}
-                      >
-                        {ag.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-
-          </div>
-        )}
+              {/* Sub-step nav */}
+              <div className="w-full flex items-center gap-3 mt-6">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="flex-1 rounded-full"
+                  onClick={handleSysBack}
+                >
+                  Back
+                </Button>
+                <Button
+                  variant="hero"
+                  size="lg"
+                  className="flex-1 rounded-full"
+                  onClick={handleSysNext}
+                  disabled={!canContinueSys()}
+                >
+                  {systemicStep === 5 ? "Continue →" : "Next →"}
+                </Button>
+              </div>
+            </div>
+          );
+        })()}
         {step === 3 && !isSystemicFlow && (
           <div className="w-full text-center" style={{ marginTop: "40px", maxWidth: "560px" }}>
             {/* Age group question */}
