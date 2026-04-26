@@ -498,6 +498,11 @@ export default function Workout() {
     navigate("/plan");
   };
 
+  // Pre-session safety guard (Prompt 5 Piece C): block before any session render
+  if (needsSafetyGuard && !safetyPassed) {
+    return <PreSessionSafetyGuard onDecision={setSafetyDecision} />;
+  }
+
   // No session generated
   if (!playableSession || exercises.length === 0) {
     return (
