@@ -1490,16 +1490,7 @@ export default function OnboardingWizard() {
             <Button variant="outline" onClick={handleBack} className="text-base h-[35px] rounded-full px-5">
               ← {step === 0 ? "Home" : "Back"}
             </Button>
-            {step === 3 && isSystemicFlow ? (
-              <Button
-                variant="hero"
-                onClick={handleNext}
-                disabled={!canGoNext()}
-                className="text-base h-[35px] rounded-full px-5"
-              >
-                Continue →
-              </Button>
-            ) : step === 3 && !isSystemicFlow ? (
+            {step === 3 && !isSystemicFlow ? (
               <div className="flex items-center gap-3">
                 <button onClick={handleNext} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Skip for now
