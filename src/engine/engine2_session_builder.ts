@@ -356,6 +356,20 @@ export function buildSession(request: SessionRequest): E2Result {
     load_ceil = Math.floor(load_ceil * systemicMods.loadCeilingMultiplier);
   }
 
+  // ── v2.1 Tier derivation (systemic flow with full systemic profile) ──
+  let systemicBuild: SystemicBuildInfo | undefined;
+  if (isSystemicFlow && systemic) {
+    const tier = deriveTier(systemic);
+    const model = TIER_TO_MODEL[tier];
+    const baseModel = MODEL_PARAMS[model];
+    const refined = applyTriggerRefinements(baseModel, systemic.triggers);
+    systemicBuild = { tier, model, refined };
+    // Apply tier load ceiling as a multiplicative cap on existing load_ceil.
+    load_ceil = Math.max(1, Math.floor(load_ceil * refined.loadCeiling));
+    // Apply density max as a soft cap on target size relative to duration.
+    target = Math.max(3, Math.min(target, Math.ceil(target * refined.densityMax + 1)));
+  }
+
   const pool_size  = target * 3;
 
   const e1 = runEngine1(user_profile);
