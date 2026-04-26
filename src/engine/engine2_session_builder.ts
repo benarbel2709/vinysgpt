@@ -381,6 +381,53 @@ export function buildSession(request: SessionRequest): E2Result {
     candidate_pool = applyConditionSafetyFilters(candidate_pool, conditions);
   }
 
+  // ── v2.1 Tier-driven trigger refinements (suppress / boost / category filter) ──
+  if (systemicBuild) {
+    const { refined } = systemicBuild;
+    const allowedCats = new Set(refined.allowedCategories.map(c => c.toLowerCase()));
+    const suppress = refined.suppressTags;
+    const boost = refined.boostTags;
+
+    candidate_pool = candidate_pool.filter(p => {
+      const ex = p.exercise;
+      const tagBag = [
+        ex.movement_category,
+        ex.pose_family,
+        ex.movement_direction,
+        ex.load_type,
+        ...(ex.goal_tag || []),
+      ].map(s => String(s ?? '').toLowerCase());
+      // Drop poses whose tags include any suppressed tag
+      for (const sTag of suppress) {
+        if (tagBag.some(t => t.includes(sTag))) return false;
+      }
+      // Category filter (allowedCategories acts as a soft filter on movement_category proxy)
+      // We map model categories loosely to V2 movement_category names; only enforce when 'standing' suppression came in.
+      if (suppress.has('standing') && tagBag.some(t => t.includes('standing'))) return false;
+      return true;
+    });
+
+    // Boost candidates whose tags intersect boostTags
+    candidate_pool = candidate_pool.map(p => {
+      const ex = p.exercise;
+      const tagBag = [
+        ex.movement_category,
+        ex.pose_family,
+        ex.movement_direction,
+        ex.load_type,
+        ...(ex.goal_tag || []),
+      ].map(s => String(s ?? '').toLowerCase());
+      let bonus = 0;
+      for (const bTag of boost) {
+        if (tagBag.some(t => t.includes(bTag))) { bonus += 1.5; break; }
+      }
+      return bonus > 0 ? { ...p, clinical_score: p.clinical_score + bonus } : p;
+    });
+    candidate_pool.sort((a, b) => b.clinical_score !== a.clinical_score
+      ? b.clinical_score - a.clinical_score
+      : (a.var_rank ?? 99) - (b.var_rank ?? 99));
+  }
+
   const guaranteedPool = isSystemicFlow ? candidate_pool : e1.eligible_pool;
 
   // ── PREG: exclude prone exercises ──────────────
