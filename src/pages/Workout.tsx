@@ -175,7 +175,13 @@ export default function Workout() {
           safety_flags: qa.safety_flags || [],
         };
       } else {
-        input = buildSessionInput({ ...(state.profile as any), systemic: state.profile.systemic });
+        input = buildSessionInput({
+          ...(state.profile as any),
+          systemic: state.profile.systemic,
+          confidence_level: state.profile.confidence_level,
+          assessment_type: state.profile.assessment_type,
+          lastSessionPoseIds: state.profile.lastSessionPoseIds ?? [],
+        });
       }
       return createSession(input);
     } catch (err) {
