@@ -191,9 +191,21 @@ export default function Workout() {
           safety_flags: qa.safety_flags || [],
         };
       } else {
+        // Apply pre-session safety overrides (Prompt 5 Piece C):
+        // - write today_red_flags from this morning's Q5
+        // - if flare-restorative override, force a restore-flavoured systemic profile
+        let sysForBuild = state.profile.systemic;
+        if (sysForBuild && safetyDecision?.kind === "proceed") {
+          sysForBuild = { ...sysForBuild, today_red_flags: safetyDecision.today_red_flags };
+          if (safetyDecision.restorativeOverride) {
+            // Force tier=low, model=restore by setting today_state=much_worse
+            // (deriveTier caps at "low") — keeps enum-driven derivation intact.
+            sysForBuild = { ...sysForBuild, today_state: "much_worse" };
+          }
+        }
         input = buildSessionInput({
           ...(state.profile as any),
-          systemic: state.profile.systemic,
+          systemic: sysForBuild,
           confidence_level: state.profile.confidence_level,
           assessment_type: state.profile.assessment_type,
           lastSessionPoseIds: state.profile.lastSessionPoseIds ?? [],
@@ -204,7 +216,7 @@ export default function Workout() {
       console.error("[Workout] Failed to generate V2 session:", err);
       return null;
     }
-  }, []); // Only generate once on mount
+  }, [safetyDecision]); // re-build when safety decision changes
 
   // ─── v2.1 Append tier to systemic.tier_history (cap 50) on each systemic build ───
   useEffect(() => {
