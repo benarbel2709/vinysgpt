@@ -19,6 +19,7 @@ import { trackEvent } from "@/lib/analytics";
 import universalVideo from "@/assets/exercises/universal-fallback.mp4";
 import ExerciseAnimationV8 from "@/components/animations/ExerciseAnimationV8";
 import type { SessionPhase } from "@/engine/engine3_sequencer";
+import { pemReducer } from "@/engine/pem";
 
 /** Phase-coloured gradient backgrounds */
 function getPhaseGradient(phase: SessionPhase): string {
@@ -421,6 +422,19 @@ export default function Workout() {
         pain_before: painBefore, pain_after: painAfter,
         fatigue_before: fatigueBefore, fatigue_after: fatigueAfter,
       });
+    }
+
+    // ─── v2.1 Prompt 4: PEM cross-session reducer ────────────────────────
+    // TODO(post-session check-in): once the app records recovery_pattern +
+    // today_state per session, replace the fallback below with those values.
+    const sys = state.profile.systemic;
+    if (sys) {
+      const nextSys = pemReducer(sys, {
+        recovery_pattern: sys.recovery_pattern,
+        today_state: sys.today_state,
+        completed_at: new Date().toISOString(),
+      });
+      updateProfile({ systemic: nextSys });
     }
 
     trackEvent("checkin_completed", { sessionId: sessionId || "v2_ondemand" });

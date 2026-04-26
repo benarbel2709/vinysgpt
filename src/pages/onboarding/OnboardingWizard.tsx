@@ -311,6 +311,8 @@ export default function OnboardingWizard() {
           today_red_flags: sysTodayRedFlags,
           tier_history: [],
           pem_state: "normal",
+          prev_session_at: undefined,
+          clean_streak: 0,
         },
       } as any);
     } else {

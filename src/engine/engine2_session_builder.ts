@@ -11,6 +11,7 @@ import {
   applyTriggerRefinements, applyConfidenceCaps, applyAssessmentTypeCaps,
   type RefinedModelParams, type ConfidenceLevel, type AssessmentType,
 } from './tier';
+import { PEM_DOWNGRADE } from './pem';
 
 export type ProgressionStage = 1 | 2 | 3;
 export type ExperienceLevel = 'beginner' | 'intermediate' | 'advanced';
@@ -375,9 +376,18 @@ export function buildSession(request: SessionRequest): E2Result {
   //   5) Use afterAssessment.* as final session-shape inputs.
   let systemicBuild: SystemicBuildInfo | undefined;
   if (isSystemicFlow && systemic) {
-    const tier = deriveTier(systemic);
-    const model = TIER_TO_MODEL[tier];
-    const baseModel = MODEL_PARAMS[model];
+    // Prompt 4: PEM cross-session state. If pem_state === "downgraded",
+    // downgrade tier by one level AND force model = "restore" regardless of tier.
+    const rawTier = deriveTier(systemic);
+    const effectiveTier: Tier = systemic.pem_state === "downgraded"
+      ? PEM_DOWNGRADE[rawTier]
+      : rawTier;
+    const tier = effectiveTier;
+    const sessionModel = systemic.pem_state === "downgraded"
+      ? "restore"
+      : TIER_TO_MODEL[effectiveTier];
+    const model = sessionModel;
+    const baseModel = MODEL_PARAMS[sessionModel];
     const step2 = applyTriggerRefinements(baseModel, systemic.triggers);
     const step3 = confidence_level
       ? applyConfidenceCaps(step2, confidence_level)
