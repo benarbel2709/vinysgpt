@@ -65,6 +65,8 @@ export interface E2Result {
   load_ceiling: number;
   var_rank_ceiling: number;
   diversity_stats: DiversityStats;
+  /** Present only for tier-driven systemic builds (v2.1). */
+  systemic_build?: SystemicBuildInfo;
 }
 
 interface DiversityStats {
