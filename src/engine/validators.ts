@@ -195,6 +195,66 @@ export function validateCatalog(catalog: ExerciseV2[]): ValidationError[] {
   return errors;
 }
 
+// ═══════════════════════════════════
+// SYSTEMIC PROFILE VALIDATION (v2.1)
+// ═══════════════════════════════════
+
+const RECOVERY_PATTERNS = new Set(["fast", "moderate", "slow", "pem"]);
+const TODAY_STATES = new Set(["good", "baseline", "low", "flare"]);
+const PEM_STATES = new Set(["none", "mild", "moderate", "severe"]);
+
+export interface SystemicValidationInput {
+  severity?: unknown;
+  triggers?: unknown;
+  recovery_pattern?: unknown;
+  today_state?: unknown;
+  today_red_flags?: unknown;
+  tier_history?: unknown;
+  pem_state?: unknown;
+}
+
+/**
+ * Validate the unified systemic onboarding block.
+ * Returns an array of human-readable error messages; empty = valid.
+ */
+export function validateSystemicProfile(s: SystemicValidationInput | null | undefined): string[] {
+  const errors: string[] = [];
+  if (!s || typeof s !== "object") {
+    errors.push("systemic block is missing");
+    return errors;
+  }
+
+  if (typeof s.severity !== "number" || !Number.isInteger(s.severity) || s.severity < 1 || s.severity > 5) {
+    errors.push("systemic.severity must be an integer 1..5");
+  }
+
+  if (!Array.isArray(s.triggers) || s.triggers.some(t => typeof t !== "string")) {
+    errors.push("systemic.triggers must be an array of strings");
+  }
+
+  if (typeof s.recovery_pattern !== "string" || !RECOVERY_PATTERNS.has(s.recovery_pattern)) {
+    errors.push(`systemic.recovery_pattern must be one of ${Array.from(RECOVERY_PATTERNS).join(", ")}`);
+  }
+
+  if (typeof s.today_state !== "string" || !TODAY_STATES.has(s.today_state)) {
+    errors.push(`systemic.today_state must be one of ${Array.from(TODAY_STATES).join(", ")}`);
+  }
+
+  if (!Array.isArray(s.today_red_flags) || s.today_red_flags.some(f => typeof f !== "string")) {
+    errors.push("systemic.today_red_flags must be an array of strings");
+  }
+
+  if (s.tier_history !== undefined && (!Array.isArray(s.tier_history) || s.tier_history.some(n => typeof n !== "number"))) {
+    errors.push("systemic.tier_history must be an array of numbers when present");
+  }
+
+  if (s.pem_state !== undefined && (typeof s.pem_state !== "string" || !PEM_STATES.has(s.pem_state))) {
+    errors.push(`systemic.pem_state must be one of ${Array.from(PEM_STATES).join(", ")}`);
+  }
+
+  return errors;
+}
+
 /**
  * Assert that an exercise is a valid v2.1.2 exercise (no legacy fields).
  * Used at runtime to assert single-source-of-truth.
