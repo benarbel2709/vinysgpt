@@ -122,7 +122,7 @@ if (typeof import.meta !== "undefined" && (import.meta as any).env?.DEV) {
     console.assert(r3.pem_state === "normal" && r3.clean_streak === 0, "[pem] T3 failed: much_worse >48h → normal/0");
 
     // 4. 3 clean sessions after downgrade → auto-recover
-    let s = { ...baseSys, pem_state: "downgraded" as const, clean_streak: 0 };
+    let s: SystemicProfile = { ...baseSys, pem_state: "downgraded", clean_streak: 0 };
     s = pemReducer(s, { recovery_pattern: "same_day", today_state: "same", completed_at: "2026-04-27T10:00:00Z" });
     console.assert(s.pem_state === "downgraded" && s.clean_streak === 1, "[pem] T4a failed: streak=1");
     s = pemReducer(s, { recovery_pattern: "same_day", today_state: "same", completed_at: "2026-04-28T10:00:00Z" });
