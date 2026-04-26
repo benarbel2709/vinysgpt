@@ -175,7 +175,13 @@ export default function Workout() {
           safety_flags: qa.safety_flags || [],
         };
       } else {
-        input = buildSessionInput({ ...(state.profile as any), systemic: state.profile.systemic });
+        input = buildSessionInput({
+          ...(state.profile as any),
+          systemic: state.profile.systemic,
+          confidence_level: state.profile.confidence_level,
+          assessment_type: state.profile.assessment_type,
+          lastSessionPoseIds: state.profile.lastSessionPoseIds ?? [],
+        });
       }
       return createSession(input);
     } catch (err) {
@@ -194,6 +200,17 @@ export default function Workout() {
     if (last && last.date === today && last.tier === sb.tier) return; // dedupe same-day same-tier
     const next = [...sys.tier_history, { date: today, tier: sb.tier }].slice(-50);
     updateProfile({ systemic: { ...sys, tier_history: next } });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playableSession]);
+
+  // ─── v2.1 Prompt 3: persist this session's pose IDs as lastSessionPoseIds ──
+  useEffect(() => {
+    const ex = playableSession?.exercises;
+    if (!ex || ex.length === 0) return;
+    const ids = ex.map(e => e.id);
+    const prev = state.profile.lastSessionPoseIds ?? [];
+    if (prev.length === ids.length && prev.every((v, i) => v === ids[i])) return;
+    updateProfile({ lastSessionPoseIds: ids });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playableSession]);
 

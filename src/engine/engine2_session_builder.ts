@@ -6,7 +6,11 @@ import { runEngine1, filterByVarRankCeiling } from './engine1_suitability';
 import { CONDITION_PROFILES, LEGACY_CONDITION_MAP } from './conditions';
 import type { ConditionIdV2, ConditionProfileV2 } from './types';
 import type { SystemicProfile, Tier } from '@/types';
-import { deriveTier, TIER_TO_MODEL, MODEL_PARAMS, applyTriggerRefinements, type RefinedModelParams } from './tier';
+import {
+  deriveTier, TIER_TO_MODEL, MODEL_PARAMS,
+  applyTriggerRefinements, applyConfidenceCaps, applyAssessmentTypeCaps,
+  type RefinedModelParams, type ConfidenceLevel, type AssessmentType,
+} from './tier';
 
 export type ProgressionStage = 1 | 2 | 3;
 export type ExperienceLevel = 'beginner' | 'intermediate' | 'advanced';
@@ -39,6 +43,12 @@ export interface SessionRequest {
   safety_flags?: string[];
   /** Systemic onboarding block (v2.1). When present + user_profile empty → tier-driven build. */
   systemic?: SystemicProfile | null;
+  /** v2.1 Prompt 3: profile.confidence_level (drives confidence caps in E2). */
+  confidence_level?: ConfidenceLevel;
+  /** v2.1 Prompt 3: profile.assessment_type (drives assessment-type caps in E2). */
+  assessment_type?: AssessmentType;
+  /** v2.1 Prompt 3: pose IDs from the prior session (used for repeatCeiling + preferPriorBias). */
+  prior_session_pose_ids?: string[];
 }
 
 /** Result side-channel: tier derived for this systemic build (consumed by caller for tier_history). */
@@ -296,7 +306,7 @@ function applyConditionSafetyFilters(pool: SuitedPose[], conditions: string[]): 
 }
 
 export function buildSession(request: SessionRequest): E2Result {
-  const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0, ageGroup, conditions = [], quick_modifiers, safety_flags = [], systemic = null } = request;
+  const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0, ageGroup, conditions = [], quick_modifiers, safety_flags = [], systemic = null, confidence_level, assessment_type, prior_session_pose_ids = [] } = request;
   let target       = targetSize(duration_minutes, target_size_override);
   let vr_ceiling   = VAR_RANK_CEILING[stage][experience_level];
   let load_ceil    = target * LOAD_CEILING_MULTIPLIER[experience_level];
@@ -357,12 +367,25 @@ export function buildSession(request: SessionRequest): E2Result {
   }
 
   // ── v2.1 Tier derivation (systemic flow with full systemic profile) ──
+  // Pipeline (Prompt 2 + Prompt 3):
+  //   1) baseModel = MODEL_PARAMS[TIER_TO_MODEL[deriveTier(systemic)]]
+  //   2) refined          = applyTriggerRefinements(baseModel, systemic.triggers)
+  //   3) afterConfidence  = applyConfidenceCaps(refined, profile.confidence_level)
+  //   4) afterAssessment  = applyAssessmentTypeCaps(afterConfidence, profile.assessment_type, profile.systemic !== null)
+  //   5) Use afterAssessment.* as final session-shape inputs.
   let systemicBuild: SystemicBuildInfo | undefined;
   if (isSystemicFlow && systemic) {
     const tier = deriveTier(systemic);
     const model = TIER_TO_MODEL[tier];
     const baseModel = MODEL_PARAMS[model];
-    const refined = applyTriggerRefinements(baseModel, systemic.triggers);
+    const step2 = applyTriggerRefinements(baseModel, systemic.triggers);
+    const step3 = confidence_level
+      ? applyConfidenceCaps(step2, confidence_level)
+      : step2;
+    const step4 = assessment_type
+      ? applyAssessmentTypeCaps(step3, assessment_type, systemic !== null)
+      : step3;
+    const refined = step4;
     systemicBuild = { tier, model, refined };
     // Apply tier load ceiling as a multiplicative cap on existing load_ceil.
     load_ceil = Math.max(1, Math.floor(load_ceil * refined.loadCeiling));
@@ -423,6 +446,41 @@ export function buildSession(request: SessionRequest): E2Result {
       }
       return bonus > 0 ? { ...p, clinical_score: p.clinical_score + bonus } : p;
     });
+    // ── Prompt 3: prior-session bias (preferPriorBias) ──
+    const priorIds = new Set(prior_session_pose_ids);
+    const priorBias = refined.preferPriorBias;
+    if (priorBias && priorBias > 0 && priorIds.size > 0) {
+      candidate_pool = candidate_pool.map(p =>
+        priorIds.has(p.exercise.id)
+          ? { ...p, clinical_score: p.clinical_score + priorBias }
+          : p
+      );
+    }
+
+    // ── Prompt 3: Var-Rank percentile drops (fallback when tag-based suppress
+    // doesn't match existing poses). low confidence → drop top 40% by var_rank
+    // within each movement_category; quick assessment → drop top 30%. Apply the
+    // larger drop when both apply.
+    const dropPct = Math.max(
+      confidence_level === 'low' ? 0.40 : 0,
+      assessment_type === 'quick' ? 0.30 : 0,
+    );
+    if (dropPct > 0) {
+      const byCat = new Map<string, SuitedPose[]>();
+      for (const p of candidate_pool) {
+        const k = String(p.exercise.movement_category);
+        if (!byCat.has(k)) byCat.set(k, []);
+        byCat.get(k)!.push(p);
+      }
+      const dropIds = new Set<string>();
+      for (const arr of byCat.values()) {
+        const ranked = [...arr].sort((a, b) => (b.exercise.var_rank ?? 0) - (a.exercise.var_rank ?? 0));
+        const dropN = Math.floor(ranked.length * dropPct);
+        for (let i = 0; i < dropN; i++) dropIds.add(ranked[i].exercise.id);
+      }
+      candidate_pool = candidate_pool.filter(p => !dropIds.has(p.exercise.id));
+    }
+
     candidate_pool.sort((a, b) => b.clinical_score !== a.clinical_score
       ? b.clinical_score - a.clinical_score
       : (a.var_rank ?? 99) - (b.var_rank ?? 99));
@@ -481,10 +539,21 @@ export function buildSession(request: SessionRequest): E2Result {
   const diversity = emptyDiversity();
   const active_user_areas = new Set(user_profile.map(ap => ap.area));
 
+  // ── Prompt 3: repeat ceiling — cap how many prior-session pose IDs may
+  // appear in the new selection. Default 0.80 when refined.repeatCeiling is absent.
+  const priorIdsForRepeat = new Set(prior_session_pose_ids);
+  const repeatCeilingFrac = systemicBuild?.refined.repeatCeiling ?? 0.80;
+  const repeatCap = Math.floor(target * repeatCeilingFrac);
+  let repeatCount = 0;
+
   for (const candidate of candidate_pool) {
     if (selected.length >= target) break;
     const ex = candidate.exercise;
     if (selected_ids.has(ex.id)) continue;
+    // Enforce repeat ceiling vs prior-session pose IDs.
+    if (priorIdsForRepeat.size > 0 && priorIdsForRepeat.has(ex.id) && repeatCount >= repeatCap) {
+      continue;
+    }
     const { use, was_simplified, trigger } = applySimplerAlternative(candidate, candidate_pool, vr_ceiling, load_ceil, diversity.cumulative_load);
     if (!use) continue;
     if (selected_ids.has(use.exercise.id)) continue;
@@ -497,6 +566,7 @@ export function buildSession(request: SessionRequest): E2Result {
     };
     selected.push(sp);
     selected_ids.add(use.exercise.id);
+    if (priorIdsForRepeat.has(use.exercise.id)) repeatCount++;
     incrementDiversity(diversity, sp);
   }
 

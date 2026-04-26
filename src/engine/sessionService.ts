@@ -59,6 +59,12 @@ export interface SessionServiceInput {
   safety_flags?: string[];
   /** Systemic onboarding block (v2.1) — enables tier-driven build when set + no body-area profile. */
   systemic?: SystemicProfile | null;
+  /** v2.1 Prompt 3: confidence cap input. */
+  confidence_level?: 'low' | 'high';
+  /** v2.1 Prompt 3: assessment-type cap input. */
+  assessment_type?: 'quick' | 'full';
+  /** v2.1 Prompt 3: prior session pose IDs (for repeatCeiling + preferPriorBias). */
+  prior_session_pose_ids?: string[];
 }
 
 /** A single exercise ready for the workout player */
@@ -249,6 +255,9 @@ export function buildSessionInput(profile: {
   ageGroup?: string;
   conditions?: string[];
   systemic?: SystemicProfile | null;
+  confidence_level?: 'low' | 'high';
+  assessment_type?: 'quick' | 'full';
+  lastSessionPoseIds?: string[];
 }): SessionServiceInput {
   const diagnostic = profile.diagnosticResult || {
     area: profile.diagnosticArea || 'LB',
@@ -267,6 +276,9 @@ export function buildSessionInput(profile: {
     ageGroup: profile.ageGroup,
     conditions: profile.conditions,
     systemic: profile.systemic ?? null,
+    confidence_level: profile.confidence_level,
+    assessment_type: profile.assessment_type,
+    prior_session_pose_ids: profile.lastSessionPoseIds ?? [],
   };
 }
 
@@ -319,6 +331,9 @@ export function createSession(input: SessionServiceInput): PlayableSession {
     quick_modifiers: input.quick_modifiers,
     safety_flags: input.safety_flags,
     systemic: input.systemic ?? null,
+    confidence_level: input.confidence_level,
+    assessment_type: input.assessment_type,
+    prior_session_pose_ids: input.prior_session_pose_ids ?? [],
   };
 
   const result: FullSessionResult = generateSession(request);
