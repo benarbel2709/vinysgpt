@@ -207,7 +207,39 @@ if (typeof import.meta !== "undefined" && (import.meta as any).env?.DEV) {
       deriveTier({ ...baseSys, severity: "mild", recovery_pattern: "better", today_state: "worse" }) === "moderate",
       "[tier] test 4 failed: worse caps at moderate",
     );
+
+    // ─── Prompt 3: confidence + assessment-type cap tests ───────────────────
+    const base: RefinedModelParams = {
+      lengthMin: 28, densityMax: 0.80, loadCeiling: 1.00,
+      allowedCategories: ["warmup","breath","mobility","strength","restorative","yin"],
+      suppressTags: new Set<string>(), boostTags: new Set<string>(),
+    };
+    // 1. confidence=low → adds tags + repeatCeiling
+    const c1 = applyConfidenceCaps(base, "low");
+    console.assert(
+      c1.suppressTags.has("stage_3") && c1.repeatCeiling === 0.60,
+      "[tier] P3 test 1 failed: confidence=low caps",
+    );
+    // 2. confidence=high → passthrough
+    const c2 = applyConfidenceCaps(base, "high");
+    console.assert(c2.repeatCeiling === undefined, "[tier] P3 test 2 failed: confidence=high passthrough");
+    // 3. assessment=quick caps length+load
+    const a1 = applyAssessmentTypeCaps(base, "quick", false);
+    console.assert(a1.lengthMin === 18 && a1.loadCeiling === 0.75, "[tier] P3 test 3 failed: quick caps");
+    // 4. assessment=full + systemic locks stage_3, no length cap
+    const a2 = applyAssessmentTypeCaps(base, "full", true);
+    console.assert(
+      a2.suppressTags.has("stage_3") && a2.lengthMin === 28,
+      "[tier] P3 test 4 failed: full+systemic stage_3 lock",
+    );
+    // 5. assessment=full + body-area passthrough
+    const a3 = applyAssessmentTypeCaps(base, "full", false);
+    console.assert(
+      a3.lengthMin === 28 && !a3.suppressTags.has("stage_3"),
+      "[tier] P3 test 5 failed: full+body-area passthrough",
+    );
   } catch (e) {
     console.warn("[tier] self-test setup error:", e);
   }
 }
+
