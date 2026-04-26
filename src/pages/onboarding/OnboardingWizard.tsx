@@ -139,6 +139,7 @@ export default function OnboardingWizard() {
   const [durationSelected, setDurationSelected] = useState(false);
   const [showStartOverConfirm, setShowStartOverConfirm] = useState(false);
   const [isSystemicFlow, setIsSystemicFlow] = useState(false);
+  const [isFastTrackSystemic, setIsFastTrackSystemic] = useState(false);
   const [systemicConditionKey, setSystemicConditionKey] = useState<ConditionKey | null>(null);
   const [localIrritability, setLocalIrritability] = useState(2);
   const [safetyFlags, setSafetyFlags] = useState<string[]>([]);
