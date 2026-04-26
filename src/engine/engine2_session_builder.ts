@@ -5,6 +5,8 @@ import type { SuitedPose, UserProfile } from './engine1_suitability';
 import { runEngine1, filterByVarRankCeiling } from './engine1_suitability';
 import { CONDITION_PROFILES, LEGACY_CONDITION_MAP } from './conditions';
 import type { ConditionIdV2, ConditionProfileV2 } from './types';
+import type { SystemicProfile, Tier } from '@/types';
+import { deriveTier, TIER_TO_MODEL, MODEL_PARAMS, applyTriggerRefinements, type RefinedModelParams } from './tier';
 
 export type ProgressionStage = 1 | 2 | 3;
 export type ExperienceLevel = 'beginner' | 'intermediate' | 'advanced';
