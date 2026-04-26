@@ -37,6 +37,15 @@ export interface SessionRequest {
   quick_modifiers?: QuickModifiers;
   /** Safety flags from quick assessment (PREG, INJURY, RADICULAR, POST_SURGERY) */
   safety_flags?: string[];
+  /** Systemic onboarding block (v2.1). When present + user_profile empty → tier-driven build. */
+  systemic?: SystemicProfile | null;
+}
+
+/** Result side-channel: tier derived for this systemic build (consumed by caller for tier_history). */
+export interface SystemicBuildInfo {
+  tier: Tier;
+  model: 'restore' | 'gentle' | 'build';
+  refined: RefinedModelParams;
 }
 
 export interface SelectedPose {
