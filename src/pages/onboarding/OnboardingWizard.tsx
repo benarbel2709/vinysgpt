@@ -248,45 +248,45 @@ export default function OnboardingWizard() {
   const handleBuild = () => {
     const finalEquipment = equipment.length > 0 ? equipment : ["mat"];
 
-    // For systemic flow, inject diagnostic-like data from condition
+    // For systemic flow, write the unified v2.1 systemic block.
     if (isSystemicFlow && systemicConditionKey) {
-      // Bridge unified systemic answers → legacy clinicalData fields the engine still reads.
+      // NOTE (Prompt 1 of 5 — data + UI only):
+      // Engine, tier derivation, PEM, Fast Track systemic flow, and the
+      // 3-session gate are out of scope (Prompts 2-5). We initialise
+      // tier_history = [] and pem_state = "normal" here. Engine work
+      // will populate / mutate these in later prompts.
+      // Per spec we also stop writing the deprecated energyLevel and
+      // flareToday fields on the profile.
+
+      // Bridge the new today_state enum back to the legacy clinicalData
+      // values that downstream condition-specific UI still reads. This
+      // does NOT touch engine logic.
       const clinicalData: Record<string, any> = {};
-      if (systemicConditionKey === "menopause") {
-        clinicalData.menopauseSymptom = menopauseSymptom || sysTriggers[0];
-      } else if (systemicConditionKey === "fibromyalgia") {
+      if (systemicConditionKey === "fibromyalgia") {
         const flareMap: Record<string, string> = {
-          flare: "flare-high",
-          low: "flare-slight",
-          baseline: "baseline",
-          good: "good-day",
+          much_worse: "flare-high",
+          worse: "flare-slight",
+          same: "baseline",
+          better: "good-day",
         };
-        clinicalData.fibroFlareState = fibroFlareState || flareMap[sysTodayState] || "baseline";
+        clinicalData.fibroFlareState = flareMap[sysTodayState] ?? "baseline";
       } else if (systemicConditionKey === "long_covid" || systemicConditionKey === "chronic_fatigue_syndrome") {
         const energyMap: Record<string, string> = {
-          flare: "very-low",
-          low: "low",
-          baseline: "moderate",
-          good: "good",
+          much_worse: "very-low",
+          worse: "low",
+          same: "moderate",
+          better: "good",
         };
-        clinicalData.fatigueEnergyYesterday = fatigueEnergyYesterday || energyMap[sysTodayState] || "moderate";
+        clinicalData.fatigueEnergyYesterday = energyMap[sysTodayState] ?? "moderate";
       } else if (systemicConditionKey === "stress_anxiety") {
-        clinicalData.stressAnxietyState = stressAnxietyState || (sysTodayState === "flare" ? "wound-up" : "mixed");
+        clinicalData.stressAnxietyState =
+          sysTodayState === "much_worse" || sysTodayState === "worse" ? "wound-up" : "mixed";
+      } else if (systemicConditionKey === "menopause") {
+        clinicalData.menopauseSymptom = sysTriggers[0];
       }
-
-      // Derive PEM state from recovery_pattern + today_state
-      const pemState: "none" | "mild" | "moderate" | "severe" =
-        sysRecoveryPattern === "pem"
-          ? sysTodayState === "flare" ? "severe" : sysTodayState === "low" ? "moderate" : "mild"
-          : "none";
-
-      // Map severity → engine irritability scale (1..5 already aligned)
-      const derivedIrritability = sysSeverity || localIrritability;
 
       updateProfile({
         conditions: [systemicConditionKey],
-        energyLevel,
-        flareToday: sysTodayState === "flare",
         sessionsPerWeek: 3,
         minutesPerSession,
         practiceTime: "morning",
@@ -298,21 +298,19 @@ export default function OnboardingWizard() {
         diagnosticResult: { area: 'SYSTEMIC', primary: 'ST', secondary: null },
         diagnosticArea: 'SYSTEMIC',
         diagnosticProfile: 'ST',
-        diagnosticIrritability: derivedIrritability,
-        irritability: derivedIrritability,
         ageGroup: ageGroup || undefined,
         clinicalData,
         assessment_type: "full",
         confidence_level: "high",
         fast_track_session_count: 0,
         systemic: {
-          severity: sysSeverity,
+          severity: sysSeverity as Exclude<typeof sysSeverity, "">,
           triggers: sysTriggers,
-          recovery_pattern: sysRecoveryPattern || "moderate",
-          today_state: sysTodayState || "baseline",
+          recovery_pattern: sysRecoveryPattern as Exclude<typeof sysRecoveryPattern, "">,
+          today_state: sysTodayState as Exclude<typeof sysTodayState, "">,
           today_red_flags: sysTodayRedFlags,
           tier_history: [],
-          pem_state: pemState,
+          pem_state: "normal",
         },
       } as any);
     } else {
