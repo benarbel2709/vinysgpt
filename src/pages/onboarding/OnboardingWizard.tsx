@@ -214,10 +214,17 @@ export default function OnboardingWizard() {
         return !!diagnosticResult;
       case 3:
         if (isSystemicFlow) {
-          if (systemicConditionKey === "menopause") return !!menopauseSymptom && !!ageGroup;
-          if (systemicConditionKey === "fibromyalgia") return !!fibroFlareState;
-          if (systemicConditionKey === "long_covid" || systemicConditionKey === "chronic_fatigue_syndrome") return !!fatigueEnergyYesterday;
-          if (systemicConditionKey === "stress_anxiety") return !!stressAnxietyState;
+          // Unified 5-question flow — gate main-step Next until all answered
+          return (
+            sysSeverity >= 1 &&
+            sysSeverity <= 5 &&
+            !!sysRecoveryPattern &&
+            !!sysTodayState &&
+            // triggers + red_flags can be empty arrays (user may legitimately have none)
+            Array.isArray(sysTriggers) &&
+            Array.isArray(sysTodayRedFlags) &&
+            systemicStep >= 5
+          );
         }
         return true; // restrictions are optional for non-systemic
       case 4:
