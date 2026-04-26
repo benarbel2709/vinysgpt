@@ -778,6 +778,37 @@ export default function OnboardingWizard() {
                       </button>
                     ))}
                   </div>
+                  {/* Prompt 5 Piece B: Fast Track systemic entry */}
+                  <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground mt-6 mb-2 self-start">Whole-Body & Systemic</p>
+                  <div className="w-full flex flex-col gap-2">
+                    {[
+                      { key: "menopause" as ConditionKey, label: "Menopause & hormonal changes" },
+                      { key: "long_covid" as ConditionKey, label: "Long COVID / post-viral fatigue" },
+                      { key: "fibromyalgia" as ConditionKey, label: "Fibromyalgia" },
+                      { key: "chronic_fatigue_syndrome" as ConditionKey, label: "Chronic fatigue (ME/CFS)" },
+                      { key: "stress_anxiety" as ConditionKey, label: "Stress & anxiety" },
+                    ].map(c => (
+                      <button
+                        key={c.key}
+                        onClick={() => {
+                          setIsFastTrackSystemic(true);
+                          setIsSystemicFlow(true);
+                          setSystemicConditionKey(c.key);
+                          setSelected([c.key]);
+                          setSystemicStep(1);
+                          setSysSeverity("");
+                          setSysTriggers([]);
+                          setSysRecoveryPattern("");
+                          setSysTodayState("");
+                          setSysTodayRedFlags([]);
+                          setStep(11);
+                        }}
+                        className={optionBtn(false)}
+                      >
+                        <span className="text-sm font-medium text-foreground">{c.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </>
               )}
               {qaStep === 2 && (
