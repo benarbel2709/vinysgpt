@@ -539,10 +539,21 @@ export function buildSession(request: SessionRequest): E2Result {
   const diversity = emptyDiversity();
   const active_user_areas = new Set(user_profile.map(ap => ap.area));
 
+  // ── Prompt 3: repeat ceiling — cap how many prior-session pose IDs may
+  // appear in the new selection. Default 0.80 when refined.repeatCeiling is absent.
+  const priorIdsForRepeat = new Set(prior_session_pose_ids);
+  const repeatCeilingFrac = systemicBuild?.refined.repeatCeiling ?? 0.80;
+  const repeatCap = Math.floor(target * repeatCeilingFrac);
+  let repeatCount = 0;
+
   for (const candidate of candidate_pool) {
     if (selected.length >= target) break;
     const ex = candidate.exercise;
     if (selected_ids.has(ex.id)) continue;
+    // Enforce repeat ceiling vs prior-session pose IDs.
+    if (priorIdsForRepeat.size > 0 && priorIdsForRepeat.has(ex.id) && repeatCount >= repeatCap) {
+      continue;
+    }
     const { use, was_simplified, trigger } = applySimplerAlternative(candidate, candidate_pool, vr_ceiling, load_ceil, diversity.cumulative_load);
     if (!use) continue;
     if (selected_ids.has(use.exercise.id)) continue;
@@ -555,6 +566,7 @@ export function buildSession(request: SessionRequest): E2Result {
     };
     selected.push(sp);
     selected_ids.add(use.exercise.id);
+    if (priorIdsForRepeat.has(use.exercise.id)) repeatCount++;
     incrementDiversity(diversity, sp);
   }
 
