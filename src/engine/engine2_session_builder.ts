@@ -367,12 +367,25 @@ export function buildSession(request: SessionRequest): E2Result {
   }
 
   // ── v2.1 Tier derivation (systemic flow with full systemic profile) ──
+  // Pipeline (Prompt 2 + Prompt 3):
+  //   1) baseModel = MODEL_PARAMS[TIER_TO_MODEL[deriveTier(systemic)]]
+  //   2) refined          = applyTriggerRefinements(baseModel, systemic.triggers)
+  //   3) afterConfidence  = applyConfidenceCaps(refined, profile.confidence_level)
+  //   4) afterAssessment  = applyAssessmentTypeCaps(afterConfidence, profile.assessment_type, profile.systemic !== null)
+  //   5) Use afterAssessment.* as final session-shape inputs.
   let systemicBuild: SystemicBuildInfo | undefined;
   if (isSystemicFlow && systemic) {
     const tier = deriveTier(systemic);
     const model = TIER_TO_MODEL[tier];
     const baseModel = MODEL_PARAMS[model];
-    const refined = applyTriggerRefinements(baseModel, systemic.triggers);
+    const step2 = applyTriggerRefinements(baseModel, systemic.triggers);
+    const step3 = confidence_level
+      ? applyConfidenceCaps(step2, confidence_level)
+      : step2;
+    const step4 = assessment_type
+      ? applyAssessmentTypeCaps(step3, assessment_type, systemic !== null)
+      : step3;
+    const refined = step4;
     systemicBuild = { tier, model, refined };
     // Apply tier load ceiling as a multiplicative cap on existing load_ceil.
     load_ceil = Math.max(1, Math.floor(load_ceil * refined.loadCeiling));
