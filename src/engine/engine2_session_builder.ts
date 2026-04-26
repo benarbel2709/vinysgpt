@@ -5,6 +5,8 @@ import type { SuitedPose, UserProfile } from './engine1_suitability';
 import { runEngine1, filterByVarRankCeiling } from './engine1_suitability';
 import { CONDITION_PROFILES, LEGACY_CONDITION_MAP } from './conditions';
 import type { ConditionIdV2, ConditionProfileV2 } from './types';
+import type { SystemicProfile, Tier } from '@/types';
+import { deriveTier, TIER_TO_MODEL, MODEL_PARAMS, applyTriggerRefinements, type RefinedModelParams } from './tier';
 
 export type ProgressionStage = 1 | 2 | 3;
 export type ExperienceLevel = 'beginner' | 'intermediate' | 'advanced';
@@ -35,6 +37,15 @@ export interface SessionRequest {
   quick_modifiers?: QuickModifiers;
   /** Safety flags from quick assessment (PREG, INJURY, RADICULAR, POST_SURGERY) */
   safety_flags?: string[];
+  /** Systemic onboarding block (v2.1). When present + user_profile empty → tier-driven build. */
+  systemic?: SystemicProfile | null;
+}
+
+/** Result side-channel: tier derived for this systemic build (consumed by caller for tier_history). */
+export interface SystemicBuildInfo {
+  tier: Tier;
+  model: 'restore' | 'gentle' | 'build';
+  refined: RefinedModelParams;
 }
 
 export interface SelectedPose {
@@ -54,6 +65,8 @@ export interface E2Result {
   load_ceiling: number;
   var_rank_ceiling: number;
   diversity_stats: DiversityStats;
+  /** Present only for tier-driven systemic builds (v2.1). */
+  systemic_build?: SystemicBuildInfo;
 }
 
 interface DiversityStats {
@@ -283,7 +296,7 @@ function applyConditionSafetyFilters(pool: SuitedPose[], conditions: string[]): 
 }
 
 export function buildSession(request: SessionRequest): E2Result {
-  const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0, ageGroup, conditions = [], quick_modifiers, safety_flags = [] } = request;
+  const { user_profile, stage, experience_level, duration_minutes, target_size_override, irritability = 0, ageGroup, conditions = [], quick_modifiers, safety_flags = [], systemic = null } = request;
   let target       = targetSize(duration_minutes, target_size_override);
   let vr_ceiling   = VAR_RANK_CEILING[stage][experience_level];
   let load_ceil    = target * LOAD_CEILING_MULTIPLIER[experience_level];
@@ -343,6 +356,20 @@ export function buildSession(request: SessionRequest): E2Result {
     load_ceil = Math.floor(load_ceil * systemicMods.loadCeilingMultiplier);
   }
 
+  // ── v2.1 Tier derivation (systemic flow with full systemic profile) ──
+  let systemicBuild: SystemicBuildInfo | undefined;
+  if (isSystemicFlow && systemic) {
+    const tier = deriveTier(systemic);
+    const model = TIER_TO_MODEL[tier];
+    const baseModel = MODEL_PARAMS[model];
+    const refined = applyTriggerRefinements(baseModel, systemic.triggers);
+    systemicBuild = { tier, model, refined };
+    // Apply tier load ceiling as a multiplicative cap on existing load_ceil.
+    load_ceil = Math.max(1, Math.floor(load_ceil * refined.loadCeiling));
+    // Apply density max as a soft cap on target size relative to duration.
+    target = Math.max(3, Math.min(target, Math.ceil(target * refined.densityMax + 1)));
+  }
+
   const pool_size  = target * 3;
 
   const e1 = runEngine1(user_profile);
@@ -352,6 +379,53 @@ export function buildSession(request: SessionRequest): E2Result {
   if (isSystemicFlow && systemicMods) {
     candidate_pool = applySystemicScoring(candidate_pool, systemicMods);
     candidate_pool = applyConditionSafetyFilters(candidate_pool, conditions);
+  }
+
+  // ── v2.1 Tier-driven trigger refinements (suppress / boost / category filter) ──
+  if (systemicBuild) {
+    const { refined } = systemicBuild;
+    const allowedCats = new Set(refined.allowedCategories.map(c => c.toLowerCase()));
+    const suppress = refined.suppressTags;
+    const boost = refined.boostTags;
+
+    candidate_pool = candidate_pool.filter(p => {
+      const ex = p.exercise;
+      const tagBag = [
+        ex.movement_category,
+        ex.pose_family,
+        ex.movement_direction,
+        ex.load_type,
+        ...(ex.goal_tag || []),
+      ].map(s => String(s ?? '').toLowerCase());
+      // Drop poses whose tags include any suppressed tag
+      for (const sTag of suppress) {
+        if (tagBag.some(t => t.includes(sTag))) return false;
+      }
+      // Category filter (allowedCategories acts as a soft filter on movement_category proxy)
+      // We map model categories loosely to V2 movement_category names; only enforce when 'standing' suppression came in.
+      if (suppress.has('standing') && tagBag.some(t => t.includes('standing'))) return false;
+      return true;
+    });
+
+    // Boost candidates whose tags intersect boostTags
+    candidate_pool = candidate_pool.map(p => {
+      const ex = p.exercise;
+      const tagBag = [
+        ex.movement_category,
+        ex.pose_family,
+        ex.movement_direction,
+        ex.load_type,
+        ...(ex.goal_tag || []),
+      ].map(s => String(s ?? '').toLowerCase());
+      let bonus = 0;
+      for (const bTag of boost) {
+        if (tagBag.some(t => t.includes(bTag))) { bonus += 1.5; break; }
+      }
+      return bonus > 0 ? { ...p, clinical_score: p.clinical_score + bonus } : p;
+    });
+    candidate_pool.sort((a, b) => b.clinical_score !== a.clinical_score
+      ? b.clinical_score - a.clinical_score
+      : (a.var_rank ?? 99) - (b.var_rank ?? 99));
   }
 
   const guaranteedPool = isSystemicFlow ? candidate_pool : e1.eligible_pool;
@@ -458,5 +532,6 @@ export function buildSession(request: SessionRequest): E2Result {
     selected_poses: selected, session_size: selected.length, cumulative_load: diversity.cumulative_load,
     load_ceiling: load_ceil, var_rank_ceiling: vr_ceiling,
     diversity_stats: { area_counts: diversity.area_counts, pose_family_counts: diversity.pose_family_counts, movement_dir_counts: diversity.movement_dir_counts, rest_count: diversity.rest_count, brth_count: diversity.brth_count },
+    systemic_build: systemicBuild,
   };
 }
