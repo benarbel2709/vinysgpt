@@ -67,41 +67,56 @@ export interface Assessment {
   data: FibroAssessmentData | GenericAssessmentData;
 }
 
+// ─── Vinys Systemic Pipeline v2.1 — clinical enums (DO NOT MODIFY VALUES) ───
+export type Severity = "mild" | "moderate" | "significant" | "severe";
+
+export type SystemicTrigger =
+  | "effort"
+  | "duration"
+  | "stress"
+  | "poor_sleep"
+  | "upright"
+  | "breathing"
+  | "sensory";
+
+export type RecoveryPattern = "better" | "same_day" | "worse_later" | "crash";
+
+export type TodayState = "better" | "same" | "worse" | "much_worse";
+
+export type RedFlag = "dizziness" | "sob" | "chest_pain" | "flare";
+
+export type Tier = "low" | "moderate" | "high";
+
+export type PemState = "normal" | "downgraded";
+
 export interface SystemicProfile {
-  /** Overall severity / impact rating, 1 (mild) – 5 (severe). */
-  severity: number;
-  /** Multi-select trigger tags chosen by the user. */
-  triggers: string[];
-  /** How the user typically recovers from exertion. */
-  recovery_pattern: "fast" | "moderate" | "slow" | "pem";
-  /** Self-reported state right now. */
-  today_state: "good" | "baseline" | "low" | "flare";
-  /** Pre-session red flags (multi-select). Empty array means none. */
-  today_red_flags: string[];
-  /** Rolling history of intensity tiers chosen by the engine. */
-  tier_history: number[];
-  /** Post-Exertional Malaise state, when applicable. */
-  pem_state: "none" | "mild" | "moderate" | "severe";
+  severity: Severity;
+  triggers: SystemicTrigger[];
+  recovery_pattern: RecoveryPattern;
+  today_state: TodayState;
+  today_red_flags: RedFlag[];
+  tier_history: { date: string; tier: Tier }[];
+  pem_state: PemState;
 }
 
 export interface Profile {
   conditions: ConditionKey[];
   sessionsPerWeek: number;
   minutesPerSession: number;
-  /** @deprecated v2.1 — superseded by systemic.today_state === "flare". */
+  /** @deprecated v2.1 — superseded by systemic.today_state. Stop writing. */
   flareToday: boolean;
   practiceTime: PracticeTime;
-  /** @deprecated v2.1 — superseded by systemic.today_state. */
+  /** @deprecated v2.1 — superseded by systemic.today_state. Stop writing. */
   energyLevel: EnergyLevel;
   closingPreference: "savasana" | "meditation" | "body_rest";
   /** Number of fast-track (Starter) sessions completed since onboarding. */
-  fast_track_session_count?: number;
-  /** Unified systemic onboarding block (v2.1). */
-  systemic?: SystemicProfile;
+  fast_track_session_count: number;
+  /** Unified systemic onboarding block (v2.1). null for body-area-only users. */
+  systemic: SystemicProfile | null;
   /** "quick" = Starter / fast-track, "full" = full systemic onboarding. */
   assessment_type?: "quick" | "full";
   /** Confidence in the captured profile. */
-  confidence_level?: "low" | "medium" | "high";
+  confidence_level?: "low" | "high";
   irritability?: number;
   acuity?: "high" | "medium" | "low" | "unknown";
   mode?: "normal" | "easier" | "flare";
@@ -172,6 +187,7 @@ export const DEFAULT_APP_STATE: AppState = {
     energyLevel: "medium",
     closingPreference: "savasana",
     fast_track_session_count: 0,
+    systemic: null,
   },
   assessments: [],
   exerciseLibrary: [],
