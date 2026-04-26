@@ -32,6 +32,7 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Admin = lazy(() => import("./pages/Admin"));
+const AdminVideos = lazy(() => import("./pages/AdminVideos"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const DevExportEngineData = lazy(() => import("./pages/DevExportEngineData"));
 const About = lazy(() => import("./pages/About"));
@@ -104,6 +105,7 @@ function AppRoutes() {
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/admin" element={<AuthGuard><Admin /></AuthGuard>} />
+        <Route path="/admin/videos" element={<AuthGuard><AdminVideos /></AuthGuard>} />
         {import.meta.env.DEV && <Route path="/dev/export-engine-data" element={<DevExportEngineData />} />}
         <Route path="*" element={<NotFound />} />
       </SentryRoutes>
