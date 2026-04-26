@@ -13,6 +13,7 @@ import DurationSelector from "@/components/onboarding/DurationSelector";
 import FlowProgress from "@/components/FlowProgress";
 import { Button } from "@/components/ui/button";
 import { X, Check, Pencil, Clock, Lock, ChevronLeft, AlertTriangle, Flower2, Wind, Zap, BatteryLow, Brain, Bone, HeartPulse, Flower } from "lucide-react";
+import GuestDataWarning from "@/components/GuestDataWarning";
 import { useState as useStateReact } from "react";
 import {
   Dialog,
@@ -649,6 +650,7 @@ export default function OnboardingWizard() {
         className="flex-1 min-h-0 flex flex-col items-center overflow-y-auto overflow-x-hidden"
         style={{ maxWidth: "1100px", margin: "0 auto", width: "100%", padding: "0 24px 90px" }}
       >
+        <GuestDataWarning />
         {step >= 0 && step !== 1 && step !== 2 && step !== 6 && step !== 7 && step !== 8 && step !== 10 && step !== 11 && !(step === 3 && isSystemicFlow) && (
           <>
             <h1
