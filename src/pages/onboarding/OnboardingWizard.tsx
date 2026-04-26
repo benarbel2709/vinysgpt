@@ -471,6 +471,8 @@ export default function OnboardingWizard() {
     trackEvent("fast_track_systemic_completed", { condition: systemicConditionKey });
     navigate("/plan");
   };
+
+  const handleNext = () => {
     if (step === 0 && selectedBodyZones.length > 0 && !isSystemicFlow) {
       setSelectedArea(selectedBodyZones[0]);
       setStep(1);
