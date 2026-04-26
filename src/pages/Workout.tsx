@@ -95,6 +95,20 @@ export default function Workout() {
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // ── Prompt 5 Piece B: 3-session gate — quick users redirected after 3 ──
+  const isQuick = state.profile.assessment_type === "quick";
+  const ftCount = state.profile.fast_track_session_count ?? 0;
+  useEffect(() => {
+    if (isQuick && ftCount >= 3 && !sessionId?.startsWith("solo_")) {
+      navigate("/onboarding?track=full", { replace: true });
+    }
+  }, [isQuick, ftCount, sessionId, navigate]);
+
+  // ── Prompt 5 Piece C: pre-session safety guard for systemic users ──
+  const needsSafetyGuard = state.profile.systemic !== null && !sessionId?.startsWith("solo_");
+  const [safetyDecision, setSafetyDecision] = useState<SafetyDecision | null>(null);
+  const safetyPassed = !needsSafetyGuard || (safetyDecision?.kind === "proceed");
+
   // ─── Generate V2 session on mount (or load solo exercise) ───
   const playableSession = useMemo<PlayableSession | null>(() => {
     // Check for solo exercise session from Exercise Library
