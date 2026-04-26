@@ -579,7 +579,7 @@ export default function OnboardingWizard() {
         className="flex-1 min-h-0 flex flex-col items-center overflow-y-auto overflow-x-hidden"
         style={{ maxWidth: "1100px", margin: "0 auto", width: "100%", padding: "0 24px 90px" }}
       >
-        {step >= 0 && step !== 1 && step !== 2 && step !== 6 && step !== 7 && step !== 8 && step !== 10 && (
+        {step >= 0 && step !== 1 && step !== 2 && step !== 6 && step !== 7 && step !== 8 && step !== 10 && !(step === 3 && isSystemicFlow) && (
           <>
             <h1
               className="font-display text-foreground font-bold text-2xl text-center shrink-0"
@@ -592,11 +592,6 @@ export default function OnboardingWizard() {
         {step === 3 && !isSystemicFlow && (
           <p className="text-muted-foreground text-center text-sm mt-1 shrink-0">
             Select everything that applies — this helps us personalise your practice and filter out anything that could cause harm.
-          </p>
-        )}
-        {step === 3 && isSystemicFlow && systemicConditionKey !== "menopause" && (
-          <p className="text-muted-foreground text-center text-sm mt-1 shrink-0">
-            This helps us set the right intensity for your practice.
           </p>
         )}
 
