@@ -43,6 +43,12 @@ export interface SessionRequest {
   safety_flags?: string[];
   /** Systemic onboarding block (v2.1). When present + user_profile empty → tier-driven build. */
   systemic?: SystemicProfile | null;
+  /** v2.1 Prompt 3: profile.confidence_level (drives confidence caps in E2). */
+  confidence_level?: ConfidenceLevel;
+  /** v2.1 Prompt 3: profile.assessment_type (drives assessment-type caps in E2). */
+  assessment_type?: AssessmentType;
+  /** v2.1 Prompt 3: pose IDs from the prior session (used for repeatCeiling + preferPriorBias). */
+  prior_session_pose_ids?: string[];
 }
 
 /** Result side-channel: tier derived for this systemic build (consumed by caller for tier_history). */
