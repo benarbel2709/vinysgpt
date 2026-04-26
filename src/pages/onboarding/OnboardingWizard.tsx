@@ -214,13 +214,12 @@ export default function OnboardingWizard() {
         return !!diagnosticResult;
       case 3:
         if (isSystemicFlow) {
-          // Unified 5-question flow — gate main-step Next until all answered
+          // Unified 5-question systemic flow — main-step Next is gated until
+          // all 5 sub-steps are answered (Q2 + Q5 may be empty arrays = none).
           return (
-            sysSeverity >= 1 &&
-            sysSeverity <= 5 &&
+            !!sysSeverity &&
             !!sysRecoveryPattern &&
             !!sysTodayState &&
-            // triggers + red_flags can be empty arrays (user may legitimately have none)
             Array.isArray(sysTriggers) &&
             Array.isArray(sysTodayRedFlags) &&
             systemicStep >= 5
