@@ -174,7 +174,8 @@ export default function Workout() {
       console.warn("[Workout] Solo session parse error:", e);
     }
 
-    // Normal V2 session generation
+    // Normal V2 session generation — block until safety guard passes (Prompt 5 C)
+    if (needsSafetyGuard && safetyDecision?.kind !== "proceed") return null;
     try {
       let input: SessionServiceInput;
       const qa = state.quickAssessment;
