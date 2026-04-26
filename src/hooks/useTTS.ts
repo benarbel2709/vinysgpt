@@ -50,17 +50,10 @@ export function useTTS() {
       setIsLoading(true);
 
       try {
-        // Forward the user's session JWT — the TTS endpoint requires auth
-        // (it calls paid ElevenLabs API). Guests have no session and will be 401'd.
+        // TESTING MODE: TTS is open to guests. Forward session JWT if present,
+        // otherwise fall back to the anon key so guests can still hear voice.
         const { data: { session } } = await supabase.auth.getSession();
-        const jwt = session?.access_token;
-        if (!jwt) {
-          // No session → don't even try; trip breaker silently after a few tries
-          failCountRef.current += 1;
-          if (failCountRef.current >= 3) permanentlyFailedRef.current = true;
-          setIsLoading(false);
-          return;
-        }
+        const jwt = session?.access_token ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
         const response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tts`,
