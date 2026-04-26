@@ -88,7 +88,7 @@ function RotatePrompt({ onDismiss }: { onDismiss: () => void }) {
 
 export default function Workout() {
   const { sessionId } = useParams<{ sessionId: string }>();
-  const { state, updateState } = useApp();
+  const { state, updateState, updateProfile } = useApp();
   const { user } = useAuthContext();
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -175,7 +175,7 @@ export default function Workout() {
           safety_flags: qa.safety_flags || [],
         };
       } else {
-        input = buildSessionInput(state.profile as any);
+        input = buildSessionInput({ ...(state.profile as any), systemic: state.profile.systemic });
       }
       return createSession(input);
     } catch (err) {
