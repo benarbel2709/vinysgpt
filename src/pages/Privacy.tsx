@@ -95,13 +95,55 @@ export default function Privacy() {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold text-foreground">10. Changes to This Policy</h2>
+            <h2 className="text-lg font-semibold text-foreground">10. GDPR — Legal basis & your rights (EU/UK users)</h2>
+            <p>
+              Vinys processes some of your information as <strong>Special Category Data</strong> (health
+              information) under <strong>GDPR Article 9</strong>. We rely on your <strong>explicit consent</strong>
+              {" "}as the legal basis for collecting and processing the conditions, pain levels, fatigue scores,
+              and movement preferences you choose to share with us. You can withdraw that consent at any time.
+            </p>
+            <p>If you are in the EU, UK, or EEA, you have the following rights:</p>
+            <ul className="list-disc pl-6 space-y-1">
+              <li><strong>Right of access</strong> — Request a copy of all personal data we hold about you.</li>
+              <li><strong>Right to rectification</strong> — Correct any inaccurate or incomplete data.</li>
+              <li><strong>Right to erasure ("right to be forgotten")</strong> — Permanently delete your account and all data from <Link to="/settings" className="text-primary hover:text-primary/80 underline underline-offset-2">Settings → Danger zone</Link>.</li>
+              <li><strong>Right to restrict processing</strong> — Ask us to pause use of your data in specific cases.</li>
+              <li><strong>Right to data portability</strong> — Export your data as a JSON file from <Link to="/settings" className="text-primary hover:text-primary/80 underline underline-offset-2">Settings</Link>.</li>
+              <li><strong>Right to object</strong> — Object to certain types of processing.</li>
+              <li><strong>Right to withdraw consent</strong> — Stop our processing of your health data at any time. Doing so will delete your health profile and may end your ability to use the app.</li>
+              <li><strong>Right to lodge a complaint</strong> — File a complaint with your local data protection authority.</li>
+            </ul>
+            <p>To exercise any of these rights, contact us at <span className="text-accent font-medium">privacy@vinys.app</span>. We will respond within 30 days.</p>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-lg font-semibold text-foreground">11. Data processor & international transfers</h2>
+            <p>
+              Vinys uses <strong>Supabase</strong> (Supabase Inc., USA, with EU regions available) as our
+              database and authentication provider. We have a Data Processing Agreement in place with Supabase,
+              which is GDPR-compliant. See <a href="https://supabase.com/privacy" className="text-primary hover:text-primary/80 underline underline-offset-2" target="_blank" rel="noopener noreferrer">supabase.com/privacy</a> for their privacy policy.
+              Where data is transferred outside the EU/UK, it is protected by Standard Contractual Clauses (SCCs).
+            </p>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-lg font-semibold text-foreground">12. Data retention</h2>
+            <p>
+              We keep your account and health data for as long as your account is active. If you delete your
+              account, all personal data is permanently removed within 30 days, except where we are legally
+              required to retain limited records (e.g. for tax or fraud prevention).
+            </p>
+            <p>Anonymised, aggregated usage statistics may be retained indefinitely.</p>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-lg font-semibold text-foreground">13. Changes to This Policy</h2>
             <p>We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated revision date. We encourage you to review this page periodically.</p>
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold text-foreground">11. Contact</h2>
-            <p>For privacy-related questions or data requests, contact us at <span className="text-accent font-medium">privacy@vinys.app</span>.</p>
+            <h2 className="text-lg font-semibold text-foreground">14. Contact</h2>
+            <p>For privacy-related questions, data subject requests, or to reach our data protection contact, email <span className="text-accent font-medium">privacy@vinys.app</span>.</p>
           </section>
         </div>
 

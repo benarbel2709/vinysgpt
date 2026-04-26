@@ -2,11 +2,14 @@ import { useState, useRef } from "react";
 import { useApp } from "@/context/AppContext";
 import { useAuthContext } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import Layout from "@/components/Layout";
 import SignInModal from "@/components/SignInModal";
 import { readState, writeState } from "@/lib/storage";
-import { RotateCcw, Download, Upload, Settings as SettingsIcon, Info, FileText, UserCircle, LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { RotateCcw, Download, Upload, Settings as SettingsIcon, Info, FileText, UserCircle, LogOut, Trash2, ShieldAlert } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { PracticeTime } from "@/constants/conditions";
 
