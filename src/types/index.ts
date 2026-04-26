@@ -67,14 +67,41 @@ export interface Assessment {
   data: FibroAssessmentData | GenericAssessmentData;
 }
 
+export interface SystemicProfile {
+  /** Overall severity / impact rating, 1 (mild) – 5 (severe). */
+  severity: number;
+  /** Multi-select trigger tags chosen by the user. */
+  triggers: string[];
+  /** How the user typically recovers from exertion. */
+  recovery_pattern: "fast" | "moderate" | "slow" | "pem";
+  /** Self-reported state right now. */
+  today_state: "good" | "baseline" | "low" | "flare";
+  /** Pre-session red flags (multi-select). Empty array means none. */
+  today_red_flags: string[];
+  /** Rolling history of intensity tiers chosen by the engine. */
+  tier_history: number[];
+  /** Post-Exertional Malaise state, when applicable. */
+  pem_state: "none" | "mild" | "moderate" | "severe";
+}
+
 export interface Profile {
   conditions: ConditionKey[];
   sessionsPerWeek: number;
   minutesPerSession: number;
+  /** @deprecated v2.1 — superseded by systemic.today_state === "flare". */
   flareToday: boolean;
   practiceTime: PracticeTime;
+  /** @deprecated v2.1 — superseded by systemic.today_state. */
   energyLevel: EnergyLevel;
   closingPreference: "savasana" | "meditation" | "body_rest";
+  /** Number of fast-track (Starter) sessions completed since onboarding. */
+  fast_track_session_count?: number;
+  /** Unified systemic onboarding block (v2.1). */
+  systemic?: SystemicProfile;
+  /** "quick" = Starter / fast-track, "full" = full systemic onboarding. */
+  assessment_type?: "quick" | "full";
+  /** Confidence in the captured profile. */
+  confidence_level?: "low" | "medium" | "high";
   irritability?: number;
   acuity?: "high" | "medium" | "low" | "unknown";
   mode?: "normal" | "easier" | "flare";
@@ -144,6 +171,7 @@ export const DEFAULT_APP_STATE: AppState = {
     practiceTime: "afternoon",
     energyLevel: "medium",
     closingPreference: "savasana",
+    fast_track_session_count: 0,
   },
   assessments: [],
   exerciseLibrary: [],
