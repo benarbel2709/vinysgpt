@@ -23,7 +23,7 @@ type VideoRow = {
   created_at: string;
 };
 
-const MAX_BYTES = 50 * 1024 * 1024; // 50 MB
+const MAX_BYTES = 100 * 1024 * 1024; // 100 MB
 
 export default function AdminVideos() {
   const { user } = useAuthContext();
@@ -95,7 +95,7 @@ export default function AdminVideos() {
     if (file.size > MAX_BYTES) {
       toast({
         title: "File too large",
-        description: `Max 50 MB. This file is ${(file.size / 1024 / 1024).toFixed(1)} MB.`,
+        description: `Max 100 MB. This file is ${(file.size / 1024 / 1024).toFixed(1)} MB.`,
         variant: "destructive",
       });
       return;
@@ -190,7 +190,7 @@ export default function AdminVideos() {
         <div>
           <h1 className="text-2xl font-medium">Exercise videos</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Upload one MP4 per exercise. Max 50 MB. Recommended: 720p H.264, ~1.5 Mbps.
+            Upload one MP4 per exercise. Max 100 MB. Recommended: 720p H.264, ~1.5 Mbps.
           </p>
           <div className="flex items-center gap-3 mt-3 text-sm text-muted-foreground">
             <Badge variant="secondary">{totalUploaded} / {exerciseMap.size} uploaded</Badge>
