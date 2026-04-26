@@ -158,11 +158,11 @@ export default function OnboardingWizard() {
   const [qaStep, setQaStep] = useState(1); // 1-5
   // Unified systemic 5-question block (v2.1)
   const [systemicStep, setSystemicStep] = useState<number>(1); // 1..5
-  const [sysSeverity, setSysSeverity] = useState<number>(0); // 1..5
-  const [sysTriggers, setSysTriggers] = useState<string[]>([]);
-  const [sysRecoveryPattern, setSysRecoveryPattern] = useState<"" | "fast" | "moderate" | "slow" | "pem">("");
-  const [sysTodayState, setSysTodayState] = useState<"" | "good" | "baseline" | "low" | "flare">("");
-  const [sysTodayRedFlags, setSysTodayRedFlags] = useState<string[]>([]);
+  const [sysSeverity, setSysSeverity] = useState<"" | "mild" | "moderate" | "significant" | "severe">("");
+  const [sysTriggers, setSysTriggers] = useState<Array<"effort" | "duration" | "stress" | "poor_sleep" | "upright" | "breathing" | "sensory">>([]);
+  const [sysRecoveryPattern, setSysRecoveryPattern] = useState<"" | "better" | "same_day" | "worse_later" | "crash">("");
+  const [sysTodayState, setSysTodayState] = useState<"" | "better" | "same" | "worse" | "much_worse">("");
+  const [sysTodayRedFlags, setSysTodayRedFlags] = useState<Array<"dizziness" | "sob" | "chest_pain" | "flare">>([]);
 
   const toggle = useCallback((c: ConditionKey) => {
     setSelected((p) => (p.includes(c) ? p.filter((x) => x !== c) : [...p, c]));
