@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * TTS hook using ElevenLabs via the Supabase edge function.
@@ -50,6 +50,18 @@ export function useTTS() {
       setIsLoading(true);
 
       try {
+        // Forward the user's session JWT — the TTS endpoint requires auth
+        // (it calls paid ElevenLabs API). Guests have no session and will be 401'd.
+        const { data: { session } } = await supabase.auth.getSession();
+        const jwt = session?.access_token;
+        if (!jwt) {
+          // No session → don't even try; trip breaker silently after a few tries
+          failCountRef.current += 1;
+          if (failCountRef.current >= 3) permanentlyFailedRef.current = true;
+          setIsLoading(false);
+          return;
+        }
+
         const response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tts`,
           {
@@ -57,7 +69,7 @@ export function useTTS() {
             headers: {
               "Content-Type": "application/json",
               apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+              Authorization: `Bearer ${jwt}`,
             },
             body: JSON.stringify({ text }),
             signal: controller.signal,
