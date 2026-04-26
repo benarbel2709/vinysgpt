@@ -203,9 +203,17 @@ export default function Workout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playableSession]);
 
-  const isSoloSession = sessionId?.startsWith("solo_") ?? false;
-  const exercises = playableSession?.exercises || [];
-  const sessionDurationMinutes = playableSession?.durationMinutes || state.profile.minutesPerSession || 20;
+  // ─── v2.1 Prompt 3: persist this session's pose IDs as lastSessionPoseIds ──
+  useEffect(() => {
+    const ex = playableSession?.exercises;
+    if (!ex || ex.length === 0) return;
+    const ids = ex.map(e => e.id);
+    const prev = state.profile.lastSessionPoseIds ?? [];
+    if (prev.length === ids.length && prev.every((v, i) => v === ids[i])) return;
+    updateProfile({ lastSessionPoseIds: ids });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playableSession]);
+
 
   // Restore position from sessionStorage if available
   const savedPos = (() => {
