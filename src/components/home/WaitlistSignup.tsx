@@ -24,17 +24,12 @@ export default function WaitlistSignup() {
 
     setStatus("loading");
     try {
-      const { error } = await supabase
-        .from("waitlist_signups")
-        .insert({ email: result.data });
-
-      if (error) {
-        if (error.code === "23505") {
-          setStatus("success"); // already signed up — treat as success
-        } else {
-          setErrorMsg("Something went wrong. Please try again.");
-          setStatus("error");
-        }
+      const { data, error } = await supabase.functions.invoke("waitlist-signup", {
+        body: { email: result.data },
+      });
+      if (error || !data?.ok) {
+        setErrorMsg("Something went wrong. Please try again.");
+        setStatus("error");
       } else {
         setStatus("success");
       }
