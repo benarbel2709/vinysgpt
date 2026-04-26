@@ -422,7 +422,55 @@ export default function OnboardingWizard() {
     navigate("/plan");
   };
 
-  const handleNext = () => {
+  // ── Prompt 5 Piece B: Fast Track systemic completion ──
+  const handleFastTrackSystemicComplete = () => {
+    if (!systemicConditionKey) return;
+    updateProfile({
+      conditions: [systemicConditionKey],
+      sessionsPerWeek: 3,
+      minutesPerSession: 20,
+      practiceTime: "morning",
+      closingPreference: "savasana",
+      availableEquipment: ["mat"],
+      restrictions: [],
+      diagnoses: [],
+      diagnosticResult: { area: 'SYSTEMIC', primary: 'ST', secondary: null },
+      diagnosticArea: 'SYSTEMIC',
+      diagnosticProfile: 'ST',
+      assessment_type: "quick",
+      confidence_level: "low",
+      fast_track_session_count: 0,
+      systemic: {
+        severity: sysSeverity as Exclude<typeof sysSeverity, "">,
+        triggers: [], // Fast Track skips Q2
+        recovery_pattern: sysRecoveryPattern as Exclude<typeof sysRecoveryPattern, "">,
+        today_state: sysTodayState as Exclude<typeof sysTodayState, "">,
+        today_red_flags: sysTodayRedFlags,
+        tier_history: [],
+        pem_state: "normal",
+        prev_session_at: undefined,
+        clean_streak: 0,
+      },
+    } as any);
+
+    const assessmentId = `assessment_${Date.now()}`;
+    const assessment: Assessment = {
+      id: assessmentId, createdAt: new Date().toISOString(), type: "generic",
+      data: { mainIssue: systemicConditionKey, pain: 5, limits: "", equipment: ["mat"], redFlags: [] },
+    };
+    updateState({
+      disclaimerAccepted: true,
+      onboardingCompleted: true,
+      assessments: [...state.assessments, assessment],
+      userProfile: [],
+      stage: 1,
+      session_count: 0,
+      experienceLevel: 'beginner',
+      sessionDuration: 20,
+    });
+    trackEvent("fast_track_systemic_completed", { condition: systemicConditionKey });
+    navigate("/plan");
+  };
     if (step === 0 && selectedBodyZones.length > 0 && !isSystemicFlow) {
       setSelectedArea(selectedBodyZones[0]);
       setStep(1);
