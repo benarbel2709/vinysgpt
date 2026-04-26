@@ -594,7 +594,7 @@ export default function OnboardingWizard() {
       {/* ── HEADER (logo + stepper + X in one row) ── */}
       <header className="shrink-0 z-50 w-full bg-background" style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
         <div className="flex items-center h-[56px] px-6 lg:px-[100px]">
-          {step > 0 || step === 10 ? (
+          {step > 0 || step === 10 || step === 11 ? (
             <button
               onClick={handleBack}
               className="flex items-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors p-2 -ml-2"
