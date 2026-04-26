@@ -97,6 +97,10 @@ export interface SystemicProfile {
   today_red_flags: RedFlag[];
   tier_history: { date: string; tier: Tier }[];
   pem_state: PemState;
+  /** v2.1 Prompt 4: ISO timestamp of last completed session (for 48h proximity check). */
+  prev_session_at?: string;
+  /** v2.1 Prompt 4: count of consecutive clean sessions (no crash, no much_worse). Default 0. */
+  clean_streak?: number;
 }
 
 export interface Profile {
