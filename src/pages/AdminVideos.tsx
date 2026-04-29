@@ -16,14 +16,14 @@ import { Loader2, Upload, CheckCircle2, ShieldAlert, Search, Trash2 } from "luci
 type VideoRow = {
   id: string;
   exercise_id: string;
-  storage_path: string;
+  bunny_video_guid: string;
   duration_seconds: number | null;
   quality: string | null;
   is_active: boolean;
   created_at: string;
 };
 
-const MAX_BYTES = 100 * 1024 * 1024; // 100 MB
+const MAX_BYTES = 400 * 1024 * 1024; // 400 MB — fits 6-min 1080p H.264
 
 export default function AdminVideos() {
   const { user } = useAuthContext();
@@ -56,12 +56,12 @@ export default function AdminVideos() {
     setLoading(true);
     const { data, error } = await supabase
       .from("exercise_videos")
-      .select("id, exercise_id, storage_path, duration_seconds, quality, is_active, created_at")
+      .select("id, exercise_id, bunny_video_guid, duration_seconds, quality, is_active, created_at")
       .order("created_at", { ascending: false });
     if (error) {
       toast({ title: "Failed to load videos", description: error.message, variant: "destructive" });
     } else {
-      setRows(data ?? []);
+      setRows((data ?? []) as VideoRow[]);
     }
     setLoading(false);
   };
@@ -95,35 +95,22 @@ export default function AdminVideos() {
     if (file.size > MAX_BYTES) {
       toast({
         title: "File too large",
-        description: `Max 100 MB. This file is ${(file.size / 1024 / 1024).toFixed(1)} MB.`,
+        description: `Max 400 MB. This file is ${(file.size / 1024 / 1024).toFixed(1)} MB.`,
         variant: "destructive",
       });
       return;
     }
     setUploadingFor(exerciseId);
     try {
-      const ext = file.name.split(".").pop() || "mp4";
-      const path = `${exerciseId}/${Date.now()}.${ext}`;
+      const form = new FormData();
+      form.append("exercise_id", exerciseId);
+      form.append("file", file);
 
-      const { error: upErr } = await supabase.storage
-        .from("exercise-videos")
-        .upload(path, file, { contentType: file.type, upsert: false });
-      if (upErr) throw upErr;
-
-      // Deactivate any prior video for this exercise (unique-active index requires this)
-      await supabase
-        .from("exercise_videos")
-        .update({ is_active: false })
-        .eq("exercise_id", exerciseId)
-        .eq("is_active", true);
-
-      const { error: insErr } = await supabase.from("exercise_videos").insert({
-        exercise_id: exerciseId,
-        storage_path: path,
-        uploaded_by: user?.id,
-        is_active: true,
+      const { data, error } = await supabase.functions.invoke("bunny-upload", {
+        body: form,
       });
-      if (insErr) throw insErr;
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
 
       invalidateExerciseVideoCache();
       toast({ title: "Uploaded", description: `${exerciseId} ✓` });
@@ -141,16 +128,15 @@ export default function AdminVideos() {
 
   const handleDelete = async (row: VideoRow) => {
     if (!confirm(`Remove video for ${row.exercise_id}?`)) return;
-    const { error: delObj } = await supabase.storage
-      .from("exercise-videos")
-      .remove([row.storage_path]);
-    if (delObj) {
-      toast({ title: "Storage delete failed", description: delObj.message, variant: "destructive" });
-      return;
-    }
-    const { error: delRow } = await supabase.from("exercise_videos").delete().eq("id", row.id);
-    if (delRow) {
-      toast({ title: "Row delete failed", description: delRow.message, variant: "destructive" });
+    const { data, error } = await supabase.functions.invoke("bunny-delete", {
+      body: { row_id: row.id, bunny_video_guid: row.bunny_video_guid },
+    });
+    if (error || (data as any)?.error) {
+      toast({
+        title: "Delete failed",
+        description: error?.message ?? (data as any)?.error ?? "Unknown error",
+        variant: "destructive",
+      });
       return;
     }
     invalidateExerciseVideoCache();
@@ -190,7 +176,7 @@ export default function AdminVideos() {
         <div>
           <h1 className="text-2xl font-medium">Exercise videos</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Upload one MP4 per exercise. Max 100 MB. Recommended: 720p H.264, ~1.5 Mbps.
+            Upload one MP4 per exercise. Max 400 MB. Recommended: 1080p H.264, 1.5–6 min, no audio. Hosted on Bunny Stream.
           </p>
           <div className="flex items-center gap-3 mt-3 text-sm text-muted-foreground">
             <Badge variant="secondary">{totalUploaded} / {exerciseMap.size} uploaded</Badge>
@@ -220,6 +206,7 @@ export default function AdminVideos() {
                   </div>
                   <div className="text-xs text-muted-foreground font-mono mt-0.5">
                     {ex.id} · {ex.category}
+                    {existing && <span className="ml-2 opacity-60">· {existing.bunny_video_guid.slice(0, 8)}…</span>}
                   </div>
                 </div>
 

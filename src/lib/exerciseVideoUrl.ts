@@ -1,41 +1,38 @@
 /**
  * exerciseVideoUrl — single resolver for exercise pose videos.
  *
- * MIGRATION POINT: when moving off Lovable Cloud Storage to Bunny / R2 / Mux,
- * change ONLY this file. The rest of the app calls `getExerciseVideoUrl(id)`
- * and is provider-agnostic.
+ * Backend: Bunny Stream (Pull Zone, public CDN).
+ * The `exercise_videos` table maps exercise_id → bunny_video_guid.
  *
- * Current backend: Lovable Cloud (private "exercise-videos" bucket) + the
- * `exercise_videos` table mapping exercise_id → storage_path.
+ * URL shape (HLS): https://{CDN_HOSTNAME}/{guid}/playlist.m3u8
+ * URL shape (MP4): https://{CDN_HOSTNAME}/{guid}/play_720p.mp4
  *
- * URLs are signed and cached in-memory for ~50 min (signed URLs last 1h).
+ * We return the MP4 URL by default since <video> handles it natively across
+ * all browsers without needing hls.js. Switch to HLS later if we add adaptive
+ * streaming.
  */
 
 import { supabase } from "@/integrations/supabase/client";
 
-type CacheEntry = { url: string; expiresAt: number };
+const BUNNY_CDN_HOSTNAME = "vz-46ec48f5-3df.b-cdn.net"; // public — safe to ship; referrer-locked
 
-const SIGNED_URL_TTL_SECONDS = 60 * 60; // 1 hour
-const CACHE_TTL_MS = 50 * 60 * 1000; // refresh slightly before signed URL expiry
+const guidCache = new Map<string, string | null>(); // exercise_id → bunny_video_guid | null
+let cacheLoaded = false;
 
-const urlCache = new Map<string, CacheEntry>();
-const pathCache = new Map<string, string | null>(); // exercise_id → storage_path | null
-let pathCacheLoaded = false;
-
-async function loadPathCache(): Promise<void> {
-  if (pathCacheLoaded) return;
+async function loadCache(): Promise<void> {
+  if (cacheLoaded) return;
   const { data, error } = await supabase
     .from("exercise_videos")
-    .select("exercise_id, storage_path")
+    .select("exercise_id, bunny_video_guid")
     .eq("is_active", true);
   if (error) {
     console.warn("[exerciseVideoUrl] failed to load video map:", error.message);
     return;
   }
   for (const row of data ?? []) {
-    pathCache.set(row.exercise_id, row.storage_path);
+    guidCache.set(row.exercise_id, row.bunny_video_guid);
   }
-  pathCacheLoaded = true;
+  cacheLoaded = true;
 }
 
 /**
@@ -44,39 +41,16 @@ async function loadPathCache(): Promise<void> {
  * bundled universal video.
  */
 export async function getExerciseVideoUrl(
-  exerciseId: string
+  exerciseId: string,
 ): Promise<string | null> {
-  await loadPathCache();
-  const path = pathCache.get(exerciseId);
-  if (!path) return null;
-
-  const cached = urlCache.get(path);
-  if (cached && cached.expiresAt > Date.now()) {
-    return cached.url;
-  }
-
-  const { data, error } = await supabase.storage
-    .from("exercise-videos")
-    .createSignedUrl(path, SIGNED_URL_TTL_SECONDS);
-
-  if (error || !data?.signedUrl) {
-    console.warn(
-      `[exerciseVideoUrl] sign failed for ${exerciseId} (${path}):`,
-      error?.message
-    );
-    return null;
-  }
-
-  urlCache.set(path, {
-    url: data.signedUrl,
-    expiresAt: Date.now() + CACHE_TTL_MS,
-  });
-  return data.signedUrl;
+  await loadCache();
+  const guid = guidCache.get(exerciseId);
+  if (!guid) return null;
+  return `https://${BUNNY_CDN_HOSTNAME}/${guid}/play_720p.mp4`;
 }
 
-/** Force a reload of the exercise → path map (e.g. after admin upload). */
+/** Force a reload of the exercise → guid map (e.g. after admin upload). */
 export function invalidateExerciseVideoCache(): void {
-  pathCache.clear();
-  urlCache.clear();
-  pathCacheLoaded = false;
+  guidCache.clear();
+  cacheLoaded = false;
 }

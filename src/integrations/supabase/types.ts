@@ -40,6 +40,7 @@ export type Database = {
       }
       exercise_videos: {
         Row: {
+          bunny_video_guid: string
           created_at: string
           duration_seconds: number | null
           exercise_id: string
@@ -47,11 +48,11 @@ export type Database = {
           is_active: boolean
           notes: string | null
           quality: string | null
-          storage_path: string
           updated_at: string
           uploaded_by: string | null
         }
         Insert: {
+          bunny_video_guid: string
           created_at?: string
           duration_seconds?: number | null
           exercise_id: string
@@ -59,11 +60,11 @@ export type Database = {
           is_active?: boolean
           notes?: string | null
           quality?: string | null
-          storage_path: string
           updated_at?: string
           uploaded_by?: string | null
         }
         Update: {
+          bunny_video_guid?: string
           created_at?: string
           duration_seconds?: number | null
           exercise_id?: string
@@ -71,7 +72,6 @@ export type Database = {
           is_active?: boolean
           notes?: string | null
           quality?: string | null
-          storage_path?: string
           updated_at?: string
           uploaded_by?: string | null
         }
