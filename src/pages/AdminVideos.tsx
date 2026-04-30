@@ -241,6 +241,20 @@ export default function AdminVideos() {
                   <div className="flex items-center gap-2">
                     <span className="font-medium truncate">{ex.name_he}</span>
                     {existing && <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />}
+                    {existing && (() => {
+                      const s = statuses[existing.bunny_video_guid];
+                      if (!s) return null;
+                      const variant: "default" | "secondary" | "destructive" =
+                        s.label === "ready" ? "default"
+                        : s.label === "error" || s.label === "upload_failed" ? "destructive"
+                        : "secondary";
+                      const text = s.label === "ready"
+                        ? "ready"
+                        : s.encodeProgress > 0 && s.encodeProgress < 100
+                          ? `${s.label} ${s.encodeProgress}%`
+                          : s.label;
+                      return <Badge variant={variant} className="text-xs">{text}</Badge>;
+                    })()}
                   </div>
                   <div className="text-xs text-muted-foreground font-mono mt-0.5">
                     {ex.id} · {ex.category}
