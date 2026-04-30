@@ -36,7 +36,7 @@ function fnHeaders(code: string, json = true): HeadersInit {
 
 export default function UploadPage() {
   const { state } = useApp();
-  const [code, setCode] = useState<string>(() => sessionStorage.getItem(SS_KEY) ?? "");
+  const [code, setCode] = useState<string>(() => localStorage.getItem(SS_KEY) ?? "");
   const [unlocked, setUnlocked] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [rows, setRows] = useState<VideoRow[]>([]);
@@ -63,11 +63,11 @@ export default function UploadPage() {
       });
       const data = await r.json().catch(() => ({}));
       if (r.ok && data?.ok) {
-        sessionStorage.setItem(SS_KEY, c);
+        localStorage.setItem(SS_KEY, c);
         setUnlocked(true);
         await refresh(c);
       } else {
-        sessionStorage.removeItem(SS_KEY);
+        localStorage.removeItem(SS_KEY);
         setUnlocked(false);
         if (!silent) {
           toast({
@@ -233,7 +233,7 @@ export default function UploadPage() {
   };
 
   const signOut = () => {
-    sessionStorage.removeItem(SS_KEY);
+    localStorage.removeItem(SS_KEY);
     setCode("");
     setUnlocked(false);
     setRows([]);
