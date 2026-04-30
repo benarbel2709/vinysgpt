@@ -33,6 +33,7 @@ const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Admin = lazy(() => import("./pages/Admin"));
 const AdminVideos = lazy(() => import("./pages/AdminVideos"));
+const UploadPage = lazy(() => import("./pages/UploadPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const DevExportEngineData = lazy(() => import("./pages/DevExportEngineData"));
 const About = lazy(() => import("./pages/About"));
