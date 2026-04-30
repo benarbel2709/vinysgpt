@@ -3,6 +3,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { buildCorsHeaders } from "../_shared/cors.ts";
+import { authorizeUploader } from "../_shared/uploadAuth.ts";
 
 const BUNNY_LIBRARY_ID = Deno.env.get("BUNNY_STREAM_LIBRARY_ID")!;
 const BUNNY_API_KEY = Deno.env.get("BUNNY_STREAM_API_KEY")!;
@@ -12,24 +13,8 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
 
   try {
-    const auth = req.headers.get("Authorization");
-    if (!auth) return json({ error: "unauthorized" }, 401, cors);
-
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: auth } } },
-    );
-
-    const { data: userData } = await supabase.auth.getUser();
-    const user = userData?.user;
-    if (!user) return json({ error: "unauthorized" }, 401, cors);
-
-    const { data: isAdmin } = await supabase.rpc("has_role", {
-      _user_id: user.id,
-      _role: "admin",
-    });
-    if (!isAdmin) return json({ error: "forbidden" }, 403, cors);
+    const auth = await authorizeUploader(req);
+    if (!auth.ok) return json({ error: auth.error }, auth.status, cors);
 
     const form = await req.formData();
     const exerciseId = String(form.get("exercise_id") ?? "");
