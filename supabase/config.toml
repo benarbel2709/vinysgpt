@@ -2,3 +2,6 @@ project_id = "nxlylxjiagleoasnzlsk"
 
 [functions.bunny-config]
 verify_jwt = false
+
+[functions.bunny-status]
+verify_jwt = false
