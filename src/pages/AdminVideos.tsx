@@ -94,6 +94,41 @@ export default function AdminVideos() {
     );
   }, [exerciseMap, search]);
 
+  // Poll Bunny encoding status for uploaded videos. Refreshes every 15s while
+  // any video is not yet 'ready', then stops.
+  useEffect(() => {
+    const guids = Array.from(uploadedByExercise.values()).map((r) => r.bunny_video_guid);
+    if (guids.length === 0) {
+      setStatuses({});
+      return;
+    }
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const poll = async () => {
+      const { data, error } = await supabase.functions.invoke("bunny-status", {
+        body: { guids },
+      });
+      if (cancelled) return;
+      if (!error && (data as any)?.statuses) {
+        const next = (data as any).statuses as Record<
+          string,
+          { status: number; label: string; encodeProgress: number }
+        >;
+        setStatuses(next);
+        const allReady = Object.values(next).every(
+          (s) => s.label === "ready" || s.label === "error" || s.label === "upload_failed",
+        );
+        if (!allReady) timer = setTimeout(poll, 15000);
+      }
+    };
+    poll();
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [uploadedByExercise]);
+
   const handleUpload = async (exerciseId: string, file: File) => {
     if (file.size > MAX_BYTES) {
       toast({
