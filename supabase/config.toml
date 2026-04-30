@@ -5,3 +5,15 @@ verify_jwt = false
 
 [functions.bunny-status]
 verify_jwt = false
+
+[functions.bunny-list]
+verify_jwt = false
+
+[functions.upload-verify]
+verify_jwt = false
+
+[functions.bunny-upload]
+verify_jwt = false
+
+[functions.bunny-delete]
+verify_jwt = false
