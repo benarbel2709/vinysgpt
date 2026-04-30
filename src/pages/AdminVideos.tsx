@@ -35,6 +35,9 @@ export default function AdminVideos() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [uploadingFor, setUploadingFor] = useState<string | null>(null);
+  const [statuses, setStatuses] = useState<
+    Record<string, { status: number; label: string; encodeProgress: number }>
+  >({});
 
   useEffect(() => {
     if (!user) {
@@ -90,6 +93,41 @@ export default function AdminVideos() {
       (e) => e.id.toLowerCase().includes(q) || e.name_he.toLowerCase().includes(q),
     );
   }, [exerciseMap, search]);
+
+  // Poll Bunny encoding status for uploaded videos. Refreshes every 15s while
+  // any video is not yet 'ready', then stops.
+  useEffect(() => {
+    const guids = Array.from(uploadedByExercise.values()).map((r) => r.bunny_video_guid);
+    if (guids.length === 0) {
+      setStatuses({});
+      return;
+    }
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const poll = async () => {
+      const { data, error } = await supabase.functions.invoke("bunny-status", {
+        body: { guids },
+      });
+      if (cancelled) return;
+      if (!error && (data as any)?.statuses) {
+        const next = (data as any).statuses as Record<
+          string,
+          { status: number; label: string; encodeProgress: number }
+        >;
+        setStatuses(next);
+        const allReady = Object.values(next).every(
+          (s) => s.label === "ready" || s.label === "error" || s.label === "upload_failed",
+        );
+        if (!allReady) timer = setTimeout(poll, 15000);
+      }
+    };
+    poll();
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [uploadedByExercise]);
 
   const handleUpload = async (exerciseId: string, file: File) => {
     if (file.size > MAX_BYTES) {
@@ -203,6 +241,20 @@ export default function AdminVideos() {
                   <div className="flex items-center gap-2">
                     <span className="font-medium truncate">{ex.name_he}</span>
                     {existing && <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />}
+                    {existing && (() => {
+                      const s = statuses[existing.bunny_video_guid];
+                      if (!s) return null;
+                      const variant: "default" | "secondary" | "destructive" =
+                        s.label === "ready" ? "default"
+                        : s.label === "error" || s.label === "upload_failed" ? "destructive"
+                        : "secondary";
+                      const text = s.label === "ready"
+                        ? "ready"
+                        : s.encodeProgress > 0 && s.encodeProgress < 100
+                          ? `${s.label} ${s.encodeProgress}%`
+                          : s.label;
+                      return <Badge variant={variant} className="text-xs">{text}</Badge>;
+                    })()}
                   </div>
                   <div className="text-xs text-muted-foreground font-mono mt-0.5">
                     {ex.id} · {ex.category}
