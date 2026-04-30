@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
     const { error: insErr } = await admin.from("exercise_videos").insert({
       exercise_id: exerciseId,
       bunny_video_guid: guid,
-      uploaded_by: user.id,
+      uploaded_by: auth.userId,
       is_active: true,
     });
     if (insErr) {
