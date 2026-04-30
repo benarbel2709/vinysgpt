@@ -35,6 +35,9 @@ export default function AdminVideos() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [uploadingFor, setUploadingFor] = useState<string | null>(null);
+  const [statuses, setStatuses] = useState<
+    Record<string, { status: number; label: string; encodeProgress: number }>
+  >({});
 
   useEffect(() => {
     if (!user) {
