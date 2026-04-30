@@ -6,11 +6,19 @@
  * The CDN hostname is fetched once from the `bunny-config` edge function
  * (sourced from the BUNNY_STREAM_CDN_HOSTNAME secret) so it's not hardcoded.
  *
- * URL shape (MP4 720p): https://{cdn}/{guid}/play_720p.mp4
- * (Bunny auto-encodes a 720p MP4 fallback alongside HLS.)
+ * URL shapes:
+ *   HLS (preferred):     https://{cdn}/{guid}/playlist.m3u8
+ *   MP4 720p fallback:   https://{cdn}/{guid}/play_720p.mp4
+ *   Poster:              https://{cdn}/{guid}/thumbnail.jpg
  */
 
 import { supabase } from "@/integrations/supabase/client";
+
+export type ExerciseVideoSources = {
+  hls: string;
+  mp4: string;
+  poster: string;
+};
 
 const guidCache = new Map<string, string | null>();
 let cacheLoaded = false;
@@ -56,17 +64,32 @@ async function loadCache(): Promise<void> {
 }
 
 /**
- * Resolve a streamable URL for an exercise's pose video, or null if none uploaded.
+ * Resolve full source set (HLS + MP4 fallback + poster) for an exercise's pose video,
+ * or null if no video has been uploaded.
  */
-export async function getExerciseVideoUrl(
+export async function getExerciseVideoSources(
   exerciseId: string,
-): Promise<string | null> {
+): Promise<ExerciseVideoSources | null> {
   await loadCache();
   const guid = guidCache.get(exerciseId);
   if (!guid) return null;
   const host = await getCdnHostname();
   if (!host) return null;
-  return `https://${host}/${guid}/play_720p.mp4`;
+  return {
+    hls: `https://${host}/${guid}/playlist.m3u8`,
+    mp4: `https://${host}/${guid}/play_720p.mp4`,
+    poster: `https://${host}/${guid}/thumbnail.jpg`,
+  };
+}
+
+/**
+ * Backwards-compatible: resolve only the MP4 URL.
+ */
+export async function getExerciseVideoUrl(
+  exerciseId: string,
+): Promise<string | null> {
+  const sources = await getExerciseVideoSources(exerciseId);
+  return sources?.mp4 ?? null;
 }
 
 /** Force a reload of the exercise → guid map (e.g. after admin upload). */
