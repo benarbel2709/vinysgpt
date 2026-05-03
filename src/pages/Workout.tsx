@@ -342,18 +342,15 @@ export default function Workout() {
     if (isPlaying && !isEnded && !showPreview) { v.play().catch(() => {}); } else { v.pause(); }
   }, [isPlaying, isEnded, showPreview]);
 
-  // TTS
-  const speakExercise = useCallback((exercise: PlayableExercise) => {
-    const text = `${exercise.name}. ${exercise.activeModification || ""}`;
-    speak(text);
-  }, [speak]);
-
+  // TTS during exercises is disabled — videos carry their own narration audio.
+  // Sync video mute state with the user's mute toggle so the toggle still works.
   useEffect(() => {
-    const ex = exercises[activeIdx];
-    if (isMuted || !ex || isEnded) { stopTTS(); return; }
-    speakExercise(ex);
-    return () => { stopTTS(); };
-  }, [activeIdx, isMuted, isEnded]); // eslint-disable-line react-hooks/exhaustive-deps
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = isMuted;
+  }, [isMuted, activeIdx]);
+
+  useEffect(() => { stopTTS(); }, [activeIdx, isEnded, stopTTS]);
 
   useEffect(() => {
     const handleVisibility = () => { if (document.hidden) stopTTS(); };
@@ -550,7 +547,7 @@ export default function Workout() {
         <video
           ref={videoRef}
           src={universalVideo}
-          autoPlay loop muted playsInline
+          autoPlay loop playsInline
           preload="auto"
           onCanPlay={() => setVideoReady(true)}
           onError={(e) => {
