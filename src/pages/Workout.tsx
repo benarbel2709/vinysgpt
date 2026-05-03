@@ -547,7 +547,7 @@ export default function Workout() {
         <video
           ref={videoRef}
           src={universalVideo}
-          autoPlay loop muted playsInline
+          autoPlay loop playsInline
           preload="auto"
           onCanPlay={() => setVideoReady(true)}
           onError={(e) => {
