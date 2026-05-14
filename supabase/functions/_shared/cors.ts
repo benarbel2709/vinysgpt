@@ -3,6 +3,8 @@
 const ALLOWED_ORIGINS = new Set([
   "https://vinys.app",
   "https://www.vinys.app",
+  "https://vinys.life",
+  "https://www.vinys.life",
   "https://vinysgpt.lovable.app",
   "https://id-preview--29005e22-3838-404d-b469-c7893db0b285.lovable.app",
   "http://localhost:5173",
@@ -19,10 +21,9 @@ const BASE_HEADERS = {
 
 export function buildCorsHeaders(req: Request): Record<string, string> {
   const origin = req.headers.get("Origin") ?? "";
-  // Allow exact-match origins; also allow any *.lovable.app preview subdomain.
   const allow =
     ALLOWED_ORIGINS.has(origin) || /^https:\/\/[a-z0-9-]+\.lovable\.app$/i.test(origin)
       ? origin
-      : "https://vinys.app"; // safe default — non-allowlisted origins get blocked by browser
+      : "https://vinys.app";
   return { ...BASE_HEADERS, "Access-Control-Allow-Origin": allow };
 }
