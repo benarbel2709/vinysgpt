@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Large binary video files
+*.mp4
+
+# Environment variables — never commit these
+.env
+.env.*
+!.env.example
