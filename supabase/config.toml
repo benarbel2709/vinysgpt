@@ -1,19 +1,19 @@
 project_id = "nxlylxjiagleoasnzlsk"
 
 [functions.bunny-config]
-verify_jwt = false
+verify_jwt = true
 
 [functions.bunny-status]
-verify_jwt = false
+verify_jwt = true
 
 [functions.bunny-list]
-verify_jwt = false
+verify_jwt = true
 
 [functions.upload-verify]
-verify_jwt = false
+verify_jwt = true
 
 [functions.bunny-upload]
-verify_jwt = false
+verify_jwt = true
 
 [functions.bunny-delete]
-verify_jwt = false
+verify_jwt = true

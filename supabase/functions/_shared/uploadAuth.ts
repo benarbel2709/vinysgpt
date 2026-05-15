@@ -1,20 +1,12 @@
 // Shared authorization for video-management edge functions.
-// Accepts EITHER a logged-in admin (via Authorization header) OR a valid
-// passcode (via x-upload-code header) matching the UPLOAD_ACCESS_CODE secret.
+// Requires a logged-in admin via Authorization header.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
-export type AuthOk = { ok: true; userId: string | null; mode: "admin" | "passcode" };
+export type AuthOk = { ok: true; userId: string; mode: "admin" };
 export type AuthFail = { ok: false; status: number; error: string };
 
 export async function authorizeUploader(req: Request): Promise<AuthOk | AuthFail> {
-  // 1. Passcode path — fully anonymous editors via /upload
-  const code = req.headers.get("x-upload-code");
-  const expected = Deno.env.get("UPLOAD_ACCESS_CODE");
-  if (code && expected && code === expected) {
-    return { ok: true, userId: null, mode: "passcode" };
-  }
-
-  // 2. Authenticated admin path — /admin/videos
+  // Authenticated admin path — /admin/videos and /upload
   const auth = req.headers.get("Authorization");
   if (!auth) return { ok: false, status: 401, error: "unauthorized" };
 

@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuthContext } from "@/context/AuthContext";
 import { useApp } from "@/context/AppContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { invalidateExerciseVideoCache } from "@/lib/exerciseVideoUrl";
-import { Loader2, Upload, CheckCircle2, Search, Trash2, Lock, LogOut } from "lucide-react";
+import { Loader2, Upload, CheckCircle2, Search, Trash2, ShieldAlert } from "lucide-react";
 
 type VideoRow = {
   id: string;
@@ -20,25 +23,11 @@ type VideoRow = {
 };
 
 const MAX_BYTES = 600 * 1024 * 1024; // 600 MB
-const SS_KEY = "vinys_upload_code";
-
-const FN_BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
-const ANON = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-function fnHeaders(code: string, json = true): HeadersInit {
-  const h: Record<string, string> = {
-    apikey: ANON,
-    "x-upload-code": code,
-  };
-  if (json) h["Content-Type"] = "application/json";
-  return h;
-}
-
 export default function UploadPage() {
   const { state } = useApp();
-  const [code, setCode] = useState<string>(() => localStorage.getItem(SS_KEY) ?? "");
-  const [unlocked, setUnlocked] = useState(false);
-  const [verifying, setVerifying] = useState(false);
+  const { user } = useAuthContext();
+  const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [rows, setRows] = useState<VideoRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -47,60 +36,12 @@ export default function UploadPage() {
     Record<string, { status: number; label: string; encodeProgress: number }>
   >({});
 
-  // Auto-verify if a stored code is present
-  useEffect(() => {
-    if (code && !unlocked) verify(code, true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const verify = async (c: string, silent = false) => {
-    setVerifying(true);
-    try {
-      const r = await fetch(`${FN_BASE}/upload-verify`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", apikey: ANON },
-        body: JSON.stringify({ code: c }),
-      });
-      const data = await r.json().catch(() => ({}));
-      if (r.ok && data?.ok) {
-        localStorage.setItem(SS_KEY, c);
-        setUnlocked(true);
-        await refresh(c);
-      } else {
-        localStorage.removeItem(SS_KEY);
-        setUnlocked(false);
-        if (!silent) {
-          toast({
-            title: "Wrong passcode",
-            description: data?.error ?? "Try again.",
-            variant: "destructive",
-          });
-        }
-      }
-    } catch (e: any) {
-      if (!silent) {
-        toast({
-          title: "Verification failed",
-          description: e?.message ?? "Network error",
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setVerifying(false);
-    }
-  };
-
-  const refresh = async (c = code) => {
+  const refresh = async () => {
     setLoading(true);
     try {
-      const r = await fetch(`${FN_BASE}/bunny-list`, {
-        method: "POST",
-        headers: fnHeaders(c),
-        body: "{}",
-      });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(data?.error ?? "Failed to load");
-      setRows((data.rows ?? []) as VideoRow[]);
+      const { data, error } = await supabase.functions.invoke("bunny-list", { body: {} });
+      if (error) throw error;
+      setRows((((data as any)?.rows ?? []) as VideoRow[]));
     } catch (e: any) {
       toast({ title: "Failed to load videos", description: e?.message, variant: "destructive" });
     } finally {
@@ -133,7 +74,7 @@ export default function UploadPage() {
 
   // Poll Bunny encoding status
   useEffect(() => {
-    if (!unlocked) return;
+    if (!isAdmin) return;
     const guids = Array.from(uploadedByExercise.values()).map((r) => r.bunny_video_guid);
     if (guids.length === 0) {
       setStatuses({});
@@ -143,27 +84,18 @@ export default function UploadPage() {
     let timer: ReturnType<typeof setTimeout> | null = null;
 
     const poll = async () => {
-      try {
-        const r = await fetch(`${FN_BASE}/bunny-status`, {
-          method: "POST",
-          headers: fnHeaders(code),
-          body: JSON.stringify({ guids }),
-        });
-        if (cancelled) return;
-        const data = await r.json().catch(() => ({}));
-        if (r.ok && data?.statuses) {
-          const next = data.statuses as Record<
-            string,
-            { status: number; label: string; encodeProgress: number }
-          >;
-          setStatuses(next);
-          const allReady = Object.values(next).every(
-            (s) => s.label === "ready" || s.label === "error" || s.label === "upload_failed",
-          );
-          if (!allReady) timer = setTimeout(poll, 15000);
-        }
-      } catch {
-        /* ignore polling errors */
+      const { data, error } = await supabase.functions.invoke("bunny-status", { body: { guids } });
+      if (cancelled) return;
+      if (!error && (data as any)?.statuses) {
+        const next = (data as any).statuses as Record<
+          string,
+          { status: number; label: string; encodeProgress: number }
+        >;
+        setStatuses(next);
+        const allReady = Object.values(next).every(
+          (s) => s.label === "ready" || s.label === "error" || s.label === "upload_failed",
+        );
+        if (!allReady) timer = setTimeout(poll, 15000);
       }
     };
     poll();
@@ -171,7 +103,7 @@ export default function UploadPage() {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [uploadedByExercise, unlocked, code]);
+  }, [uploadedByExercise, isAdmin]);
 
   const handleUpload = async (exerciseId: string, file: File) => {
     if (!file.name.toLowerCase().endsWith(".mp4")) {
@@ -192,13 +124,9 @@ export default function UploadPage() {
       form.append("exercise_id", exerciseId);
       form.append("file", file);
 
-      const r = await fetch(`${FN_BASE}/bunny-upload`, {
-        method: "POST",
-        headers: fnHeaders(code, false), // FormData sets its own Content-Type
-        body: form,
-      });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok || data?.error) throw new Error(data?.error ?? `HTTP ${r.status}`);
+      const { data, error } = await supabase.functions.invoke("bunny-upload", { body: form });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
 
       invalidateExerciseVideoCache();
       toast({ title: "Uploaded", description: `${exerciseId} ✓` });
@@ -217,13 +145,8 @@ export default function UploadPage() {
   const handleDelete = async (row: VideoRow) => {
     if (!confirm(`Remove video for ${row.exercise_id}?`)) return;
     try {
-      const r = await fetch(`${FN_BASE}/bunny-delete`, {
-        method: "POST",
-        headers: fnHeaders(code),
-        body: JSON.stringify({ row_id: row.id, bunny_video_guid: row.bunny_video_guid }),
-      });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok || data?.error) throw new Error(data?.error ?? `HTTP ${r.status}`);
+      const { data, error } = await supabase.functions.invoke("bunny-delete", { body: { row_id: row.id, bunny_video_guid: row.bunny_video_guid } });
+      if (error || (data as any)?.error) throw new Error(error?.message ?? (data as any)?.error ?? "Unknown error");
       invalidateExerciseVideoCache();
       toast({ title: "Removed", description: row.exercise_id });
       await refresh();
@@ -232,45 +155,25 @@ export default function UploadPage() {
     }
   };
 
-  const signOut = () => {
-    localStorage.removeItem(SS_KEY);
-    setCode("");
-    setUnlocked(false);
-    setRows([]);
-    setStatuses({});
-  };
+  useEffect(() => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    (async () => {
+      const { data } = await (supabase.rpc as any)("has_role", { _user_id: user.id, _role: "admin" });
+      setIsAdmin(!!data);
+      if (data) await refresh();
+    })();
+  }, [user, navigate]);
 
-  // ===== Passcode gate =====
-  if (!unlocked) {
+  if (isAdmin === false) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <Card className="w-full max-w-sm p-6 space-y-4">
-          <div className="flex items-center gap-2">
-            <Lock className="w-5 h-5 text-muted-foreground" />
-            <h1 className="text-lg font-medium">Editor access</h1>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Enter the upload passcode to continue.
-          </p>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (code.trim()) verify(code.trim());
-            }}
-            className="space-y-3"
-          >
-            <Input
-              type="password"
-              autoFocus
-              placeholder="Passcode"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              disabled={verifying}
-            />
-            <Button type="submit" className="w-full" disabled={verifying || !code.trim()}>
-              {verifying ? <Loader2 className="w-4 h-4 animate-spin" /> : "Unlock"}
-            </Button>
-          </form>
+        <Card className="w-full max-w-sm p-6 text-center space-y-3">
+          <ShieldAlert className="w-8 h-8 mx-auto text-muted-foreground" />
+          <h1 className="text-lg font-medium">Admin only</h1>
+          <p className="text-sm text-muted-foreground">You need an admin role to manage exercise videos.</p>
         </Card>
       </div>
     );
@@ -302,9 +205,6 @@ export default function UploadPage() {
               </Badge>
             </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={signOut} className="shrink-0">
-            <LogOut className="w-4 h-4 mr-1" /> Sign out
-          </Button>
         </div>
 
         <div className="relative">
