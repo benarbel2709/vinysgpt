@@ -107,7 +107,7 @@ function AppRoutes() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/admin" element={<AuthGuard><Admin /></AuthGuard>} />
         <Route path="/admin/videos" element={<AuthGuard><AdminVideos /></AuthGuard>} />
-        <Route path="/upload" element={<UploadPage />} />
+        <Route path="/upload" element={<AuthGuard><UploadPage /></AuthGuard>} />
         {import.meta.env.DEV && <Route path="/dev/export-engine-data" element={<DevExportEngineData />} />}
         <Route path="*" element={<NotFound />} />
       </SentryRoutes>
